@@ -63,8 +63,8 @@ ${README_CHARTS}: %/README.md: %/values.yaml %/Chart.yaml %/README.md.gotmpl
 package-all: ${PACKAGE_CHARTS}
 
 # run schema validation
-${VALIDATE_SCHEMA_CHARTS}: validateschema-%: utils/validate.schema.py
-	${PYTHON_CMD} utils/validate.schema.py c $*
+${VALIDATE_SCHEMA_CHARTS}: validateschema-%: ../utils/validate.schema.py
+	${PYTHON_CMD} ../utils/validate.schema.py c $*
 
 # add schema validation as prerequisite for packaging
 $(addprefix package-,${SCHEMA_CHARTS}): package-% : validateschema-%
