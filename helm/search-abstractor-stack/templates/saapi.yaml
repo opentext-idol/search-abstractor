@@ -1,0 +1,104 @@
+# BEGIN COPYRIGHT NOTICE
+# Copyright 2024 Open Text.
+#
+# The only warranties for products and services of Open Text and its affiliates and licensors
+# ("Open Text") are as may be set forth in the express warranty statements accompanying such
+# products and services. Nothing herein should be construed as constituting an additional warranty.
+# Open Text shall not be liable for technical or editorial errors or omissions contained herein.
+# The information contained herein is subject to change without notice.
+#
+# END COPYRIGHT NOTICE
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.saapi.name }}
+
+spec:
+  replicas: {{ .Values.saapi.replicas }}
+  selector:
+    matchLabels:
+      component:  {{ .Values.saapi.name }}
+  template:
+    metadata:
+      labels:
+        component: {{ .Values.saapi.name }}
+    spec:
+      containers:
+        - name: {{ .Values.saapi.name }}
+          image: {{ include "idol-library.idolImage" (dict "root" . "idolImage" .Values.saapi.image) }}
+          imagePullPolicy: {{ .Values.saapi.image.pullPolicy }}
+          ports:
+            - containerPort: 8080
+              name: saapi-port
+          envFrom:
+            - secretRef:
+                name: {{ .Values.saapi.secret }}
+            - configMapRef:
+                name: {{ .Values.saapi.config }}
+          startupProbe:
+{{ include "saapi_probe.api" . | indent 12 }}
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            failureThreshold: 30
+          readinessProbe:
+{{ include "saapi_probe.api" . | indent 12 }}
+            failureThreshold: 2
+          livenessProbe:
+{{ include "saapi_probe.api" . | indent 12 }}
+            periodSeconds: 60
+            failureThreshold: 20
+      imagePullSecrets:
+      {{- range .Values.global.imagePullSecrets }}
+        - name: {{ . }}
+      {{- end }}
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.saapi.service.name | quote }}
+spec:
+  ports:
+  - port: {{ .Values.saapi.service.port }}
+    targetPort: saapi-port
+    name: saapi-port
+  selector:
+    component: {{ .Values.saapi.name | quote }}
+---
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: saapi-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header X-Forwarded-Proto $scheme;
+      proxy_set_header X-Forwarded-Host $host;
+    
+    nginx.ingress.kubernetes.io/server-snippet: |
+      location ~* "^{{ .Values.saapi.ingress.path }}document/(.*)" {
+        set $proxy_upstream_name "{{ .Release.Namespace }}-{{ .Values.saapi.service.name }}-saapi-port";
+        set $proxy_host          $proxy_upstream_name;
+
+        rewrite ^ $request_uri;
+        rewrite "(?i){{ .Values.saapi.ingress.path }}(.*)" /$1 break;
+        proxy_pass http://upstream_balancer$uri;
+      }
+
+spec:
+  rules:
+    - http:
+        paths:
+          - path: {{ .Values.saapi.ingress.path }}(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: {{ .Values.saapi.service.name }}
+                port:
+                  name: saapi-port
+{{- if .Values.saapi.ingress.host }}
+      host: {{ .Values.saapi.ingress.host | quote }}
+{{- end }}
