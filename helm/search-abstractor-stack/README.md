@@ -8,7 +8,7 @@ Provides an IDOL setup for Retrieval-augmented generation (RAG)
 
 | Repository | Name | Version |
 |------------|------|---------|
-| file://../auth | auth(discover-auth) | 0.1.0 |
+| https://raw.githubusercontent.com/opentext-idol/discover-deploy/refactor/auth/helm | auth(discover-auth) | 0.1.0 |
 | https://raw.githubusercontent.com/opentext-idol/idol-containers-toolkit/main/helm | answerserver(idol-answerserver) | 0.2.0 |
 | https://raw.githubusercontent.com/opentext-idol/idol-containers-toolkit/main/helm | community(idol-community) | 0.5.0 |
 | https://raw.githubusercontent.com/opentext-idol/idol-containers-toolkit/main/helm | nifi(idol-nifi) | 0.5.0 |
