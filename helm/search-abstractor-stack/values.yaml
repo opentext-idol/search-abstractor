@@ -133,6 +133,8 @@ community:
 nifi:
   # -- whether to deploy a nifi instance
   enabled: true
+  idolImage:
+    repo: nifi-searchabstractor
   additionalVolumes:
   - name: search-abstractor-nifi-files
     configMap:
