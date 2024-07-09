@@ -15,29 +15,29 @@ Provides an IDOL setup for Retrieval-augmented generation (RAG)
 
 ### Licensing
 
-You must have a valid [IDOL LicenseServer](https://www.microfocus.com/documentation/idol/IDOL_24_3/LicenseServer_24.3_Documentation/Help/Content/Introduction/Introduction.htm) running in order to license the IDOL services. 
+You must have a valid [IDOL LicenseServer](https://www.microfocus.com/documentation/idol/IDOL_24_3/LicenseServer_24.3_Documentation/Help/Content/Introduction/Introduction.htm) running to license the IDOL services. 
 
-To allow the services to communicate with the LicenseServer you should use one of the following:
+To allow the services to communicate with the LicenseServer, use one of the following options:
 
 - Configure and install the [idol-licenseserver](https://github.com/opentext-idol/idol-containers-toolkit/tree/main/helm/idol-licenseserver) chart
- (which will provide an idol-licenseserver Kubernetes service proxying to your actual LicenseServer instance)
-- Set the `licenseServerHostname` value in each of the subchart values e.g. `--set content.licenseServerHostname=my.license.server.instance`
+ (which provides an idol-licenseserver Kubernetes service that proxies to your actual LicenseServer instance)
+- Set the `licenseServerHostname` value in each of the subchart values, for example `--set content.licenseServerHostname=my.license.server.instance`
 
 ### Pull Secrets
 
-In order to pull the container images from the `microfocusidolserver` repository you will need a preexisting `kubernetes.io/dockerconfigjson` Secret with your credentials.
+To pull the container images from the `microfocusidolserver` repository, you need a preexisting `kubernetes.io/dockerconfigjson` Secret with your credentials.
 
-You can create an appropriate secret (for example called `dockerhub-secret`) using:
+You can create an appropriate secret (for example called `dockerhub-secret`) by using the following command:
 
 ```bash
 kubectl create secret docker-registry dockerhub-secret --docker-server=https://index.docker.io/v1/ --docker-username=microfocusidolreadonly --docker-password=<your-apikey>
 ```
 
-See the [Kubernetes documentation](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/#create-a-secret-by-providing-credentials-on-the-command-line) for more details.
+For more details, see the [Kubernetes documentation](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/#create-a-secret-by-providing-credentials-on-the-command-line).
 
 ## Installation
 
-To install the chart with the release name `my-release`, using customized [values](#values) from `my-values.yaml`
+To install the chart with the release name `my-release`, using customized [values](#values) from `my-values.yaml`, use the following command: 
 
 ```bash
 # Add this repository as 'idol-search-abstractor' (can change this name)
@@ -49,7 +49,7 @@ helm install -f my-values.yaml my-release idol-search-abstractor/{{ template "ch
 
 ## Architecture Diagram
 
-This diagram shows the relationships between the Deployments/StatefulSets provisioned by the chart.
+The following diagram shows the relationships between the Deployments/StatefulSets provisioned by the chart.
 
 ```mermaid
 flowchart TB
