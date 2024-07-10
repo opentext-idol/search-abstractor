@@ -181,7 +181,7 @@ saapi:
     repo: search-abstractor-api-service
     # -- The version value to use to construct the container image name: {registry}/{repo}:{version}
     version: "24.3.0"
-     # -- The poligy to use to determine whether to pull the specified image (see https://kubernetes.io/docs/concepts/containers/images/#image-pull-policy)
+     # -- The policy to use to determine whether to pull the specified image (see https://kubernetes.io/docs/concepts/containers/images/#image-pull-policy)
     pullPolicy: Always
   # -- CORS origin values
   allowedOrigins: "http://localhost:8080"
