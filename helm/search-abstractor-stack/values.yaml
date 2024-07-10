@@ -90,7 +90,7 @@ qms:
 # -- `view` subchart values (see https://github.com/opentext-idol/idol-containers-toolkit/tree/main/helm/idol-view#values)
 # @default -- default configuration for search-abstractor view
 view:
-  # -- Whether to deploy a view component
+  # -- Whether to deploy a View component
   enabled: true
   queryserviceACIPort: *queryserviceACIPort
 
