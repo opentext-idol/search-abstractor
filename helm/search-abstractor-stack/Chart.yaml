@@ -52,5 +52,5 @@ dependencies:
 - alias: auth
   condition: auth.enabled
   name: discover-auth
-  repository: https://raw.githubusercontent.com/opentext-idol/discover-deploy/refactor/auth/helm
+  repository: https://raw.githubusercontent.com/opentext-idol/discover-deploy/develop/helm
   version: "0.1.0"

@@ -89,6 +89,9 @@ metadata:
       }
 
 spec:
+  {{- if .Values.saapi.ingress.className }}
+  ingressClassName: {{ .Values.saapi.ingress.className | quote }}
+  {{- end }}
   rules:
     - http:
         paths:

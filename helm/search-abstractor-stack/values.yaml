@@ -210,7 +210,7 @@ saapi:
     # -- The LLM revision to use (branch, tag, or commitid)
     modelRevision: "9925900"
     # -- HuggingFace token to access the model/tokenizer to use for the RAG answer system
-    HFToken: 
+    HFToken: ""
   # -- `configmap` name
   config: api-config
   # -- Secret name for auth credentials
@@ -220,6 +220,8 @@ saapi:
     path: /api/
     # -- Optional ingress host (see https://kubernetes.io/docs/concepts/services-networking/ingress/#ingress-rules).
     host: ""
+    # -- Optional parameter to override the default ingress class
+    className: ""
 
   service:
     # -- Service name
