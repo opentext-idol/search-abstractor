@@ -1,0 +1,281 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": {
+        "base":{
+            "type": "object",
+            "properties": {
+                "global": {
+                    "$ref": "#/$defs/global"
+                },
+                "aes": {
+                    "$ref": "#/$defs/aes"
+                },
+                "content":{
+                    "$ref": "#/$defs/content"
+                },
+                "community":{
+                    "$ref": "#/$defs/community"
+                },
+                "ogs":{
+                    "$ref": "#/$defs/ogs"
+                },
+                "answerserver":{
+                    "$ref": "#/$defs/optional_object"
+                },
+                "view":{
+                    "$ref": "#/$defs/optional_object"
+                },
+                "nifi":{
+                    "$ref": "#/$defs/optional_object"
+                },
+                "qms":{
+                    "$ref": "#/$defs/optional_object"
+                },
+                "auth":{
+                    "$ref": "#/$defs/auth"
+                },
+                "saapi":{
+                    "$ref": "#/$defs/saapi"
+                }
+            },
+            "required": [
+                "aes",
+                "answerserver",
+                "auth",
+                "community",
+                "content",
+                "global",
+                "nifi",
+                "ogs",
+                "qms",
+                "saapi",
+                "view"
+            ],
+            "unevaluatedProperties": false
+        },
+        "global":{
+            "type": "object",
+            "properties":{
+                "idolVersion": {
+                    "type": "string"
+                },
+                "imagePullSecrets": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "$ref": "#/$defs/required_string"
+                    }
+                }
+            },
+            "required":[
+                "imagePullSecrets"
+            ]
+        },
+        "optional_object":{
+            "type": "object",
+            "properties": {
+                "enabled": {
+                    "type": "boolean"
+                }
+            },
+            "required":[
+                "enabled"
+            ]
+        },
+        "required_string":{
+            "type": "string",
+            "minLength": 1
+        },
+        "aes":{
+            "type": "object",
+            "properties": {
+                "key": {
+                    "$ref": "#/$defs/required_string"
+                }
+            },
+            "required":[
+                "key"
+            ]
+        },
+        "content":{
+            "type": "object",
+            "properties": {
+                "cfg":{
+                    "type": "object",
+                    "properties":{
+                        "fieldprocessing": {
+                            "type": "string"
+                        },
+                        "security": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "allOf":[
+                { "$ref": "#/$defs/optional_object" }
+            ]
+        },
+        "community":{
+            "type": "object",
+            "properties": {
+                "cfg":{
+                    "type": "object",
+                    "properties":{
+                        "security": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "allOf":[
+                { "$ref": "#/$defs/optional_object" }
+            ]
+        },
+        "ogs":{
+            "type": "object",
+            "properties": {
+                "cfg":{
+                    "type": "object",
+                    "properties":{
+                        "repositories": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "allOf":[
+                { "$ref": "#/$defs/optional_object" }
+            ]
+        },
+        "auth":{
+            "type": "object",
+            "properties": {
+                "realm": { "type": "string" },
+                "apiClient": { "type": "string" },
+                "apiClientSecret": { "type": "string" },
+                "uiClient": { "type": "string" },
+                "uiUrls": { "type": "string" },
+                "baseRealmRoles": { "type": "string" },
+                "tokenExpiryTimeSeconds": { "type": "integer" }
+            },
+            "allOf":[
+                { "$ref": "#/$defs/optional_object" }
+            ],
+            "required":[
+                "apiClient",
+                "apiClientSecret",
+                "baseRealmRoles",
+                "realm",
+                "tokenExpiryTimeSeconds",
+                "uiClient",
+                "uiUrls"
+            ]
+        },
+        "saapi":{
+            "type": "object",
+            "properties":{
+                "name": { "$ref": "#/$defs/required_string" },
+                "replicas": { "type": "integer" },
+                "allowedOrigins": { "type": "string" },
+                "backendIdolHost": { "$ref": "#/$defs/required_string" },
+                "backendIdolPort": { "$ref": "#/$defs/required_string" },
+                "config": { "$ref": "#/$defs/required_string" },
+                "secret": { "$ref": "#/$defs/required_string" },
+                "backendApi":{
+                    "type": "object",
+                    "properties":{
+                        "name": { "$ref": "#/$defs/required_string" },
+                        "port": { "type": "integer"},
+                        "ingress": {
+                            "type": "object",
+                            "properties":{
+                                "enabled": { "type": "boolean" },
+                                "host": { "type": "string"},
+                                "className": { "type": "string"}
+                            },
+                            "required":[
+                                "className", "enabled","host"
+                            ],
+                            "unevaluatedProperties": false
+                        }
+                    },
+                    "required":[
+                        "ingress",
+                        "name",
+                        "port"
+                    ],
+                    "unevaluatedProperties": false
+                },
+                "image":{
+                    "type": "object",
+                    "properties":{
+                        "registry": { "type": "string" },
+                        "repo": { "type": "string"},
+                        "version": { "type": "string"},
+                        "pullPolicy": { "type": "string"}
+                    },
+                    "required":[
+                        "registry","repo","version","pullPolicy"
+                    ],
+                    "unevaluatedProperties": false
+                },
+                "ingress":{
+                    "type": "object",
+                    "properties":{
+                        "className": { "type": "string"},
+                        "host": { "type": "string"},
+                        "path": { "$ref": "#/$defs/required_string"}
+                    },
+                    "required":[
+                        "className","host","path"
+                    ],
+                    "unevaluatedProperties": false
+                },
+                "service":{
+                    "type": "object",
+                    "properties": {
+                        "name": { "$ref": "#/$defs/required_string"},
+                        "port": { "type": "integer" }
+                    },
+                    "required":[
+                        "name","port"
+                    ]
+                },
+                "vllm":{
+                    "type": "object",
+                    "properties":{
+                        "endpoint": { "$ref": "#/$defs/required_string" },
+                        "model": { "$ref": "#/$defs/required_string" },
+                        "modelRevision": { "$ref": "#/$defs/required_string" },
+                        "HFToken": { "type": "string" }
+                    },
+                    "required":[
+                        "endpoint",
+                        "model",
+                        "modelRevision"
+                    ],
+                    "unevaluatedProperties": false
+                }
+            },
+            "required":[
+                "name",
+                "replicas",
+                "allowedOrigins",
+                "backendIdolHost",
+                "backendIdolPort",
+                "config",
+                "secret",
+                "image",
+                "backendApi",
+                "ingress",
+                "service",
+                "vllm"
+            ],
+            "unevaluatedProperties": false
+        }
+    },
+    "type": "object",
+    "$ref": "#/$defs/base",
+    "unevaluatedProperties": false
+}
