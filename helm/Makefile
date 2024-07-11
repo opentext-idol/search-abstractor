@@ -40,6 +40,7 @@ default: package-all index.yaml
 # Uses staging to avoid trampling existing timestamps
 # See https://github.com/helm/helm/issues/7363 
 index.yaml: $(wildcard staging/release/*) ot_copyright_notice.stl
+	-mkdir release
 	cd staging && helm repo index . --merge ../index.yaml && cd ..
 	mv staging/release/* release/.
 	sed "s/XX_YEAR_XX/${THIS_YEAR}/" ot_copyright_notice.stl > index.yaml.nxt
