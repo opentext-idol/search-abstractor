@@ -1,0 +1,35 @@
+# BEGIN COPYRIGHT NOTICE
+# Copyright 2024 Open Text.
+# 
+# The only warranties for products and services of Open Text and its affiliates and licensors
+# ("Open Text") are as may be set forth in the express warranty statements accompanying such
+# products and services. Nothing herein should be construed as constituting an additional warranty.
+# Open Text shall not be liable for technical or editorial errors or omissions contained herein.
+# The information contained herein is subject to change without notice.
+#
+# END COPYRIGHT NOTICE
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: search-abstractor-nifi-deployment-files
+  labels: {{- include "idol-library.labels" (dict "root" . "component" .Values.answerserver ) | nindent 4 }}
+data:
+  flow.json: |
+{{ tpl (print "resources/search_abstractor_flow.json" | .Files.Get) . | indent 4 }}
+  do_ask.lua: |
+{{ tpl (print "resources/do_ask.lua" | .Files.Get) . | indent 4 }} 
+  do_query.lua: |
+{{ tpl (print "resources/do_query.lua" | .Files.Get) . | indent 4 }} 
+  get_secinfo.lua: |
+{{ tpl (print "resources/get_secinfo.lua" | .Files.Get) . | indent 4 }}
+  handle_input_text_ff.lua: |
+{{ tpl (print "resources/handle_input_text_ff.lua" | .Files.Get) . | indent 4 }}
+  handle_response.lua: |
+{{ tpl (print "resources/handle_response.lua" | .Files.Get) . | indent 4 }}
+  handle_html_view.lua: |
+{{ tpl (print "resources/handle_html_view.lua" | .Files.Get) . | indent 4 }}
+  handle_raw_view.lua: |
+{{ tpl (print "resources/handle_raw_view.lua" | .Files.Get) . | indent 4 }}
+binaryData:
+  question.ecr: |
+{{ tpl (print "resources/question.ecr" | .Files.Get | b64enc) . | indent 4 }}

@@ -1,0 +1,45 @@
+# BEGIN COPYRIGHT NOTICE
+# Copyright 2024 Open Text.
+#
+# The only warranties for products and services of Open Text and its affiliates and licensors
+# ("Open Text") are as may be set forth in the express warranty statements accompanying such
+# products and services. Nothing herein should be construed as constituting an additional warranty.
+# Open Text shall not be liable for technical or editorial errors or omissions contained herein.
+# The information contained herein is subject to change without notice.
+#
+# END COPYRIGHT NOTICE
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.saapi.config }}
+data:
+  ISOL_AUTH_SERVICE_PROTOCOL: http
+  ISOL_AUTH_SERVICE_HOST: "{{ .Values.auth.service.name }}"
+  ISOL_AUTH_SERVICE_PORT: "{{ .Values.auth.service.port }}"
+  ISOL_AUTH_SERVICE_EXTERNAL_PROTOCOL: "{{ .Values.auth.external.protocol }}"
+  ISOL_AUTH_SERVICE_EXTERNAL_HOST: "{{ .Values.auth.external.host }}"
+  ISOL_AUTH_SERVICE_EXTERNAL_PORT: "{{ .Values.auth.external.port }}"
+  ISOL_AUTH_SERVICE_EXTERNAL_PATH: "{{ .Values.auth.external.path }}"
+  ISOL_AUTH_SERVICE_REALM: "{{ .Values.auth.realm }}"
+  ISOL_AUTH_SERVICE_API_CLIENT: "{{ .Values.auth.apiClient }}"
+  ISOL_AUTH_SERVICE_UI_CLIENT: "{{ .Values.auth.uiClient }}"
+  ISOL_AUTH_SERVICE_UI_URL: "{{ .Values.auth.uiUrls }}"
+  ISOL_AUTH_SERVICE_TOKEN_EXPIRY_TIME: "{{ .Values.auth.tokenExpiryTimeSeconds }}"
+  ISOL_AUTH_SERVICE_BASE_REALM_ROLES: "{{ .Values.auth.baseRealmRoles }}"
+  SEARCH_ABSTRACTOR_IDOL_HOST: "{{ .Values.saapi.backendIdolHost }}"
+  SEARCH_ABSTRACTOR_IDOL_PORT: "{{ .Values.saapi.backendIdolPort }}"
+  SEARCH_ABSTRACTOR_API_HOST: "{{ .Values.saapi.backendApi.name }}"
+  SEARCH_ABSTRACTOR_API_PORT: "{{ .Values.saapi.backendApi.port }}"
+  ISOL_AUTH_SERVICE_USERS_FILE: "/maven/test-users.yaml"
+  SEARCH_ABSTRACTOR_SERVER_ALLOWED_ORIGINS: "{{ .Values.saapi.allowedOrigins }}"
+
+---
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ .Values.saapi.secret }}
+data:
+  ISOL_AUTH_SERVICE_API_CLIENT_SECRET: "{{ .Values.auth.apiClientSecret | b64enc }}"
+  ISOL_AUTH_SERVICE_ADMIN_USER: "{{ .Values.auth.adminUser | b64enc }}"
+  ISOL_AUTH_SERVICE_ADMIN_PASS: "{{ .Values.auth.adminPassword | b64enc }}"

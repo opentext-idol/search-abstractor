@@ -1,0 +1,230 @@
+# BEGIN COPYRIGHT NOTICE
+# Copyright 2024 Open Text.
+# 
+# The only warranties for products and services of Open Text and its affiliates and licensors
+# ("Open Text") are as may be set forth in the express warranty statements accompanying such
+# products and services. Nothing herein should be construed as constituting an additional warranty.
+# Open Text shall not be liable for technical or editorial errors or omissions contained herein.
+# The information contained herein is subject to change without notice.
+#
+# END COPYRIGHT NOTICE
+
+global:
+  # -- Global secrets used to pull container images
+  # @section -- Global Values
+  imagePullSecrets:
+  - "dockerhub-secret"
+  # -- Global override value for idolImage.version
+  # @section -- Global Values
+  idolVersion: "24.3.0"
+
+aes:
+  # -- Value used to generate a shared AES256 key for securityinfo
+  key: search-abstractor
+  # @ignored DRY definitions
+  common:
+    volume: &x-aes-key-volume
+      name: aes-key-files
+      configMap:
+        name: search-abstractor-security-aes-key
+    volumeMount: &x-aes-key-volumeMount
+      name: aes-key-files
+      subPath: aes.keyfile
+
+# -- `content` subchart values (see https://github.com/opentext-idol/idol-containers-toolkit/tree/main/helm/single-content#values)
+# @default -- default configuration for search-abstractor content
+content:
+  # -- Whether to deploy a content component
+  enabled: true
+  queryserviceACIPort: &queryserviceACIPort "9100"
+  existingConfigMap: search-abstractor-content-deployment-cfg
+  cfg:
+    # -- Additional Content field processing configuration data
+    # @default -- ""
+    fieldprocessing: |-
+      // add additional Content field setup here (appended to [FieldProcessing] section)
+    # -- Additional Content security configuration data
+    # @default -- ""
+    security: |-
+      // add additional Content security setup here (appended to [Security] section)
+  additionalVolumes:
+  - <<: *x-aes-key-volume  
+  additionalVolumeMounts:
+  - <<: *x-aes-key-volumeMount
+    mountPath: /opt/idol/content/index/aes.keyfile
+
+# -- `answerserver` subchart values (see https://github.com/opentext-idol/idol-containers-toolkit/tree/main/helm/idol-answerserver#values)
+# @default -- default configuration for search-abstractor answerserver
+answerserver:
+  # -- Whether to deploy an Answer Server component
+  enabled: true
+  single-content:
+    enabled: false
+  existingConfigMap: search-abstractor-answerserver-deployment-cfg
+  additionalVolumes:
+  - name: idol-answerserver-scripts
+    configMap:
+      name: idol-answerserver-scripts
+  - name: search-abstractor-answerserver-deployment-resources-cfg
+    configMap:
+      name: search-abstractor-answerserver-deployment-resources-cfg
+  additionalVolumeMounts:
+  - name: idol-answerserver-scripts
+    mountPath: /answerserver/prestart_scripts/00_config.sh
+    subPath: config.sh
+  - name: search-abstractor-answerserver-deployment-resources-cfg
+    mountPath: /answerserver/resources/llmdata
+  envConfigMap: search-abstractor-answerserver-deployment-env-cfg
+
+# -- `qms` subchart values (see https://github.com/opentext-idol/idol-containers-toolkit/tree/main/helm/idol-qms#values)
+# @default -- default configuration for search-abstractor qms
+qms:
+  # -- Whether to deploy a QMS component
+  enabled: true
+  singleAgentstore:
+    enabled: false
+  single-content:
+    enabled: false
+  existingConfigMap: search-abstractor-qms-deployment-cfg
+
+# -- `view` subchart values (see https://github.com/opentext-idol/idol-containers-toolkit/tree/main/helm/idol-view#values)
+# @default -- default configuration for search-abstractor view
+view:
+  # -- Whether to deploy a View component
+  enabled: true
+  queryserviceACIPort: *queryserviceACIPort
+
+# -- `omnigroupserver` subchart values (see https://github.com/opentext-idol/idol-containers-toolkit/tree/main/helm/idol-omnigroupserver#values)
+# @default -- default configuration for search-abstractor omnigroupserver
+ogs:
+  # -- Whether to deploy an OmniGroupServer component
+  enabled: true
+  existingConfigMap: search-abstractor-ogs-deployment-cfg
+  cfg:
+    # -- additional omingroupserver repositories configuration data
+    # @default -- ""
+    repositories: |-
+      // add your OmniGroupServer repo setup here (appended to [Repositories] section)
+
+# -- `community` subchart values (see https://github.com/opentext-idol/idol-containers-toolkit/tree/main/helm/idol-community#values)
+# @default -- default configuration for search-abstractor community
+community:
+  # -- Whether to deploy Community component
+  enabled: true
+  name: &community-name idol-community
+  aciPort: &community-aciport "9030"
+  queryserviceACIPort: *queryserviceACIPort
+  agentStoreName: "idol-passageextractor-agentstore"
+  agentStoreACIPort: "12300"
+  existingConfigMap: search-abstractor-community-deployment-cfg
+  cfg:
+    # -- Additional Community security configuration data  
+    security: |-
+      0=Autonomy
+      // add your community security setup here (appended to [Security] section)
+  additionalVolumes:
+  - <<: *x-aes-key-volume  
+  additionalVolumeMounts:
+  - <<: *x-aes-key-volumeMount
+    mountPath: /community/cfg/aes.keyfile
+
+# -- `nifi` subchart values (see https://github.com/opentext-idol/idol-containers-toolkit/tree/main/helm/idol-nifi#values)
+# @default -- default configuration for search-abstractor nifi
+nifi:
+  # -- Whether to deploy a NiFi instance
+  enabled: true
+  idolImage:
+    repo: nifi-searchabstractor
+  additionalVolumes:
+  - name: search-abstractor-nifi-files
+    configMap:
+      name: search-abstractor-nifi-deployment-files
+  additionalVolumeMounts:
+  - name: search-abstractor-nifi-files
+    mountPath: /opt/nifi/nifi-current/search_abstractor
+  nifi:
+    flowfile: /opt/nifi/nifi-current/search_abstractor/flow.json
+    autoScaling:
+      enabled: false
+
+# -- `auth` subchart values (see https://github.com/opentext-idol/discover-deploy/tree/refactor/auth/helm/discover-auth#values)
+# @default -- default configuration for search-abstractor auth
+auth:
+  # -- Whether to deploy the `discover-auth` subchart
+  enabled: true
+
+  # -- Realm
+  realm: discover
+  # -- Client to configure and use for API requests
+  apiClient: discover_api
+  # -- Client credentials to configure and use for API requests
+  apiClientSecret: d0e76ad7-7d6b-4d86-be3a-5dfe715dbf87
+  # -- Client to configure and use for logging into the UI
+  uiClient: discover_ui
+  # -- URL to redirect to post authorization
+  uiUrls: "http://localhost:4200/*"
+  # -- Expiration time in seconds for login tokens
+  tokenExpiryTimeSeconds: 600
+  # -- Roles to populate in keycloak
+  baseRealmRoles: "role1,role2,role3"
+
+
+saapi:
+  # -- deployment name
+  name: &saapi-name saapi-api-service
+  # -- deployment replicas
+  replicas: 1
+  image:
+    # -- The registry value to use to construct the container image name: {registry}/{repo}:{version}
+    registry: microfocusidolserver
+    # -- The repository value to use to construct the container image name: {registry}/{repo}:{version}
+    repo: search-abstractor-api-service
+    # -- The version value to use to construct the container image name: {registry}/{repo}:{version}
+    version: "24.3.0"
+     # -- The policy to use to determine whether to pull the specified image (see https://kubernetes.io/docs/concepts/containers/images/#image-pull-policy)
+    pullPolicy: Always
+  # -- CORS origin values
+  allowedOrigins: "http://localhost:8080"
+  # -- Hostname for Community component
+  backendIdolHost: *community-name
+  # -- ACI port for Community component
+  backendIdolPort: *community-aciport
+  backendApi:
+    # -- Host/service name
+    name: search-abstractor-api
+    # -- Port
+    port: 8085
+    ingress:
+      # -- Whether to create a backend API ingress resource
+      enabled: false
+      # -- Optional host (see https://kubernetes.io/docs/concepts/services-networking/ingress/#ingress-rules).
+      host: ""
+      # -- Optional parameter to override the default ingress class
+      className: ""
+
+  vllm:
+    # -- vllm endpoint to use for llm access
+    endpoint: http://vllm-endpoint:8000/v1/completions
+    # -- The LLM to use
+    model: mistralai/Mistral-7B-Instruct-v0.2
+    # -- The LLM revision to use (branch, tag, or commitid)
+    modelRevision: "9925900"
+    # -- HuggingFace token to access the model/tokenizer to use for the RAG answer system
+    HFToken: ""
+  # -- `configmap` name
+  config: api-config
+  # -- Secret name for auth credentials
+  secret: api-secret
+  ingress:
+    # -- Ingress controller path exposing api
+    path: /api/
+    # -- Optional ingress host (see https://kubernetes.io/docs/concepts/services-networking/ingress/#ingress-rules).
+    host: ""
+    # -- Optional parameter to override the default ingress class
+    className: ""
+
+  service:
+    # -- Service name
+    name: *saapi-name
+    # -- Port service runs on
+    port: 8080

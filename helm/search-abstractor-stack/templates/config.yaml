@@ -1,0 +1,91 @@
+# BEGIN COPYRIGHT NOTICE
+# Copyright 2024 Open Text.
+# 
+# The only warranties for products and services of Open Text and its affiliates and licensors
+# ("Open Text") are as may be set forth in the express warranty statements accompanying such
+# products and services. Nothing herein should be construed as constituting an additional warranty.
+# Open Text shall not be liable for technical or editorial errors or omissions contained herein.
+# The information contained herein is subject to change without notice.
+#
+# END COPYRIGHT NOTICE
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: search-abstractor-answerserver-deployment-cfg
+  labels: {{- include "idol-library.labels" (dict "root" . "component" .Values.answerserver ) | nindent 4 }}
+data:
+  answerserver.cfg: |
+{{ tpl (print "resources/answerserver.cfg" | .Files.Get) . | indent 4 }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: search-abstractor-answerserver-deployment-resources-cfg
+  labels: {{- include "idol-library.labels" (dict "root" . "component" .Values.answerserver ) | nindent 4 }}
+data:
+  prompt_template.txt: |
+{{ tpl (print "resources/prompt_template.txt" | .Files.Get) . | indent 4 }}
+  vllm.py: |
+{{ tpl (print "resources/vllm.py" | .Files.Get) . | indent 4 }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: search-abstractor-answerserver-deployment-env-cfg
+  labels: {{- include "idol-library.labels" (dict "root" . "component" .Values.answerserver ) | nindent 4 }}
+data:
+  {{- if .Values.saapi.vllm.model }}
+  OPENTEXT_VLLM_MODEL: {{ .Values.saapi.vllm.model }}
+  OPENTEXT_VLLM_MODEL_REVISION: {{ .Values.saapi.vllm.modelRevision | quote }}
+  {{- end }}
+  {{- if .Values.saapi.vllm.endpoint }}
+  OPENTEXT_VLLM_ENDPOINT: {{ .Values.saapi.vllm.endpoint }}
+  {{- end }}
+  {{- if .Values.saapi.vllm.HFToken }}
+  OPENTEXT_HUGGINGFACE_API_TOKEN: {{ .Values.saapi.vllm.HFToken }}
+  {{- end }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: search-abstractor-content-deployment-cfg
+  labels: {{- include "idol-library.labels" (dict "root" . "component" .Values.content ) | nindent 4 }}
+data:
+  content.cfg: |
+{{ tpl (print "resources/content.cfg" | .Files.Get) . | indent 4 }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: search-abstractor-qms-deployment-cfg
+  labels: {{- include "idol-library.labels" (dict "root" . "component" .Values.qms ) | nindent 4 }}
+data:
+  qms.cfg: |
+{{ tpl (print "resources/qms.cfg" | .Files.Get) . | indent 4 }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: search-abstractor-ogs-deployment-cfg
+  labels: {{- include "idol-library.labels" (dict "root" . "component" .Values.ogs ) | nindent 4 }}
+data:
+  omnigroupserver.cfg: |
+{{ tpl (print "resources/ogs.cfg" | .Files.Get) . | indent 4 }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: search-abstractor-community-deployment-cfg
+  labels: {{- include "idol-library.labels" (dict "root" . "component" .Values.community ) | nindent 4 }}
+data:
+  community.cfg: |
+{{ tpl (print "resources/community.cfg" | .Files.Get) . | indent 4 }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: search-abstractor-security-aes-key
+  labels: {{- include "idol-library.labels" (dict "root" . "component" .Values ) | nindent 4 }}
+data:
+  aes.keyfile: |-
+{{ tpl (sha256sum .Values.aes.key) . | indent 4 }}
