@@ -12,5 +12,11 @@
 {{- define "saapi_probe.api" -}}
 httpGet:
   port: 8080
+  path: {{ .Values.saapi.ingress.path }}swagger/?url=openapi.yaml
+{{- end }}
+
+{{- define "saapi_probe.session.api" -}}
+httpGet:
+  port: 8080
   path: /swagger/?url=openapi.yaml
 {{- end }}

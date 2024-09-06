@@ -13,6 +13,7 @@ kind: ConfigMap
 metadata:
   name: {{ .Values.saapi.config }}
 data:
+  SERVER_SERVLET_CONTEXT_PATH: "{{ .Values.saapi.ingress.path }}"
   ISOL_AUTH_SERVICE_PROTOCOL: http
   ISOL_AUTH_SERVICE_HOST: "{{ .Values.auth.service.name }}"
   ISOL_AUTH_SERVICE_PORT: "{{ .Values.auth.service.port }}"
@@ -28,10 +29,35 @@ data:
   ISOL_AUTH_SERVICE_BASE_REALM_ROLES: "{{ .Values.auth.baseRealmRoles }}"
   SEARCH_ABSTRACTOR_IDOL_HOST: "{{ .Values.saapi.backendIdolHost }}"
   SEARCH_ABSTRACTOR_IDOL_PORT: "{{ .Values.saapi.backendIdolPort }}"
+  SEARCH_ABSTRACTOR_IDOL_CONTENT_HOST: "{{ .Values.saapi.backendIdolContentHost }}"
+  SEARCH_ABSTRACTOR_IDOL_CONTENT_PORT: "{{ .Values.saapi.backendIdolContentPort }}"
   SEARCH_ABSTRACTOR_API_HOST: "{{ .Values.saapi.backendApi.name }}"
   SEARCH_ABSTRACTOR_API_PORT: "{{ .Values.saapi.backendApi.port }}"
+  SEARCH_ABSTRACTOR_HTTP_CACHE_MAX_AGE: "{{ .Values.saapi.httpCacheMaxAge }}"
+  SEARCH_ABSTRACTOR_SESSION_API_HOST: "{{ .Values.sessionapi.service.name }}"
+  SEARCH_ABSTRACTOR_SESSION_API_PORT: "{{ .Values.sessionapi.service.port }}"
+  SEARCH_ABSTRACTOR_SESSION_LICENSOR_HOST: "{{ .Values.sessionapi.licensor.name }}"
+  SEARCH_ABSTRACTOR_SESSION_LICENSOR_PORT: "{{ .Values.sessionapi.licensor.port }}"
   ISOL_AUTH_SERVICE_USERS_FILE: "/maven/test-users.yaml"
   SEARCH_ABSTRACTOR_SERVER_ALLOWED_ORIGINS: "{{ .Values.saapi.allowedOrigins }}"
+  SEARCHABSTRACTOR_API_SERVICE_DATABASE_HOST: {{ .Values.saapiPostgresql.fullnameOverride | quote }}
+  SEARCHABSTRACTOR_API_SERVICE_DATABASE_PORT: {{ .Values.saapiPostgresql.service.port | quote }}
+  SEARCHABSTRACTOR_API_SERVICE_DATABASE_USERNAME: {{ .Values.saapiPostgresql.auth.username | quote }}
+  SEARCHABSTRACTOR_API_SERVICE_DATABASE_PASSWORD: {{ .Values.saapiPostgresql.auth.password | quote }}
+  SEARCHABSTRACTOR_API_SERVICE_DATABASE_NAME: {{ .Values.saapi.storage.dbName | quote }}
+  SEARCHABSTRACTOR_SESSION_SERVICE_DATABASE_APPNAME: "searchabstractor_api_service"
+  SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE: {{ .Values.saapi.storage.maxFileSize | quote }}
+  SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE: {{ .Values.saapi.storage.maxRequestSize | quote }}
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: session-api-postgres-cfg-map
+data:
+  init_script.sql: |+
+    CREATE DATABASE {{ .Values.saapi.storage.dbName }};
+    GRANT ALL PRIVILEGES ON DATABASE {{ .Values.saapi.storage.dbName }} to {{ .Values.saapiPostgresql.auth.username }}
 
 ---
 

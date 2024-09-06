@@ -1,0 +1,631 @@
+<FieldStandardization id="root">
+    <Product key="KeyView">
+        <Field name="DREROOTPARENTREFERENCE">
+            <Move name="DOCUMENT_FAMILY_ROOTPARENTREFERENCE_STRING"/>
+        </Field>
+        <Field name="DREPARENTREFERENCE">
+            <Move name="DOCUMENT_FAMILY_PARENTREFERENCE_STRING"/>
+        </Field>
+        <Field name="SubFileIndices">
+            <Move name="DOCUMENT_FAMILY_SUBFILEINDICES_STRING"/>
+        </Field>
+        <Field name="SubFileIndex">
+            <Move name="DOCUMENT_FAMILY_SUBFILEINDEX_NUMBER"/>
+        </Field>
+        <Field name="part">
+            <SetVar value="" var="documenttype"/>
+            <Field name="keyview">
+                <Field name="class">
+                    <Copy destId="root" name="DOCUMENT_KEYVIEW_CLASS_STRING"/>
+                </Field>
+                <Field name="format">
+                    <GetValue var="documenttype"/>
+                    <Copy destId="root" name="DOCUMENT_KEYVIEW_TYPE_NUMBER"/>
+                </Field>
+                <Field name="extract">
+                    <Field name="childcount">
+                        <Copy destId="root" name="DOCUMENT_FAMILY_CHILDCOUNT_NUMBER"/>
+                    </Field>
+                </Field>
+                <Field name="processing">
+                    <Field name="error">
+                        <Field name="code">
+                            <Copy destId="root" name="DOCUMENT_ERROR_CODE_NUMBER"/>
+                        </Field>
+                        <Field name="message">
+                            <Copy destId="root" name="DOCUMENT_ERROR_DESCRIPTION_STRING"/>
+                        </Field>
+                    </Field>
+                </Field>
+            </Field>
+            <Field name="mimetype">
+                <Copy destId="root" name="DOCUMENT_KEYVIEW_CONTENTTYPE_STRING"/>
+            </Field>
+            <Field name="file">
+                <Field name="size">
+                    <Copy destId="root" name="DOCUMENT_METADATA_FILESIZE_BYTES"/>
+                </Field>
+                <Field name="modified">
+                    <Copy destId="root" name="DOCUMENT_METADATA_DATE_LASTACCESSED_EPOCHSECONDS"/>
+                </Field>
+                <Field name="meta">
+                    <Field name="AppName">
+                        <Copy destId="root" name="DOCUMENT_KEYVIEW_APPNAME_STRING"/>
+                    </Field>
+                    <IfVar matches="230" var="documenttype">
+                        <Field name="Author">
+                            <Copy destId="root" name="DOCUMENT_METADATA_AUTHOR_STRING"/>
+                        </Field>
+                        <Field name="Creator">
+                            <Copy destId="root" name="DOCUMENT_METADATA_CREATOR_STRING"/>
+                        </Field>
+                        <Field name="Create_DTM">
+                            <ValueFormat format="epoch" targetformat="YYYY-MM-DDTHH:NN:SSZ" type="customdate"/>
+                            <Copy destId="root" name="DOCUMENT_METADATA_DATE_CREATED_EPOCHSECONDS"/>
+                        </Field>
+                        <Field name="LastSave_DTM">
+                            <ValueFormat format="epoch" targetformat="YYYY-MM-DDTHH:NN:SSZ" type="customdate"/>
+                            <Copy destId="root" name="DOCUMENT_METADATA_DATE_MODIFIED_EPOCHSECONDS"/>
+                        </Field>
+                        <Field name="Modified">
+                            <ValueFormat format="epoch" targetformat="YYYY-MM-DDTHH:NN:SSZ" type="customdate"/>
+                        </Field>
+                        <Field name="Title">
+                            <Copy destId="root" name="DOCUMENT_METADATA_TITLE_STRING"/>
+                        </Field>
+                    </IfVar>
+                    <IfVar matches="305" var="documenttype">
+                        <Field name="Author">
+                            <Copy destId="root" name="DOCUMENT_METADATA_AUTHOR_STRING"/>
+                        </Field>
+                        <Field name="Create_DTM">
+                            <ValueFormat format="epoch" targetformat="YYYY-MM-DDTHH:NN:SSZ" type="customdate"/>
+                            <Copy destId="root" name="DOCUMENT_METADATA_DATE_CREATED_EPOCHSECONDS"/>
+                        </Field>
+                        <Field name="LastSave_DTM">
+                            <ValueFormat format="epoch" targetformat="YYYY-MM-DDTHH:NN:SSZ" type="customdate"/>
+                            <Copy destId="root" name="DOCUMENT_METADATA_DATE_MODIFIED_EPOCHSECONDS"/>
+                        </Field>
+                        <Field name="Modified">
+                            <ValueFormat format="epoch" targetformat="YYYY-MM-DDTHH:NN:SSZ" type="customdate"/>
+                        </Field>
+                        <Field name="Title">
+                            <Copy destId="root" name="DOCUMENT_METADATA_TITLE_STRING"/>
+                        </Field>
+                        <Field name="PageCount">
+                            <Copy destId="root" name="DOCUMENT_METADATA_PAGECOUNT_NUMBER"/>
+                        </Field>
+                    </IfVar>
+                    <IfVar matches="44" var="documenttype">
+                        <Field name="Author">
+                            <Copy destId="root" name="DOCUMENT_METADATA_AUTHOR_STRING"/>
+                        </Field>
+                        <Field name="Create_DTM">
+                            <ValueFormat format="epoch" targetformat="YYYY-MM-DDTHH:NN:SSZ" type="customdate"/>
+                            <Copy destId="root" name="DOCUMENT_METADATA_DATE_CREATED_EPOCHSECONDS"/>
+                        </Field>
+                        <Field name="LastSave_DTM">
+                            <ValueFormat format="epoch" targetformat="YYYY-MM-DDTHH:NN:SSZ" type="customdate"/>
+                            <Copy destId="root" name="DOCUMENT_METADATA_DATE_MODIFIED_EPOCHSECONDS"/>
+                        </Field>
+                        <Field name="Modified">
+                            <ValueFormat format="epoch" targetformat="YYYY-MM-DDTHH:NN:SSZ" type="customdate"/>
+                        </Field>
+                        <Field name="Title">
+                            <Copy destId="root" name="DOCUMENT_METADATA_TITLE_STRING"/>
+                        </Field>
+                        <Field name="PageCount">
+                            <Copy destId="root" name="DOCUMENT_METADATA_PAGECOUNT_NUMBER"/>
+                        </Field>
+                    </IfVar>
+                    <IfVar matches="322" var="documenttype">
+                        <Field name="Author">
+                            <Move destId="root" name="DOCUMENT_METADATA_AUTHOR_STRING"/>
+                        </Field>
+                        <Field name="Create_DTM">
+                            <ValueFormat format="epoch" targetformat="YYYY-MM-DDTHH:NN:SSZ" type="customdate"/>
+                            <Move destId="root" name="DOCUMENT_METADATA_DATE_CREATED_EPOCHSECONDS"/>
+                        </Field>
+                        <Field name="LastSave_DTM">
+                            <ValueFormat format="epoch" targetformat="YYYY-MM-DDTHH:NN:SSZ" type="customdate"/>
+                            <Move destId="root" name="DOCUMENT_METADATA_DATE_MODIFIED_EPOCHSECONDS"/>
+                        </Field>
+                        <Field name="Modified">
+                            <ValueFormat format="epoch" targetformat="YYYY-MM-DDTHH:NN:SSZ" type="customdate"/>
+                        </Field>
+                    </IfVar>
+                    <IfVar matches="362" var="documenttype">
+                        <Field name="Author">
+                            <Copy destId="root" name="DOCUMENT_METADATA_AUTHOR_STRING"/>
+                        </Field>
+                        <Field name="Create_DTM">
+                            <ValueFormat format="epoch" targetformat="YYYY-MM-DDTHH:NN:SSZ" type="customdate"/>
+                            <Copy destId="root" name="DOCUMENT_METADATA_DATE_CREATED_EPOCHSECONDS"/>
+                        </Field>
+                        <Field name="LastSave_DTM">
+                            <ValueFormat format="epoch" targetformat="YYYY-MM-DDTHH:NN:SSZ" type="customdate"/>
+                            <Copy destId="root" name="DOCUMENT_METADATA_DATE_MODIFIED_EPOCHSECONDS"/>
+                        </Field>
+                        <Field name="Modified">
+                            <ValueFormat format="epoch" targetformat="YYYY-MM-DDTHH:NN:SSZ" type="customdate"/>
+                        </Field>
+                        <Field name="Title">
+                            <Copy destId="root" name="DOCUMENT_METADATA_TITLE_STRING"/>
+                        </Field>
+                    </IfVar>
+                    <IfVar matches="345" var="documenttype">
+                        <Field name="Sent">
+                            <Copy destId="root" name="DOCUMENT_METADATA_DATE_SENT_EPOCHSECONDS"/>
+                        </Field>
+                        <Field name="To">
+                            <Copy destId="root" name="DOCUMENT_METADATA_TO_STRING"/>
+                        </Field>
+                        <Field name="From">
+                            <Copy destId="root" name="DOCUMENT_METADATA_FROM_STRING"/>
+                        </Field>
+                        <Field name="Subject">
+                            <Copy destId="root" name="DOCUMENT_METADATA_SUBJECT_STRING"/>
+                        </Field>
+                        <Field name="Priority">
+                            <Copy destId="root" name="DOCUMENT_METADATA_PRIORITY_NUMBER"/>
+                        </Field>
+                    </IfVar>
+                    <IfVar matches="233" var="documenttype">
+                        <Field name="Sent">
+                            <ValueFormat format="D+ SHORTMONTH YYYY HH:NN:SS ZZZZZ" type="autndate"/>
+                            <Copy destId="root" name="DOCUMENT_METADATA_DATE_SENT_EPOCHSECONDS"/>
+                        </Field>
+                        <Field name="To">
+                            <Copy destId="root" name="DOCUMENT_METADATA_TO_STRING"/>
+                        </Field>
+                        <Field name="From">
+                            <Copy destId="root" name="DOCUMENT_METADATA_FROM_STRING"/>
+                        </Field>
+                        <Field name="Subject">
+                            <Copy destId="root" name="DOCUMENT_METADATA_SUBJECT_STRING"/>
+                        </Field>
+                        <Field name="Priority">
+                            <Copy destId="root" name="DOCUMENT_METADATA_PRIORITY_STRING"/>
+                        </Field>
+                    </IfVar>
+                    <IfVar matches="53" var="documenttype">
+                        <Field name="Sent">
+                            <Copy destId="root" name="DOCUMENT_METADATA_DATE_SENT_EPOCHSECONDS"/>
+                        </Field>
+                        <Field name="To">
+                            <Copy destId="root" name="DOCUMENT_METADATA_TO_STRING"/>
+                        </Field>
+                        <Field name="From">
+                            <Copy destId="root" name="DOCUMENT_METADATA_FROM_STRING"/>
+                        </Field>
+                        <Field name="Subject">
+                            <Copy destId="root" name="DOCUMENT_METADATA_SUBJECT_STRING"/>
+                        </Field>
+                        <Field name="Priority">
+                            <Copy destId="root" name="DOCUMENT_METADATA_PRIORITY_STRING"/>
+                        </Field>
+                        <Field name="HASATTACHMENTS">
+                            <Copy destId="root" name="DOCUMENT_METADATA_HASATTACHMENTS_BOOLEAN"/>
+                        </Field>
+                    </IfVar>
+                    <IfVar matches="236" var="documenttype">
+                        <Field name="Sent">
+                            <Copy destId="root" name="DOCUMENT_METADATA_DATE_SENT_EPOCHSECONDS"/>
+                        </Field>
+                        <Field name="To">
+                            <Copy destId="root" name="DOCUMENT_METADATA_TO_STRING"/>
+                        </Field>
+                        <Field name="From">
+                            <Copy destId="root" name="DOCUMENT_METADATA_FROM_STRING"/>
+                        </Field>
+                        <Field name="Subject">
+                            <Copy destId="root" name="DOCUMENT_METADATA_SUBJECT_STRING"/>
+                        </Field>
+                        <Field name="Priority">
+                            <Copy destId="root" name="DOCUMENT_METADATA_PRIORITY_STRING"/>
+                        </Field>
+                        <Field name="HASATTACHMENTS">
+                            <Copy destId="root" name="DOCUMENT_METADATA_HASATTACHMENTS_BOOLEAN"/>
+                        </Field>
+                    </IfVar>
+                </Field>
+            </Field>
+        </Field>
+    </Product>
+    <Product keyRegex=".*AmazonS3">
+        <Field name="S3_LASTMODIFIED">
+            <ValueFormat format="DD#SSHORTMONTH#SYYYY#SHH:NN:SS#SZZZ" type="autndate"/>
+            <Move name="REPOSITORY_METADATA_DATE_LAST_MODIFIED"/>
+        </Field>
+    </Product>
+    <Product keyRegex=".*Box">
+        <Field name="BOX_CONTENTCREATEDDATE">
+            <ValueFormat format="YYYY-MM-DDTHH:NN:SS-ZZZZZ" type="autndate"/>
+            <Move name="REPOSITORY_METADATA_DATE_CREATED_EPOCHSECONDS"/>
+        </Field>
+        <Field name="BOX_CONTENTMODIFIEDDATE">
+            <ValueFormat format="YYYY-MM-DDTHH:NN:SS-ZZZZZ" type="autndate"/>
+            <Move name="REPOSITORY_METADATA_DATE_MODIFIED_EPOCHSECONDS"/>
+        </Field>
+        <Field name="BOX_DESCRIPTION">
+            <Move name="REPOSITORY_METADATA_DESCRIPTION_STRING"/>
+        </Field>
+        <Field name="BOX_TAG">
+            <Move name="REPOSITORY_METADATA_TAG_STRING"/>
+        </Field>
+        <Field name="BOX_FOLDERPATH">
+            <Move name="REPOSITORY_METADATA_FOLDERPATH_STRING"/>
+        </Field>
+        <Field name="BOX_NAME">
+            <Move name="REPOSITORY_METADATA_NAME_STRING"/>
+        </Field>
+        <Field name="BOX_OWNEDBY_LOGIN">
+            <Move name="REPOSITORY_METADATA_LOGIN_STRING"/>
+        </Field>
+        <Field name="BOX_OWNEDBY_NAME">
+            <Move name="REPOSITORY_METADATA_OWNER_STRING"/>
+        </Field>
+        <Field name="BOX_PARENT_ID">
+            <Move name="REPOSITORY_METADATA_ID_PARENT_STRING"/>
+        </Field>
+        <Field name="BOX_PARENT_NAME">
+            <Move name="REPOSITORY_METADATA_NAME_PARENT_STRING"/>
+        </Field>
+        <Field name="BOX_PATH">
+            <Move name="REPOSITORY_METADATA_PATH_STRING"/>
+        </Field>
+        <Field name="BOX_SIZE">
+            <Move name="REPOSITORY_METADATA_FILESIZE_BYTES"/>
+        </Field>
+        <Field name="BOX_TYPE">
+            <Move name="REPOSITORY_METADATA_TYPE_STRING"/>
+        </Field>
+    </Product>
+    <Product keyRegex=".*Confluence">
+        <Field name="type">
+            <Move name="REPOSITORY_METADATA_TYPE_STRING"/>
+        </Field>
+        <Field name="id">
+            <Move name="REPOSITORY_METADATA_ID_DOCUMENT_NUMBER"/>
+        </Field>
+        <Field name="SPACE">
+            <Move name="REPOSITORY_METADATA_SPACE_STRING"/>
+        </Field>
+        <Field name="status">
+            <Move name="REPOSITORY_METADATA_STATUS_STRING"/>
+        </Field>
+        <Field name="ATTACHMENT_ID">
+            <Move name="REPOSITORY_METADATA_ID_ATTACHMENT_STRING"/>
+        </Field>
+        <Field name="COMMENT_ID">
+            <Move name="REPOSITORY_METADATA_ID_COMMENT_STRING"/>
+        </Field>
+        <Field name="CHILD_PAGE_ID">
+            <Move name="REPOSITORY_METADATA_ID_CHILD_PAGE_NUMBER"/>
+        </Field>
+    </Product>
+    <Product keyRegex=".*Documentum">
+        <Field name="r_object_id">
+            <Move name="REPOSITORY_METADATA_ID_DOCUMENT_NUMBER"/>
+        </Field>
+        <Field name="ParentObjectId">
+            <Move name="REPOSITORY_METADATA_ID_PARENT_NUMBER"/>
+        </Field>
+        <Field name="ChildObjectId">
+            <Move name="REPOSITORY_METADATA_ID_CHILD_NUMBER"/>
+        </Field>
+        <Field name="r_object_type">
+            <Move name="REPOSITORY_METADATA_TYPE_STRING"/>
+        </Field>
+        <Field name="r_modify_date">
+            <ValueFormat format="YYYY.MM.DD HH:NN:SS" type="autndate"/>
+            <Move name="REPOSITORY_METADATA_DATE_MODIFIED_EPOCHSECONDS"/>
+        </Field>
+        <Field name="r_modifier">
+            <Move name="REPOSITORY_METADATA_LASTAUTHOR_STRING"/>
+        </Field>
+        <Field name="r_creator_name">
+            <Move name="REPOSITORY_METADATA_AUTHOR_STRING"/>
+        </Field>
+        <Field name="r_creation_date">
+            <ValueFormat format="YYYY.MM.DD HH:NN:SS" type="autndate"/>
+            <Move name="REPOSITORY_METADATA_DATE_CREATED_EPOCHSECONDS"/>
+        </Field>
+        <Field name="r_content_size">
+            <Move name="REPOSITORY_METADATA_FILESIZE_BYTES"/>
+        </Field>
+        <Field name="r_access_date">
+            <ValueFormat format="YYYY.MM.DD HH:NN:SS" type="autndate"/>
+            <Move name="REPOSITORY_METADATA_DATE_LASTACCESSED_EPOCHSECONDS"/>
+        </Field>
+        <Field name="object_name">
+            <Move name="NAME"/>
+        </Field>
+        <Field name="owner_name">
+            <Move name="REPOSITORY_METADATA_OWNER_STRING"/>
+        </Field>
+        <Field name="i_folder_id">
+            <Move name="REPOSITORY_METADATA_ID_FOLDER_STRING"/>
+        </Field>
+        <Field name="i_cabinet_id">
+            <Move name="REPOSITORY_METADATA_ID_CABINET_STRING"/>
+        </Field>
+    </Product>
+    <Product keyRegex=".*Exchange">
+        <Field name="ItemType">
+            <Move name="REPOSITORY_METADATA_TYPE_STRING"/>
+        </Field>
+        <Field name="ParentFolder">
+            <Move name="REPOSITORY_METADATA_FOLDERPATH_STRING"/>
+        </Field>
+        <Field name="PROP_DateTimeCreated">
+            <ValueFormat format="YYYY-MM-DD HH:NN:SSZ" type="autndate"/>
+            <Move name="REPOSITORY_METADATA_DATE_CREATED_EPOCHSECONDS"/>
+        </Field>
+        <Field name="PROP_DateTimeReceived">
+            <ValueFormat format="YYYY-MM-DD HH:NN:SSZ" type="autndate"/>
+            <Move name="REPOSITORY_METADATA_DATE_RECEIVED_EPOCHSECONDS"/>
+        </Field>
+        <Field name="PROP_DateTimeSent">
+            <ValueFormat format="YYYY-MM-DD HH:NN:SSZ" type="autndate"/>
+            <Move name="REPOSITORY_METADATA_DATE_SENT_EPOCHSECONDS"/>
+        </Field>
+        <Field name="PROP_Id">
+            <Move name="REPOSITORY_METADATA_ID_DOCUMENT_STRING"/>
+        </Field>
+        <Field name="PROP_LastModifiedTime">
+            <ValueFormat format="YYYY-MM-DD HH:NN:SSZ" type="autndate"/>
+            <Move name="REPOSITORY_METADATA_DATE_MODIFIED_EPOCHSECONDS"/>
+        </Field>
+        <Field name="PROP_ParentFolderId">
+            <Move name="REPOSITORY_METADATA_ID_PARENT_STRING"/>
+        </Field>
+        <Field name="PROP_Size">
+            <Move name="REPOSITORY_METADATA_FILESIZE_BYTES"/>
+        </Field>
+        <Field name="PROP_Subject">
+            <Move name="REPOSITORY_METADATA_TITLE_STRING"/>
+        </Field>
+        <Field name="PROP_ItemClass">
+            <Move name="REPOSITORY_METADATA_MESSAGECLASS_STRING"/>
+        </Field>
+    </Product>
+    <Product keyRegex=".*FileSystem">
+        <Field name="LASTACCESSED">
+            <Move name="REPOSITORY_METADATA_DATE_LASTACCESSED_EPOCHSECONDS"/>
+        </Field>
+        <Field name="CREATED">
+            <Move name="REPOSITORY_METADATA_DATE_CREATED_EPOCHSECONDS"/>
+        </Field>
+        <Field name="LASTMODIFIED">
+            <Move name="REPOSITORY_METADATA_DATE_MODIFIED_EPOCHSECONDS"/>
+        </Field>
+        <Field name="LASTCHANGED">
+            <Move name="REPOSITORY_METADATA_DATE_LASTCHANGED_EPOCHSECONDS"/>
+        </Field>
+        <Field name="FILESIZE">
+            <Move name="REPOSITORY_METADATA_FILESIZE_BYTES"/>
+        </Field>
+        <Field name="FILEOWNER">
+            <Move name="REPOSITORY_METADATA_OWNER_STRING"/>
+        </Field>
+    </Product>
+    <Product keyRegex=".*FTP">
+        <Field name="MODIFIEDTIME">
+            <ValueFormat format="YYYY-SHORTMONTH-DD HH:NN:SS" type="autndate"/>
+            <Move name="REPOSITORY_METADATA_DATE_MODIFIED_EPOCHSECONDS"/>
+        </Field>
+    </Product>
+    <Product keyRegex=".*GoogleDrive">
+        <Field name="GoogleDriveUserEmail">
+            <Move name="REPOSITORY_METADATA_OWNER_STRING"/>
+        </Field>
+        <Field name="GoogleDriveId">
+            <Move name="REPOSITORY_METADATA_FILEID_STRING"/>
+        </Field>
+        <Field name="Title">
+            <Move name="REPOSITORY_METADATA_TITLE_STRING"/>
+        </Field>
+        <Field name="Description">
+            <Move name="REPOSITORY_METADATA_DESCIPTION_STRING"/>
+        </Field>
+        <Field name="CreatedDate">
+            <ValueFormat format="YYYY-SHORTMONTH-DD HH:NN:SS" type="autndate"/>
+            <Move name="REPOSITORY_METADATA_DATE_CREATED_EPOCHSECONDS"/>
+        </Field>
+        <Field name="ModifiedDate">
+            <ValueFormat format="YYYY-SHORTMONTH-DD HH:NN:SS" type="autndate"/>
+            <Move name="REPOSITORY_METADATA_DATE_MODIFIED_EPOCHSECONDS"/>
+        </Field>
+        <Field name="Url">
+            <Move name="REPOSITORY_METADATA_URL_STRING"/>
+        </Field>
+    </Product>
+    <Product keyRegex=".*Jive">
+        <Field name="CreatedDate">
+            <ValueFormat format="YYYY-MM-DDTHH:NN:SS.fffZ" type="autndate"/>
+            <Move name="REPOSITORY_METADATA_DATE_MODIFIED_EPOCHSECONDS"/>
+        </Field>
+        <Field name="UpdatedDate">
+            <ValueFormat format="YYYY-MM-DDTHH:NN:SS.fffZ" type="autndate"/>
+            <Move name="REPOSITORY_METADATA_DATE_UPDATED_EPOCHSECONDS"/>
+        </Field>
+        <Field name="Author">
+            <Move name="REPOSITORY_METADATA_AUTHOR_STRING"/>
+        </Field>
+        <Field name="ParentId">
+            <Move name="REPOSITORY_METADATA_ID_PARENT_STRING"/>
+        </Field>
+        <Field name="AttachmentId">
+            <Move name="REPOSITORY_METADATA_ID_ATTACHMENT_STRING"/>
+        </Field>
+        <Field name="JiveContentType">
+            <Move name="REPOSITORY_METADATA_TYPE_STRING"/>
+        </Field>
+        <Field name="Subject">
+            <Move name="REPOSITORY_METADATA_SUBJECT_STRING"/>
+        </Field>
+        <Field name="Categories">
+            <Move name="REPOSITORY_METADATA_CATEGORIES_STRING"/>
+        </Field>
+        <Field name="Tags">
+            <Move name="REPOSITORY_METADATA_TAGS_STRING"/>
+        </Field>
+    </Product>
+    <Product keyRegex=".*Lithium">
+        <Field name="title">
+            <Move name="REPOSITORY_METADATA_TITLE_STRING"/>
+        </Field>
+        <Field name="message_href">
+            <Move name="REPOSITORY_METADATA_URL_MESSAGE_STRING"/>
+        </Field>
+        <Field name="subject">
+            <Move name="REPOSITORY_METADATA_SUBJECT_STRING"/>
+        </Field>
+    </Product>
+    <Product keyRegex=".*Notes">
+        <Field name="DBName">
+            <Move name="REPOSITORY_METADATA_DATABASE_STRING"/>
+        </Field>
+        <Field name="NotesId">
+            <Move name="REPOSITORY_METADATA_ID_DOCUMENT_NUMBER"/>
+        </Field>
+    </Product>
+    <Product keyRegex=".*SharePoint(OData)?">
+        <Field name="TYPE">
+            <Move name="REPOSITORY_METADATA_TYPE_STRING"/>
+        </Field>
+        <Field name="SITECOLLECTIONID">
+            <Move name="REPOSITORY_METADATA_ID_SITECOLLECTION_STRING"/>
+        </Field>
+        <Field name="SITECOLLECTIONURL">
+            <Move name="REPOSITORY_METADATA_URL_SITECOLLECTION_STRING"/>
+        </Field>
+        <Field name="SITEHIERACHY">
+            <Move name="REPOSITORY_METADATA_SITEHIERACHY_STRING"/>
+        </Field>
+        <Field name="SITEID">
+            <Move name="REPOSITORY_METADATA_ID_SITE_STRING"/>
+        </Field>
+        <Field name="LISTID">
+            <Move name="REPOSITORY_METADATA_ID_LIST_STRING"/>
+        </Field>
+        <Field name="LISTITEMID">
+            <Move name="REPOSITORY_METADATA_ID_DOCUMENT_STRING"/>
+        </Field>
+        <Field name="ATTACHMENT">
+            <Move name="REPOSITORY_METADATA_FILENAME_STRING"/>
+        </Field>
+        <Field name="DISPLAYNAME">
+            <Move name="REPOSITORY_METADATA_TITLE_STRING"/>
+        </Field>
+        <Field name="FOLDER">
+            <Move name="REPOSITORY_METADATA_FOLDER_STRING"/>
+        </Field>
+        <Field name="SITEURL">
+            <Move name="REPOSITORY_METADATA_URL_SITE_STRING"/>
+        </Field>
+        <Field name="LISTURL">
+            <Move name="REPOSITORY_METADATA_URL_LIST_STRING"/>
+        </Field>
+        <Field name="FILEURL">
+            <Move name="REPOSITORY_METADATA_URL_FILE_STRING"/>
+        </Field>
+        <Field name="FOLDERURL">
+            <Move name="REPOSITORY_METADATA_URL_FOLDER_STRING"/>
+        </Field>
+        <Field name="LISTITEMURL">
+            <Move name="REPOSITORY_METADATA_URL_LISTITEM_STRING"/>
+        </Field>
+        <Field name="ATTACHMENTURL">
+            <Move name="REPOSITORY_METADATA_URL_ATTACHMENT_STRING"/>
+        </Field>
+        <Field name="BASETYPE">
+            <Move name="REPOSITORY_METADATA_TYPE_STRING"/>
+        </Field>
+        <Field name="BASETEMPLATE">
+            <Move name="REPOSITORY_METADATA_TYPETEMPLATE_STRING"/>
+        </Field>
+        <Field name="Created">
+            <Move name="REPOSITORY_METADATA_DATE_CREATED_STRING"/>
+        </Field>
+        <Field name="Created_Epoch">
+            <ValueFormat format="epoch" type="autndate"/>
+            <Move name="REPOSITORY_METADATA_DATE_CREATED_EPOCHSECONDS"/>
+        </Field>
+        <Field name="AUTHOR">
+            <Move name="REPOSITORY_METADATA_AUTHOR_STRING"/>
+        </Field>
+        <Field name="Modified">
+            <Move name="REPOSITORY_METADATA_DATE_MODIFIED_STRING"/>
+        </Field>
+        <Field name="Modified_Epoch">
+            <ValueFormat format="epoch" type="autndate"/>
+            <Move name="REPOSITORY_METADATA_DATE_MODIFIED_EPOCHSECONDS"/>
+        </Field>
+        <Field name="Editor">
+            <Move name="REPOSITORY_METADATA_EDITOR_STRING"/>
+        </Field>
+        <Field name="Description">
+            <Move name="REPOSITORY_METADATA_DESCRIPTION_STRING"/>
+        </Field>
+    </Product>
+    <Product keyRegex=".*Web">
+        <Field name="PARENT_URL">
+            <Move name="REPOSITORY_METADATA_URL_PARENT_STRING"/>
+        </Field>
+        <Field name="LINK">
+            <Move name="REPOSITORY_METADATA_URL_LINK_STRING"/>
+        </Field>
+        <Field name="DEPTH">
+            <Move name="REPOSITORY_METADATA_DEPTH_NUMBER"/>
+        </Field>
+        <Field name="MD5HASH">
+            <Move name="REPOSITORY_METADATA_MD5HASH_STRING"/>
+        </Field>
+        <Field name="PAGE_DATE">
+            <Move name="REPOSITORY_METADATA_PAGE_DATE_STRING"/>
+        </Field>
+    </Product>
+    <Product keyRegex=".*Yammer">
+        <Field name="Creation Date">
+            <ValueFormat format="YYYY-MM-DDTHH:NN:SS.fff|" type="autndate"/>
+            <Move name="REPOSITORY_METADATA_DATE_CREATED_EPOCHSECONDS"/>
+        </Field>
+        <Field name="Upload Date">
+            <ValueFormat format="YYYY-MM-DDTHH:NN:SS.fff|" type="autndate"/>
+            <Move name="REPOSITORY_METADATA_DATE_CREATED_EPOCHSECONDS"/>
+        </Field>
+        <Field name="Id">
+            <Move name="REPOSITORY_METADATA_ID_DOCUMENT_NUMBER"/>
+        </Field>
+        <Field name="File Id">
+            <Move name="REPOSITORY_METADATA_ID_DOCUMENT_NUMBER"/>
+        </Field>
+        <Field name="Replied To Id">
+            <Move name="REPOSITORY_METADATA_ID_PARENT_NUMBER"/>
+        </Field>
+        <Field name="Sender Name">
+            <Move name="REPOSITORY_METADATA_AUTHOR_STRING"/>
+        </Field>
+    </Product>
+    <Product keyRegex=".*GoogleCloudStorage">
+        <Field name="selfLink">
+            <Copy name="AUTN_MIGRATION_URI"/>
+        </Field>
+    </Product>
+    <Field matchesRegex=".+" pathRegex="name|Name|NAME">
+        <GetValue var="FALLBACK_TITLE"/>
+    </Field>
+    <Field matchesRegex=".+" pathRegex="title|Title|TITLE">
+        <GetValue var="FALLBACK_TITLE"/>
+    </Field>
+    <IfField negate="true" path="DOCUMENT_METADATA_TITLE_STRING">
+        <IfVar negate="true" var="FALLBACK_TITLE">
+            <AddField name="DOCUMENT_METADATA_TITLE_STRING" value="No title available"/>
+        </IfVar>
+        <IfVar var="FALLBACK_TITLE">
+            <AddField name="DOCUMENT_METADATA_TITLE_STRING" value="${FALLBACK_TITLE}"/>
+        </IfVar>
+    </IfField>
+</FieldStandardization>

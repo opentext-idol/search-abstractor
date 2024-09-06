@@ -34,6 +34,12 @@
                 "auth":{
                     "$ref": "#/$defs/auth"
                 },
+                "saapiPostgresql":{
+                    "$ref": "#/$defs/saapiPostgresql"
+                },
+                "sessionapi":{
+                    "$ref": "#/$defs/sessionapi"
+                },
                 "saapi":{
                     "$ref": "#/$defs/saapi"
                 }
@@ -49,6 +55,8 @@
                 "ogs",
                 "qms",
                 "saapi",
+                "sessionapi",
+                "saapiPostgresql",
                 "view"
             ],
             "unevaluatedProperties": false
@@ -85,6 +93,19 @@
         "required_string":{
             "type": "string",
             "minLength": 1
+        },
+        "image":{
+            "type": "object",
+            "properties":{
+                "registry": { "type": "string" },
+                "repo": { "type": "string"},
+                "version": { "type": "string"},
+                "pullPolicy": { "type": "string"}
+            },
+            "required":[
+                "registry","repo","version","pullPolicy"
+            ],
+            "unevaluatedProperties": false
         },
         "aes":{
             "type": "object",
@@ -172,6 +193,61 @@
                 "uiUrls"
             ]
         },
+        "saapiPostgresql": {
+            "$ref": "#/$defs/optional_object"
+        },
+        "sessionapi": {
+            "type": "object",
+            "properties": {
+                "name": { "$ref": "#/$defs/required_string" },
+                "replicas": { "type": "integer" },
+                "config": { "$ref": "#/$defs/required_string" },
+                "licensor": {
+                    "type": "object",
+                    "properties": {
+                        "name": { "$ref": "#/$defs/required_string" },
+                        "port": { "type": "integer" }
+                    },
+                    "required": [
+                        "name","port"
+                    ],
+                    "unevaluatedProperties": false
+                },
+                "image": {"$ref": "#/$defs/image" },
+                "ingress": {
+                    "type": "object",
+                    "properties": {
+                        "enabled": { "type": "boolean" },
+                        "path": { "type": "string" },
+                        "host": { "type": "string" },
+                        "className": { "type": "string"}
+                    },
+                    "required": [
+                        "className","enabled","path","host"
+                    ],
+                    "unevaluatedProperties": false
+                },
+                "service": {
+                    "type": "object",
+                    "properties": {
+                        "name": { "$ref": "#/$defs/required_string" },
+                        "port": { "type": "integer" }
+                    },
+                    "required": [
+                        "name","port"
+                    ]
+                }
+            },
+            "required": [
+                "name",
+                "replicas",
+                "image",
+                "service",
+                "licensor",
+                "config",
+                "ingress"
+            ]
+        },
         "saapi":{
             "type": "object",
             "properties":{
@@ -180,8 +256,11 @@
                 "allowedOrigins": { "type": "string" },
                 "backendIdolHost": { "$ref": "#/$defs/required_string" },
                 "backendIdolPort": { "$ref": "#/$defs/required_string" },
+                "backendIdolContentHost": { "$ref": "#/$defs/required_string" },
+                "backendIdolContentPort": { "$ref": "#/$defs/required_string" },
                 "config": { "$ref": "#/$defs/required_string" },
                 "secret": { "$ref": "#/$defs/required_string" },
+                "httpCacheMaxAge": { "type": "integer", "minimum": 1 },
                 "backendApi":{
                     "type": "object",
                     "properties":{
@@ -207,28 +286,29 @@
                     ],
                     "unevaluatedProperties": false
                 },
-                "image":{
+                "storage":{
                     "type": "object",
                     "properties":{
-                        "registry": { "type": "string" },
-                        "repo": { "type": "string"},
-                        "version": { "type": "string"},
-                        "pullPolicy": { "type": "string"}
+                        "dbName": { "$ref": "#/$defs/required_string" },
+                        "maxFileSize":  { "$ref": "#/$defs/required_string" },
+                        "maxRequestSize":  { "$ref": "#/$defs/required_string" }
                     },
                     "required":[
-                        "registry","repo","version","pullPolicy"
+                        "dbName", "maxFileSize","maxRequestSize"
                     ],
                     "unevaluatedProperties": false
                 },
+                "image": {"$ref": "#/$defs/image" },
                 "ingress":{
                     "type": "object",
                     "properties":{
                         "className": { "type": "string"},
                         "host": { "type": "string"},
+                        "port": { "type": "integer" },
                         "path": { "$ref": "#/$defs/required_string"}
                     },
                     "required":[
-                        "className","host","path"
+                        "className","host","port","path"
                     ],
                     "unevaluatedProperties": false
                 },
@@ -246,14 +326,21 @@
                     "type": "object",
                     "properties":{
                         "endpoint": { "$ref": "#/$defs/required_string" },
+                        "chatEndpoint": { "$ref": "#/$defs/required_string" },
                         "model": { "$ref": "#/$defs/required_string" },
                         "modelRevision": { "$ref": "#/$defs/required_string" },
-                        "HFToken": { "type": "string" }
+                        "HFToken": { "type": "string" },
+                        "llavaModel": { "type": "string" },
+                        "llavaEndpointBase": { "$ref": "#/$defs/required_string" },
+                        "openAiApiKey": { "type": "string" }
                     },
                     "required":[
                         "endpoint",
+                        "chatEndpoint",
                         "model",
-                        "modelRevision"
+                        "modelRevision",
+                        "llavaModel",
+                        "llavaEndpointBase"
                     ],
                     "unevaluatedProperties": false
                 }
@@ -264,10 +351,14 @@
                 "allowedOrigins",
                 "backendIdolHost",
                 "backendIdolPort",
+                "backendIdolContentHost",
+                "backendIdolContentPort",
                 "config",
                 "secret",
+                "httpCacheMaxAge",
                 "image",
                 "backendApi",
+                "storage",
                 "ingress",
                 "service",
                 "vllm"

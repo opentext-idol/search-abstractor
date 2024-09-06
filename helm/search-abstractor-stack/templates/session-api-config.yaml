@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.sessionapi.config }}
+data:
+  SEARCHABSTRACTOR_SESSION_SERVICE_DATABASE_HOST: {{ .Values.saapiPostgresql.fullnameOverride | quote }}
+  SEARCHABSTRACTOR_SESSION_SERVICE_DATABASE_PORT: {{ .Values.saapiPostgresql.service.port | quote }}
+  SEARCHABSTRACTOR_SESSION_SERVICE_DATABASE_USERNAME: {{ .Values.saapiPostgresql.auth.username | quote }}
+  SEARCHABSTRACTOR_SESSION_SERVICE_DATABASE_PASSWORD: {{ .Values.saapiPostgresql.auth.password | quote }}
+  SEARCHABSTRACTOR_SESSION_SERVICE_DATABASE_NAME: {{ .Values.saapiPostgresql.auth.database | quote }}
+  SEARCHABSTRACTOR_SESSION_SERVICE_DATABASE_APPNAME: "searchabstractor_session_service"

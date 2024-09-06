@@ -1,30 +1,40 @@
 local HIT_FIELD_MAPPINGS = {["reference"] = "ref", ["database"] = "source", ["title"] = "title",
                             ["weight"] = "relevance"}
 
+local function get_hits(doc_list)
+    local hits = LuaJsonArray:new()
+    for _, child in ipairs(doc_list) do
+        local hit = {}
+        local child_list = { child:getChildren() }
+        for _, field in ipairs(child_list) do
+            local mapped_field = HIT_FIELD_MAPPINGS[field:getName()]
+            if mapped_field ~= nil then
+                if mapped_field == "relevance" then
+                    hit[mapped_field] = tonumber(field:getValue())
+                else
+                    hit[mapped_field] = field:getValue()
+                end
+            end
+        end
+        hits:append(LuaJsonObject:new(hit))
+    end
+    return hits
+end
+
 local function query_handler(ffdocument, session)
     ffdocument:modify({
         postAction = function(action)
             local meta = action:getXmlMetadata()
             local response = {["responseType"] = "searchresult"}
-            local hits = LuaJsonArray:new()
+            
             local doc_list = { meta:getElementsByXPath("//xmlmetadata/IDOLDocList/IDOLDoc") }
-            for _, child in ipairs(doc_list) do
-                local hit = {}
-                local child_list = { child:getChildren() }
-                for __, field in ipairs(child_list) do
-                    local mapped_field = HIT_FIELD_MAPPINGS[field:getName()]
-                    if mapped_field ~= nil then
-                        if mapped_field == "relevance" then
-                            hit[mapped_field] = tonumber(field:getValue())
-                        else
-                            hit[mapped_field] = field:getValue()
-                        end
-                    end
-                end
-                hits:append(LuaJsonObject:new(hit))
+            response["hit"] = get_hits(doc_list)
+
+            local image_list = { meta:getElementsByXPath("//xmlmetadata/IDOLImageList/IDOLImage") }
+            if #image_list > 0 then
+                response["imageHit"] = get_hits(image_list)
             end
 
-            response["hit"] = hits
             local json_response = LuaJsonObject:new({["response"] = LuaJsonObject:new(response)})
             action:addContent(json_response:string())
             action:clearXmlMetadata()

@@ -1,0 +1,18 @@
+{
+    "initial_task": "GREET",
+    "fallback_task": "UNKNOWN",
+    "tasks": [
+      {
+        "id": "GREET",
+        "pre": {
+          "response": {{ printf "\"{{SESSION_ID}}\"" }}
+        }
+      },
+      {
+        "id": "UNKNOWN",
+        "pre": {
+          "response": "Sorry, I didn't understand that. Is there anything else I can help with?"
+        }
+      }
+    ]
+  }

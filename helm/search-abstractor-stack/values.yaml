@@ -16,7 +16,7 @@ global:
   - "dockerhub-secret"
   # -- Global override value for idolImage.version
   # @section -- Global Values
-  idolVersion: "24.3.0"
+  idolVersion: "24.4.0"
 
 aes:
   # -- Value used to generate a shared AES256 key for securityinfo
@@ -36,6 +36,7 @@ aes:
 content:
   # -- Whether to deploy a content component
   enabled: true
+  name: &content-name idol-content
   queryserviceACIPort: &queryserviceACIPort "9100"
   existingConfigMap: search-abstractor-content-deployment-cfg
   cfg:
@@ -86,6 +87,13 @@ qms:
   single-content:
     enabled: false
   existingConfigMap: search-abstractor-qms-deployment-cfg
+  additionalVolumes:
+  - name: poststart
+    configMap:
+      name: idol-qms-poststart
+  additionalVolumeMounts:
+  - name: poststart
+    mountPath: /qms/poststart_scripts
 
 # -- `view` subchart values (see https://github.com/opentext-idol/idol-containers-toolkit/tree/main/helm/idol-view#values)
 # @default -- default configuration for search-abstractor view
@@ -168,11 +176,75 @@ auth:
   # -- Roles to populate in keycloak
   baseRealmRoles: "role1,role2,role3"
 
+# -- PostgreSQL subchart values (see https://github.com/bitnami/charts/tree/main/bitnami/postgresql)
+# @default -- default configuration for search-abstractor session api PostgreSQL
+saapiPostgresql:
+  fullnameOverride: saapi-postgresql
+  # -- Whether to deploy the PostgreSQL subchart for the session api service
+  enabled: true
+  service:
+    # -- Port session API PostgreSQL service runs on
+    port: 5432
+  auth:
+    username: postgres
+    password: postgres
+    database: sessionsdb
+  
+  primary:
+    persistence:
+      storageClass: standard
+    containerSecurityContext:
+      enabled: true
+    podSecurityContext:
+      enabled: true
+    initdb:
+      user: postgres
+      password: postgres
+      scriptsConfigMap: session-api-postgres-cfg-map
+
+sessionapi:
+  # -- Deployment name
+  name: &saapi-session-name saapi-session-api-service
+  # -- Deployment replicas
+  replicas: 1
+  image:
+    # -- The registry value to use to construct the container image name: {registry}/{repo}:{version}
+    registry: microfocusidolserver
+    # -- The repository value to use to construct the container image name: {registry}/{repo}:{version}
+    repo: search-abstractor-session-service
+    # -- The version value to use to construct the container image name: {registry}/{repo}:{version}
+    version: "24.4.0"
+    # -- The policy to use to determine whether to pull the specified image (see https://kubernetes.io/docs/concepts/containers/images/#image-pull-policy)
+    pullPolicy: Always
+  service:
+    # -- Session service name
+    name: *saapi-session-name
+    # -- Port that the session service runs on
+    port: 8080
+  licensor:
+    # -- Session licensor name
+    name: idol-answerserver
+    # -- Port session licensor runs on
+    port: 12000
+  # -- `configmap` name
+  config: session-api-config
+  ingress:
+    # -- Whether to create an ingress resource
+    enabled: false
+    # -- Ingress controller path exposing session API
+    path: /session-api/
+    # -- Optional ingress host (see https://kubernetes.io/docs/concepts/services-networking/ingress/#ingress-rules).
+    host: ""
+    # -- Optional parameter to override the default ingress class
+    className: ""
+  storage:
+    # -- Database name used for api-service storage
+    dbName: resourcesdb
 
 saapi:
-  # -- deployment name
+  # -- Deployment name
   name: &saapi-name saapi-api-service
-  # -- deployment replicas
+  # -- Deployment replicas
   replicas: 1
   image:
     # -- The registry value to use to construct the container image name: {registry}/{repo}:{version}
@@ -180,15 +252,21 @@ saapi:
     # -- The repository value to use to construct the container image name: {registry}/{repo}:{version}
     repo: search-abstractor-api-service
     # -- The version value to use to construct the container image name: {registry}/{repo}:{version}
-    version: "24.3.0"
+    version: "24.4.0"
      # -- The policy to use to determine whether to pull the specified image (see https://kubernetes.io/docs/concepts/containers/images/#image-pull-policy)
     pullPolicy: Always
   # -- CORS origin values
   allowedOrigins: "http://localhost:8080"
+  # -- Cache duration, in seconds, for document images and subfiles
+  httpCacheMaxAge: 3600
   # -- Hostname for Community component
   backendIdolHost: *community-name
   # -- ACI port for Community component
   backendIdolPort: *community-aciport
+  # -- hostname for content component
+  backendIdolContentHost: *content-name
+  # -- aci port for content component
+  backendIdolContentPort: *queryserviceACIPort
   backendApi:
     # -- Host/service name
     name: search-abstractor-api
@@ -201,25 +279,42 @@ saapi:
       host: ""
       # -- Optional parameter to override the default ingress class
       className: ""
+  storage:
+    # -- Database name used for api-service storage
+    dbName: resourcesdb
+    # -- Maximum size for a single uploaded file
+    maxFileSize: 10MB
+    # -- Maximum total size for a request
+    maxRequestSize: 10MB
 
   vllm:
     # -- vllm endpoint to use for llm access
     endpoint: http://vllm-endpoint:8000/v1/completions
+    # -- vllm chat endpoint to use for llm access
+    chatEndpoint: http://vllm-endpoint:8000/v1/chat/completions
     # -- The LLM to use
     model: mistralai/Mistral-7B-Instruct-v0.2
     # -- The LLM revision to use (branch, tag, or commitid)
     modelRevision: "9925900"
     # -- HuggingFace token to access the model/tokenizer to use for the RAG answer system
     HFToken: ""
+    # -- The LLaVa model to use
+    llavaModel: "llava-hf/llava-v1.6-mistral-7b-hf"
+    # -- The base path of the OpenAI endpoint to use for LLaVa model access
+    llavaEndpointBase: "http://openai-llava-server:8000/v1/"
+    # -- The OpenAI API key to use for the endpoint
+    openAiApiKey: "My API Key"
   # -- `configmap` name
   config: api-config
   # -- Secret name for auth credentials
   secret: api-secret
   ingress:
-    # -- Ingress controller path exposing api
+    # -- Ingress controller path exposing API (should end with /)
     path: /api/
     # -- Optional ingress host (see https://kubernetes.io/docs/concepts/services-networking/ingress/#ingress-rules).
     host: ""
+    # -- Port ingress service runs on
+    port: 12080
     # -- Optional parameter to override the default ingress class
     className: ""
 
