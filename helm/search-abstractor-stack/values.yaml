@@ -16,7 +16,7 @@ global:
   - "dockerhub-secret"
   # -- Global override value for idolImage.version
   # @section -- Global Values
-  idolVersion: "24.4.0"
+  idolVersion: &idolVersion "24.4"
 
 aes:
   # -- Value used to generate a shared AES256 key for securityinfo
@@ -213,7 +213,7 @@ sessionapi:
     # -- The repository value to use to construct the container image name: {registry}/{repo}:{version}
     repo: search-abstractor-session-service
     # -- The version value to use to construct the container image name: {registry}/{repo}:{version}
-    version: "24.4.0"
+    version: *idolVersion
     # -- The policy to use to determine whether to pull the specified image (see https://kubernetes.io/docs/concepts/containers/images/#image-pull-policy)
     pullPolicy: Always
   service:
@@ -252,7 +252,7 @@ saapi:
     # -- The repository value to use to construct the container image name: {registry}/{repo}:{version}
     repo: search-abstractor-api-service
     # -- The version value to use to construct the container image name: {registry}/{repo}:{version}
-    version: "24.4.0"
+    version: *idolVersion
      # -- The policy to use to determine whether to pull the specified image (see https://kubernetes.io/docs/concepts/containers/images/#image-pull-policy)
     pullPolicy: Always
   # -- CORS origin values

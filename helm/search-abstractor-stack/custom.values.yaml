@@ -1,0 +1,135 @@
+# BEGIN COPYRIGHT NOTICE
+# Copyright 2024 Open Text.
+# 
+# The only warranties for products and services of Open Text and its affiliates and licensors
+# ("Open Text") are as may be set forth in the express warranty statements accompanying such
+# products and services. Nothing herein should be construed as constituting an additional warranty.
+# Open Text shall not be liable for technical or editorial errors or omissions contained herein.
+# The information contained herein is subject to change without notice.
+#
+# END COPYRIGHT NOTICE
+
+# This file is intended to be a useful starting point for considering what values need 
+# configuring specifically for your deployed instance of Search Abstractor.
+
+# None of the x-custom values are values directly used by any chart, but will be 
+# substituted in via yaml anchors/aliases
+x-custom:
+  license:
+    # -- LicenseServer instance
+    licenseServerHostname: &licenseServerHostname "my.licenseserver.host"
+  storage:
+    # -- StorageClass name as appropriate for cluster (kubectl get storageclasses)
+    storageClass: &storageClass "standard"
+  ingress:
+    # -- External portname for accessing services
+    port: &ingressPort 80
+    # -- External hostname for accessing REST API
+    host: &ingressHost "my.ingress.host"
+    # -- External hostname for accessing NiFi
+    nifiHost: &nifiIngressHost "my.nifi.ingress.host"
+    # -- External hostname for accessing Keycloak
+    authHost: &authIngressHost "my.auth.ingress.host"
+    # -- Whether to enable direct ingress access to internal services
+    enableDev: &enableDevIngress true
+  cfg:
+    # -- Security type configuration as appropriate for connector repositories
+    contentSecurityCfg: &contentSecurityCfg |-
+        // add additional Content security setup here (appended to [Security] section)
+    # -- Extra field processing configuration (remember to account for security types)
+    contentFieldprocessingCfg: &contentFieldprocessingCfg |-
+        // add additional Content field setup here (appended to [FieldProcessing] section)
+    # -- OGS configuration as appropriate for connector repositories
+    ogsRepositoriesCfg: &ogsRepositoriesCfg |-
+        // add your OmniGroupServer repo setup here (appended to [Repositories] section)
+    # -- Community confiuguration as appropritate for connector repositories
+    communitySecurityCfg: &communitySecurityCfg |-
+        0=Autonomy
+        // add your community security setup here (appended to [Security] section)
+  # -- HuggingFace token to access the model/tokenizer to use for the RAG answer system
+  HFToken: &HFToken "your-hugging-face-api-token"
+
+# The rest of this file inserts the x-custom values into the right place in the
+# values.yaml
+
+aci-common: &aci-common
+  licenseServerHostname: *licenseServerHostname
+  ingress:
+    enabled: *enableDevIngress
+    host: *ingressHost
+
+content-common: &content-common
+  <<: *aci-common
+  contentStorageClass: *storageClass
+
+content:
+  <<: *content-common
+  cfg:
+    fieldprocessing: *contentFieldprocessingCfg
+    security: *contentSecurityCfg
+
+answerserver:
+  <<: *aci-common
+  answerServerStorageClass: *storageClass
+  passageextractorAgentstore:
+    <<: *content-common
+  answerbankAgentstore:
+    <<: *content-common
+  postgresql:
+    primary:
+      persistence:
+        storageClass: *storageClass
+
+qms:
+  <<: *aci-common
+
+view:
+  <<: *aci-common
+
+ogs:
+  <<: *aci-common
+  ogsStorageClass: *storageClass
+  cfg:
+    repositories: *ogsRepositoriesCfg
+
+community:
+  <<: *aci-common
+  cfg:
+    security: *communitySecurityCfg
+
+nifi:
+  nifi:
+    dataVolume:
+      storageClass: *storageClass
+    ingress:
+      host: *nifiIngressHost
+      proxyHost: *nifiIngressHost
+      aciHost: *nifiIngressHost
+  nifiRegistry:
+    ingress:
+      host: *nifiIngressHost
+
+auth:
+  external:
+    host: *authIngressHost
+    adminHost: *authIngressHost
+    port: *ingressPort
+  db:
+    dataVolumeStorageClass: *storageClass
+
+saapi:
+  backendApi:
+    ingress:
+      enabled: *enableDevIngress
+      host: *ingressHost
+  ingress: 
+    host: *ingressHost
+    port: *ingressPort
+  vllm:
+    HFToken: *HFToken
+
+saapiPostgresql:
+  primary:
+    persistence:
+      storageClass: *storageClass
+

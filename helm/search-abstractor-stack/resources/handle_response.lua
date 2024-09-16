@@ -31,9 +31,7 @@ local function query_handler(ffdocument, session)
             response["hit"] = get_hits(doc_list)
 
             local image_list = { meta:getElementsByXPath("//xmlmetadata/IDOLImageList/IDOLImage") }
-            if #image_list > 0 then
-                response["imageHit"] = get_hits(image_list)
-            end
+            response["imageHit"] = get_hits(image_list)
 
             local json_response = LuaJsonObject:new({["response"] = LuaJsonObject:new(response)})
             action:addContent(json_response:string())
