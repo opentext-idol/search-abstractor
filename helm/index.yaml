@@ -12,6 +12,61 @@ apiVersion: v1
 entries:
   search-abstractor-stack:
   - apiVersion: v2
+    appVersion: 24.4.0
+    created: "2024-09-16T11:17:33.178968678+01:00"
+    dependencies:
+    - alias: content
+      condition: content.enabled
+      name: single-content
+      repository: https://raw.githubusercontent.com/opentext-idol/idol-containers-toolkit/main/helm
+      version: 0.10.0
+    - alias: qms
+      condition: qms.enabled
+      name: idol-qms
+      repository: https://raw.githubusercontent.com/opentext-idol/idol-containers-toolkit/main/helm
+      version: 0.6.0
+    - alias: answerserver
+      condition: answerserver.enabled
+      name: idol-answerserver
+      repository: https://raw.githubusercontent.com/opentext-idol/idol-containers-toolkit/main/helm
+      version: 0.4.0
+    - alias: view
+      condition: view.enabled
+      name: idol-view
+      repository: https://raw.githubusercontent.com/opentext-idol/idol-containers-toolkit/main/helm
+      version: 0.6.0
+    - alias: ogs
+      condition: ogs.enabled
+      name: idol-omnigroupserver
+      repository: https://raw.githubusercontent.com/opentext-idol/idol-containers-toolkit/main/helm
+      version: 0.7.0
+    - alias: community
+      condition: community.enabled
+      name: idol-community
+      repository: https://raw.githubusercontent.com/opentext-idol/idol-containers-toolkit/main/helm
+      version: 0.6.0
+    - alias: nifi
+      condition: nifi.enabled
+      name: idol-nifi
+      repository: https://raw.githubusercontent.com/opentext-idol/idol-containers-toolkit/main/helm
+      version: 0.8.0
+    - alias: auth
+      condition: auth.enabled
+      name: discover-auth
+      repository: https://raw.githubusercontent.com/opentext-idol/discover-deploy/develop/helm
+      version: 0.1.0
+    - alias: saapiPostgresql
+      condition: saapiPostgresql.enabled
+      name: postgresql
+      repository: https://charts.bitnami.com/bitnami
+      version: 13.2.3
+    description: An IDOL setup for RAG
+    digest: 933b6e13a24b95699a332a06e71522e9fb0b08dc6eff0624c4f1429961268b50
+    name: search-abstractor-stack
+    urls:
+    - release/search-abstractor-stack-0.2.0.tgz
+    version: 0.2.0
+  - apiVersion: v2
     appVersion: 24.3.0
     created: "2024-07-11T11:37:29.32216283+01:00"
     dependencies:
@@ -61,4 +116,4 @@ entries:
     urls:
     - release/search-abstractor-stack-0.1.0.tgz
     version: 0.1.0
-generated: "2024-07-11T11:37:29.258194658+01:00"
+generated: "2024-09-16T11:17:33.145461082+01:00"
