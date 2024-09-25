@@ -1,6 +1,6 @@
 # search-abstractor-stack
 
-![Version: 0.2.0](https://img.shields.io/badge/Version-0.2.0-informational?style=flat-square) ![AppVersion: 24.4.0](https://img.shields.io/badge/AppVersion-24.4.0-informational?style=flat-square)
+![Version: 0.2.0](https://img.shields.io/badge/Version-0.2.0-informational?style=flat-square) ![AppVersion: 24.4](https://img.shields.io/badge/AppVersion-24.4-informational?style=flat-square)
 
 Provides an IDOL setup for Retrieval-augmented generation (RAG)
 
@@ -10,13 +10,13 @@ Provides an IDOL setup for Retrieval-augmented generation (RAG)
 |------------|------|---------|
 | https://charts.bitnami.com/bitnami | saapiPostgresql(postgresql) | 13.2.3 |
 | https://raw.githubusercontent.com/opentext-idol/discover-deploy/develop/helm | auth(discover-auth) | 0.1.0 |
-| https://raw.githubusercontent.com/opentext-idol/idol-containers-toolkit/main/helm | answerserver(idol-answerserver) | 0.4.0 |
-| https://raw.githubusercontent.com/opentext-idol/idol-containers-toolkit/main/helm | community(idol-community) | 0.6.0 |
-| https://raw.githubusercontent.com/opentext-idol/idol-containers-toolkit/main/helm | nifi(idol-nifi) | 0.8.0 |
-| https://raw.githubusercontent.com/opentext-idol/idol-containers-toolkit/main/helm | ogs(idol-omnigroupserver) | 0.7.0 |
-| https://raw.githubusercontent.com/opentext-idol/idol-containers-toolkit/main/helm | qms(idol-qms) | 0.6.0 |
-| https://raw.githubusercontent.com/opentext-idol/idol-containers-toolkit/main/helm | view(idol-view) | 0.6.0 |
-| https://raw.githubusercontent.com/opentext-idol/idol-containers-toolkit/main/helm | content(single-content) | 0.10.0 |
+| https://raw.githubusercontent.com/opentext-idol/idol-containers-toolkit/main/helm | answerserver(idol-answerserver) | 0.4.1 |
+| https://raw.githubusercontent.com/opentext-idol/idol-containers-toolkit/main/helm | community(idol-community) | 0.6.1 |
+| https://raw.githubusercontent.com/opentext-idol/idol-containers-toolkit/main/helm | nifi(idol-nifi) | 0.8.1 |
+| https://raw.githubusercontent.com/opentext-idol/idol-containers-toolkit/main/helm | ogs(idol-omnigroupserver) | 0.7.1 |
+| https://raw.githubusercontent.com/opentext-idol/idol-containers-toolkit/main/helm | qms(idol-qms) | 0.6.1 |
+| https://raw.githubusercontent.com/opentext-idol/idol-containers-toolkit/main/helm | view(idol-view) | 0.6.1 |
+| https://raw.githubusercontent.com/opentext-idol/idol-containers-toolkit/main/helm | content(single-content) | 0.10.1 |
 
 ### Prerequisites
 
