@@ -17,7 +17,8 @@ import requests
 from transformers import AutoTokenizer
 
 VLLM_ENDPOINT = os.getenv('OPENTEXT_VLLM_ENDPOINT') or 'http://vllm-server:8000/v1/completions'
-VLLM_MODEL = os.getenv('OPENTEXT_VLLM_MODEL') or 'mistralai/Mistral-7B-Instruct-v0.1'
+VLLM_CHAT_ENDPOINT = os.getenv('OPENTEXT_VLLM_CHAT_ENDPOINT') or 'http://vllm-server:8000/v1/chat/completions'
+VLLM_MODEL = os.getenv('OPENTEXT_VLLM_MODEL') or 'mistralai/Mistral-7B-Instruct-v0.2'
 VLLM_MODEL_REVISION = os.getenv('OPENTEXT_VLLM_MODEL_REVISION') or 'main'
 
 # Set this environment variable if you don't want to use a cached tokenizer.
@@ -28,12 +29,16 @@ if HUGGINGFACE_API_TOKEN is not None:
     # Authenticate with Hugging Face
     login(HUGGINGFACE_API_TOKEN)
 
-def generate(prompt: str) -> str:
-    '''
-    Calls out to a vLLM endpoint with {VLLM_MODEL} to obtain a generated response from
-    the provided prompt
-    '''
-    url = VLLM_ENDPOINT
+def get_choice_from_response(response):
+    if 'choices' not in (response_json := response.json()):
+        raise RuntimeError(f"Unable to find 'choices' in vLLM response:\n{response.text}")
+
+    if len(choices := response_json['choices']) == 0:
+        raise RuntimeError(f"'choices' is invalid in vLLM response:\n{response.text}")
+
+    return choices[0]
+
+def generate_single(url: str, prompt: str) -> str:
     headers = {'Content-Type': 'application/json'}
     data = {
         "model": VLLM_MODEL,
@@ -46,16 +51,49 @@ def generate(prompt: str) -> str:
     response = requests.post(url, headers=headers, json=data, timeout=60)
     response.raise_for_status()
 
-    if 'choices' not in (response_json := response.json()):
-        raise RuntimeError(f"Unable to find 'choices' in vLLM response:\n{response.text}")
-
-    if len(choices := response_json['choices']) == 0:
-        raise RuntimeError(f"'choices' is invalid in vLLM response:\n{response.text}")
-
-    if 'text' not in (first_choice := choices[0]):
+    if 'text' not in (first_choice := get_choice_from_response(response)):
         raise RuntimeError(f"'text' not found in first 'choices' element in vLLM response:\n{response.text}")
 
     return first_choice['text']
+
+def generate_chat(url: str, prompt: str, session_data: list[dict[str, str]]) -> str:
+    chat_history = []
+    for step in session_data:
+        if 'question' in step:
+            chat_history.append({"role": "user", "content": step["question"]})
+        if 'answer' in step:
+            chat_history.append({"role": "assistant", "content": step["answer"]})
+
+    chat_history.append({"role": "user", "content": prompt})
+
+    data = {
+        "model": VLLM_MODEL,
+        "max_tokens": 500,
+        "n": 1,
+        "messages": chat_history,
+        "temperature": 0
+    }
+
+    response = requests.post(url, json=data, timeout=60)
+    response.raise_for_status()
+
+    if 'message' not in (first_choice := get_choice_from_response(response)):
+        raise RuntimeError(f"'message' not found in first 'choices' element in vLLM response:\n{response.text}")
+
+    if 'content' not in (message := first_choice['message']):
+        raise RuntimeError(f"'content' not found in message element within first 'choices' element in vLLM response:\n{response.text}")
+
+    return message['content']
+
+def generate(prompt: str, generation_utils=None) -> str:
+    '''
+    Calls out to a vLLM endpoint with {VLLM_MODEL} to obtain a generated response from
+    the provided prompt
+    '''
+    if generation_utils is not None:
+        return generate_chat(VLLM_CHAT_ENDPOINT, prompt, generation_utils.session_data)
+    else:
+        return generate_single(VLLM_ENDPOINT, prompt)
 
 
 def get_token_count(text: str, token_limit: int) -> Tuple[str, int]:

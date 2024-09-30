@@ -30,6 +30,12 @@ data:
 {{ tpl (print "resources/handle_html_view.lua" | .Files.Get) . | indent 4 }}
   handle_raw_view.lua: |
 {{ tpl (print "resources/handle_raw_view.lua" | .Files.Get) . | indent 4 }}
+  media_results_to_document.lua: |
+{{ tpl (print "resources/media_results_to_document.lua" | .Files.Get) . | indent 4 }}
+  llava.py: |
+{{ tpl (print "resources/llava.py" | .Files.Get) . | indent 4 }}
+  standardizer.xml: |
+{{ tpl (print "resources/standardizer.xml" | .Files.Get) . | indent 4 }}
 binaryData:
   question.ecr: |
 {{ tpl (print "resources/question.ecr" | .Files.Get | b64enc) . | indent 4 }}

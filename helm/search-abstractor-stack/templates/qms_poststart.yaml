@@ -1,0 +1,30 @@
+{{- if .Values.qms.enabled }}
+# BEGIN COPYRIGHT NOTICE
+# Copyright 2024 Open Text.
+# 
+# The only warranties for products and services of Open Text and its affiliates and licensors
+# ("Open Text") are as may be set forth in the express warranty statements accompanying such
+# products and services. Nothing herein should be construed as constituting an additional warranty.
+# Open Text shall not be liable for technical or editorial errors or omissions contained herein.
+# The information contained herein is subject to change without notice.
+#
+# END COPYRIGHT NOTICE
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels: {{- include "idol-library.labels" (dict "root" . "component" .Values.qms ) | nindent 4 }}
+  name: {{ .Values.qms.name }}-poststart
+data:
+  002_preload_models.sh: |
+    #! /usr/bin/env bash
+
+    source /qms/startup_utils.sh
+
+    mapfile -t MODEL_NAME < <(grep -i Model= "${IDOL_COMPONENT_CFG}" | sed s/model=//i)
+
+    waitForAci "localhost:${IDOL_QMS_SERVICE_PORT_ACI_PORT}"
+    for MODEL in "${MODEL_NAME[@]}"
+    do 
+      curl "localhost:${IDOL_QMS_SERVICE_PORT_ACI_PORT}/a=modelencode&model=${MODEL}&text=bootstrap"  | xmllint --xpath "//*[local-name()='num_vectors']" -
+    done
+{{- end }}

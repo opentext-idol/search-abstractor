@@ -1,30 +1,49 @@
+-- BEGIN COPYRIGHT NOTICE
+-- Copyright 2024 Open Text.
+-- 
+-- The only warranties for products and services of Open Text and its affiliates and licensors
+-- ("Open Text") are as may be set forth in the express warranty statements accompanying such
+-- products and services. Nothing herein should be construed as constituting an additional warranty.
+-- Open Text shall not be liable for technical or editorial errors or omissions contained herein.
+-- The information contained herein is subject to change without notice.
+--
+-- END COPYRIGHT NOTICE
+
 local HIT_FIELD_MAPPINGS = {["reference"] = "ref", ["database"] = "source", ["title"] = "title",
                             ["weight"] = "relevance"}
+
+local function get_hits(doc_list)
+    local hits = LuaJsonArray:new()
+    for _, child in ipairs(doc_list) do
+        local hit = {}
+        local child_list = { child:getChildren() }
+        for _, field in ipairs(child_list) do
+            local mapped_field = HIT_FIELD_MAPPINGS[field:getName()]
+            if mapped_field ~= nil then
+                if mapped_field == "relevance" then
+                    hit[mapped_field] = tonumber(field:getValue())
+                else
+                    hit[mapped_field] = field:getValue()
+                end
+            end
+        end
+        hits:append(LuaJsonObject:new(hit))
+    end
+    return hits
+end
 
 local function query_handler(ffdocument, session)
     ffdocument:modify({
         postAction = function(action)
             local meta = action:getXmlMetadata()
             local response = {["responseType"] = "searchresult"}
-            local hits = LuaJsonArray:new()
+            
             local doc_list = { meta:getElementsByXPath("//xmlmetadata/IDOLDocList/IDOLDoc") }
-            for _, child in ipairs(doc_list) do
-                local hit = {}
-                local child_list = { child:getChildren() }
-                for __, field in ipairs(child_list) do
-                    local mapped_field = HIT_FIELD_MAPPINGS[field:getName()]
-                    if mapped_field ~= nil then
-                        if mapped_field == "relevance" then
-                            hit[mapped_field] = tonumber(field:getValue())
-                        else
-                            hit[mapped_field] = field:getValue()
-                        end
-                    end
-                end
-                hits:append(LuaJsonObject:new(hit))
-            end
+            response["hit"] = get_hits(doc_list)
 
-            response["hit"] = hits
+            local image_list = { meta:getElementsByXPath("//xmlmetadata/IDOLImageList/IDOLImage") }
+            response["imageHit"] = get_hits(image_list)
+
             local json_response = LuaJsonObject:new({["response"] = LuaJsonObject:new(response)})
             action:addContent(json_response:string())
             action:clearXmlMetadata()

@@ -71,22 +71,7 @@ kind: Ingress
 metadata:
   name: saapi-ingress
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /$1
     nginx.ingress.kubernetes.io/proxy-body-size: "0"
-    nginx.ingress.kubernetes.io/configuration-snippet: |
-      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-      proxy_set_header X-Forwarded-Proto $scheme;
-      proxy_set_header X-Forwarded-Host $host;
-    
-    nginx.ingress.kubernetes.io/server-snippet: |
-      location ~* "^{{ .Values.saapi.ingress.path }}document/(.*)" {
-        set $proxy_upstream_name "{{ .Release.Namespace }}-{{ .Values.saapi.service.name }}-saapi-port";
-        set $proxy_host          $proxy_upstream_name;
-
-        rewrite ^ $request_uri;
-        rewrite "(?i){{ .Values.saapi.ingress.path }}(.*)" /$1 break;
-        proxy_pass http://upstream_balancer$uri;
-      }
 
 spec:
   {{- if .Values.saapi.ingress.className }}
@@ -95,8 +80,8 @@ spec:
   rules:
     - http:
         paths:
-          - path: {{ .Values.saapi.ingress.path }}(.*)
-            pathType: ImplementationSpecific
+          - path: {{ .Values.saapi.ingress.path }}
+            pathType: Prefix
             backend:
               service:
                 name: {{ .Values.saapi.service.name }}

@@ -1,0 +1,21 @@
+# BEGIN COPYRIGHT NOTICE
+# Copyright 2024 Open Text.
+#
+# The only warranties for products and services of Open Text and its affiliates and licensors
+# ("Open Text") are as may be set forth in the express warranty statements accompanying such
+# products and services. Nothing herein should be construed as constituting an additional warranty.
+# Open Text shall not be liable for technical or editorial errors or omissions contained herein.
+# The information contained herein is subject to change without notice.
+#
+# END COPYRIGHT NOTICE
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.sessionapi.config }}
+data:
+  SEARCHABSTRACTOR_SESSION_SERVICE_DATABASE_HOST: {{ .Values.saapiPostgresql.fullnameOverride | quote }}
+  SEARCHABSTRACTOR_SESSION_SERVICE_DATABASE_PORT: {{ .Values.saapiPostgresql.service.port | quote }}
+  SEARCHABSTRACTOR_SESSION_SERVICE_DATABASE_USERNAME: {{ .Values.saapiPostgresql.auth.username | quote }}
+  SEARCHABSTRACTOR_SESSION_SERVICE_DATABASE_PASSWORD: {{ .Values.saapiPostgresql.auth.password | quote }}
+  SEARCHABSTRACTOR_SESSION_SERVICE_DATABASE_NAME: {{ .Values.saapiPostgresql.auth.database | quote }}
+  SEARCHABSTRACTOR_SESSION_SERVICE_DATABASE_APPNAME: "searchabstractor_session_service"

@@ -1,3 +1,14 @@
+-- BEGIN COPYRIGHT NOTICE
+-- Copyright 2024 Open Text.
+-- 
+-- The only warranties for products and services of Open Text and its affiliates and licensors
+-- ("Open Text") are as may be set forth in the express warranty statements accompanying such
+-- products and services. Nothing herein should be construed as constituting an additional warranty.
+-- Open Text shall not be liable for technical or editorial errors or omissions contained herein.
+-- The information contained herein is subject to change without notice.
+--
+-- END COPYRIGHT NOTICE
+
 local config_string =
 [===[
 [http]
@@ -16,7 +27,7 @@ function sendIDOLAction(url)
     return response:get_body()   
 end
     
-function sendViewAction(idolServer, reference, securityInfo)
+function sendViewAction(idolServer, reference, securityInfo, urlPrefix)
     log_info("VIEW REFERENCE:", reference)
     return sendIDOLAction(idolServer
         .. "?action=view"
@@ -24,7 +35,7 @@ function sendViewAction(idolServer, reference, securityInfo)
         .. "&reference=" .. reference
         .. "&noaci=true"
         .. "&outputtype=html"
-        .. "&urlprefix=/document/" .. reference .. "/html/")
+        .. "&urlprefix=" .. urlPrefix .. "document/" .. url_escape(reference) .. "/html/subfile?linkspec=")
 end
 
 function sendGetLinkAction(idolServer, reference)
@@ -37,28 +48,31 @@ end
 
 function handler(ffd, session)
     local idolServer = session:evaluateAttributeExpressions(session:getProperty("IDOLServer"))
+    local urlPrefix = session:evaluateAttributeExpressions(session:getProperty("ViewURLPrefix"))
     local request = ffd:getAttribute("http.request.uri")
     local response = ""
+    local linkspec = ffd:getAttribute("http.query.param.linkspec","")
     ffd:setAttribute("idol.reference", "document-view-html")
     ffd:setAttribute("idol.securityinfo", ffd:getAttribute("http.query.param.securityinfo",""))
         
-    if string.match(request, "^/document/.+/html$") then
+    if linkspec == nil or linkspec == "" then
         -- document html view request
         -- NOTE: The input reference should be url_escaped
-        response = sendViewAction(idolServer, string.match(request, "/document/(.+)/html"), ffd:getAttribute("idol.securityinfo"))
-    elseif string.match(request, "^/document/.+/html/.+$") then
+    	response = sendViewAction(idolServer, string.match(request, "/document/(.+)/html"), ffd:getAttribute("idol.securityinfo"), urlPrefix)
+    else
         -- subdocument handling request
         -- NOTE: The link should be url_escaped
+    	response = sendGetLinkAction(idolServer, linkspec)
         log_info("http.query.string", ffd:getAttribute("http.query.string"))
-        response = sendGetLinkAction(idolServer, string.match(request, "/document/.+/html/(.+)") .. "?" .. ffd:getAttribute("http.query.string"))
     end
             
     log_info("IDOL Server:", idolServer)
-    
-    ffd:modifyDocument(
-        function(document)
-            document:appendContent(response)
-            return true
+
+    ffd:modify(
+        function(action)
+            action:addFile(function(outputstream)
+                outputstream:write(response)
+            end)
         end)
     return
 end
