@@ -13,7 +13,7 @@ entries:
   search-abstractor-stack:
   - apiVersion: v2
     appVersion: "24.4"
-    created: "2024-09-25T09:18:59.697223118+01:00"
+    created: "2024-09-30T09:34:58.64161304+01:00"
     dependencies:
     - alias: content
       condition: content.enabled
@@ -61,7 +61,7 @@ entries:
       repository: https://charts.bitnami.com/bitnami
       version: 13.2.3
     description: An IDOL setup for RAG
-    digest: a309f0b69ec7e3cadb542e4fc4c2293f1381e24c7db1df0bb9769b159d5d022a
+    digest: 00a279e64d910ac483c2ff034eff11f71a01a40db5455313cbabeeba6d18139b
     name: search-abstractor-stack
     urls:
     - release/search-abstractor-stack-0.2.0.tgz
@@ -116,4 +116,4 @@ entries:
     urls:
     - release/search-abstractor-stack-0.1.0.tgz
     version: 0.1.0
-generated: "2024-09-25T09:18:59.612901467+01:00"
+generated: "2024-09-30T09:34:58.567037097+01:00"
