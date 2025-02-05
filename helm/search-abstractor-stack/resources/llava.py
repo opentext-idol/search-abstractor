@@ -1,13 +1,22 @@
-# BEGIN COPYRIGHT NOTICE
-# Copyright 2024 Open Text.
 #
-# The only warranties for products and services of Open Text and its affiliates and licensors
-# ("Open Text") are as may be set forth in the express warranty statements accompanying such
-# products and services. Nothing herein should be construed as constituting an additional warranty.
-# Open Text shall not be liable for technical or editorial errors or omissions contained herein.
-# The information contained herein is subject to change without notice.
+# Copyright 2024-2025 Open Text.
 #
-# END COPYRIGHT NOTICE
+# The only warranties for products and services of Open Text and its
+# affiliates and licensors ("Open Text") are as may be set forth in the
+# express warranty statements accompanying such products and services.
+# Nothing herein should be construed as constituting an additional
+# warranty. Open Text shall not be liable for technical or editorial
+# errors or omissions contained herein. The information contained herein
+# is subject to change without notice.
+#
+# Except as specifically indicated otherwise, this document contains
+# confidential information and a valid license is required for possession,
+# use or copying. If this work is provided to the U.S. Government,
+# consistent with FAR 12.211 and 12.212, Commercial Computer Software,
+# Computer Software Documentation, and Technical Data for Commercial Items
+# are licensed to the U.S. Government under vendor's standard commercial
+# license.
+#
 
 from idolnifi import DocumentModifier, executePython, ReadMode, getPropertyDescriptor
 
@@ -18,6 +27,7 @@ def processFile(a, openai_llava_model, openai_llava_endpoint_base, openai_llava_
     content = None
     def processFileCallback(file):
         from openai import OpenAI
+        import httpx
         nonlocal content
 
         mime_type = a.getPartAttribute("mime.type")
@@ -29,6 +39,7 @@ def processFile(a, openai_llava_model, openai_llava_endpoint_base, openai_llava_
         client = OpenAI(
             api_key=openai_llava_api_key,
             base_url=openai_llava_endpoint_base,
+            http_client=httpx.Client(trust_env=False),
         )
         chat_response = client.chat.completions.create(
             model=openai_llava_model,
@@ -60,6 +71,8 @@ def handler(doc, context):
     openai_llava_endpoint_base = properties.get(getPropertyDescriptor("OpenaiLlavaEndpointBase"), "http://openai-llava-server:8000/v1/")
     openai_llava_api_key = properties.get(getPropertyDescriptor("OpenaiLlavaApiKey"), "My API Key")
 
+    if not importlib.util.find_spec('httpx'):
+        print("pip install: ", executePython(['-m', 'pip', 'install', '-U', 'httpx']))
     if not importlib.util.find_spec('openai'):
         print("pip install: ", executePython(['-m', 'pip', 'install', '-U', 'openai']))
     doc.modify(DocumentModifier()

@@ -1,21 +1,33 @@
-# BEGIN COPYRIGHT NOTICE
-# Copyright 2024 Open Text.
-# 
-# The only warranties for products and services of Open Text and its affiliates and licensors
-# ("Open Text") are as may be set forth in the express warranty statements accompanying such
-# products and services. Nothing herein should be construed as constituting an additional warranty.
-# Open Text shall not be liable for technical or editorial errors or omissions contained herein.
-# The information contained herein is subject to change without notice.
 #
-# END COPYRIGHT NOTICE
+# Copyright 2024-2025 Open Text.
+#
+# The only warranties for products and services of Open Text and its
+# affiliates and licensors ("Open Text") are as may be set forth in the
+# express warranty statements accompanying such products and services.
+# Nothing herein should be construed as constituting an additional
+# warranty. Open Text shall not be liable for technical or editorial
+# errors or omissions contained herein. The information contained herein
+# is subject to change without notice.
+#
+# Except as specifically indicated otherwise, this document contains
+# confidential information and a valid license is required for possession,
+# use or copying. If this work is provided to the U.S. Government,
+# consistent with FAR 12.211 and 12.212, Commercial Computer Software,
+# Computer Software Documentation, and Technical Data for Commercial Items
+# are licensed to the U.S. Government under vendor's standard commercial
+# license.
+#
+
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: search-abstractor-nifi-deployment-files
   labels: {{- include "idol-library.labels" (dict "root" . "component" .Values.answerserver ) | nindent 4 }}
 data:
-  flow.json: |
-{{ tpl (print "resources/search_abstractor_flow.json" | .Files.Get) . | indent 4 }}
+  Query_flow.json: |
+{{ tpl (print "resources/search_abstractor_Query_flow.json" | .Files.Get) . | indent 4 }}
+  Ingest_flow.json: |
+{{ tpl (print "resources/search_abstractor_Ingest_flow.json" | .Files.Get) . | indent 4 }}
   do_ask.lua: |
 {{ tpl (print "resources/do_ask.lua" | .Files.Get) . | indent 4 }} 
   do_query.lua: |
@@ -32,6 +44,12 @@ data:
 {{ tpl (print "resources/handle_raw_view.lua" | .Files.Get) . | indent 4 }}
   media_results_to_document.lua: |
 {{ tpl (print "resources/media_results_to_document.lua" | .Files.Get) . | indent 4 }}
+  generate_embeddings.lua: |
+{{ tpl (print "resources/generate_embeddings.lua" | .Files.Get) . | indent 4 }}
+  get_content.lua: |
+{{ tpl (print "resources/get_content.lua" | .Files.Get) . | indent 4 }}
+  suggest_on_text.lua: |
+{{ tpl (print "resources/suggest_on_text.lua" | .Files.Get) . | indent 4 }}
   llava.py: |
 {{ tpl (print "resources/llava.py" | .Files.Get) . | indent 4 }}
   standardizer.xml: |

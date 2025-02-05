@@ -1,6 +1,6 @@
 # search-abstractor-stack
 
-![Version: 0.2.0](https://img.shields.io/badge/Version-0.2.0-informational?style=flat-square) ![AppVersion: 24.4](https://img.shields.io/badge/AppVersion-24.4-informational?style=flat-square)
+![Version: 25.1.0](https://img.shields.io/badge/Version-25.1.0-informational?style=flat-square) ![AppVersion: 25.1.0](https://img.shields.io/badge/AppVersion-25.1.0-informational?style=flat-square)
 
 Provides an IDOL setup for Retrieval-augmented generation (RAG)
 
@@ -10,13 +10,17 @@ Provides an IDOL setup for Retrieval-augmented generation (RAG)
 |------------|------|---------|
 | https://charts.bitnami.com/bitnami | saapiPostgresql(postgresql) | 13.2.3 |
 | https://raw.githubusercontent.com/opentext-idol/discover-deploy/develop/helm | auth(discover-auth) | 0.1.0 |
-| https://raw.githubusercontent.com/opentext-idol/idol-containers-toolkit/main/helm | answerserver(idol-answerserver) | 0.4.1 |
-| https://raw.githubusercontent.com/opentext-idol/idol-containers-toolkit/main/helm | community(idol-community) | 0.6.1 |
-| https://raw.githubusercontent.com/opentext-idol/idol-containers-toolkit/main/helm | nifi(idol-nifi) | 0.8.1 |
-| https://raw.githubusercontent.com/opentext-idol/idol-containers-toolkit/main/helm | ogs(idol-omnigroupserver) | 0.7.1 |
-| https://raw.githubusercontent.com/opentext-idol/idol-containers-toolkit/main/helm | qms(idol-qms) | 0.6.1 |
-| https://raw.githubusercontent.com/opentext-idol/idol-containers-toolkit/main/helm | view(idol-view) | 0.6.1 |
-| https://raw.githubusercontent.com/opentext-idol/idol-containers-toolkit/main/helm | content(single-content) | 0.10.1 |
+| https://raw.githubusercontent.com/opentext-idol/idol-containers-toolkit/main/helm | distributedidol(distributed-idol) | 0.12.0 |
+| https://raw.githubusercontent.com/opentext-idol/idol-containers-toolkit/main/helm | answerserver(idol-answerserver) | 0.4.3 |
+| https://raw.githubusercontent.com/opentext-idol/idol-containers-toolkit/main/helm | community(idol-community) | 0.6.2 |
+| https://raw.githubusercontent.com/opentext-idol/idol-containers-toolkit/main/helm | idol-library(idol-library) | 0.14.3 |
+| https://raw.githubusercontent.com/opentext-idol/idol-containers-toolkit/main/helm | nifi(idol-nifi) | 0.12.3 |
+| https://raw.githubusercontent.com/opentext-idol/idol-containers-toolkit/main/helm | ogs(idol-omnigroupserver) | 0.7.3 |
+| https://raw.githubusercontent.com/opentext-idol/idol-containers-toolkit/main/helm | qms(idol-qms) | 0.6.2 |
+| https://raw.githubusercontent.com/opentext-idol/idol-containers-toolkit/main/helm | view(idol-view) | 0.6.2 |
+| https://raw.githubusercontent.com/opentext-idol/idol-containers-toolkit/main/helm | content(single-content) | 0.10.2 |
+| https://substratusai.github.io/helm | vllmdeployment(vllm) | 0.5.5 |
+| https://substratusai.github.io/helm | llavadeployment(vllm) | 0.5.5 |
 
 ### Prerequisites
 
@@ -149,7 +153,7 @@ classDef c_set stroke:#000000,fill:#ff99cc,color:#000000;
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| global.idolVersion | string | `"24.4"` | Global override value for idolImage.version |
+| global.idolVersion | string | `"25.1"` | Global override value for idolImage.version |
 | global.imagePullSecrets | list | `["dockerhub-secret"]` | Global secrets used to pull container images |
 
 ### Other Values
@@ -175,6 +179,9 @@ classDef c_set stroke:#000000,fill:#ff99cc,color:#000000;
 | content.cfg.fieldprocessing | string | "" | Additional Content field processing configuration data |
 | content.cfg.security | string | "" | Additional Content security configuration data |
 | content.enabled | bool | `true` | Whether to deploy a content component |
+| distributedidol | object | default configuration for search-abstractor distributed-idol | `distributed-idol` subchart values (see https://github.com/opentext-idol/idol-containers-toolkit/tree/main/helm/distributed-idol#values) |
+| distributedidol.enabled | bool | `false` | Whether to deploy a distributed-idol component (either this or content should be enabled, but not both) |
+| llavadeployment | object | default configuration for search-abstractor Llava deployment | VLLM subchart values (see https://github.com/substratusai/helm/blob/main/charts/vllm/README.md) - not enabled by default |
 | nifi | object | default configuration for search-abstractor nifi | `nifi` subchart values (see https://github.com/opentext-idol/idol-containers-toolkit/tree/main/helm/idol-nifi#values) |
 | nifi.enabled | bool | `true` | Whether to deploy a NiFi instance |
 | ogs | object | default configuration for search-abstractor omnigroupserver | `omnigroupserver` subchart values (see https://github.com/opentext-idol/idol-containers-toolkit/tree/main/helm/idol-omnigroupserver#values) |
@@ -188,7 +195,7 @@ classDef c_set stroke:#000000,fill:#ff99cc,color:#000000;
 | saapi.backendApi.ingress.host | string | `""` | Optional host (see https://kubernetes.io/docs/concepts/services-networking/ingress/#ingress-rules). |
 | saapi.backendApi.name | string | `"search-abstractor-api"` | Host/service name |
 | saapi.backendApi.port | int | `8085` | Port |
-| saapi.backendIdolContentHost | string | `"idol-content"` | hostname for content component |
+| saapi.backendIdolContentHost | string | `"idol-query-service"` | hostname for content component |
 | saapi.backendIdolContentPort | string | `"9100"` | aci port for content component |
 | saapi.backendIdolHost | string | `"idol-community"` | Hostname for Community component |
 | saapi.backendIdolPort | string | `"9030"` | ACI port for Community component |
@@ -197,7 +204,7 @@ classDef c_set stroke:#000000,fill:#ff99cc,color:#000000;
 | saapi.image.pullPolicy | string | `"Always"` | The policy to use to determine whether to pull the specified image (see https://kubernetes.io/docs/concepts/containers/images/#image-pull-policy) |
 | saapi.image.registry | string | `"microfocusidolserver"` | The registry value to use to construct the container image name: {registry}/{repo}:{version} |
 | saapi.image.repo | string | `"search-abstractor-api-service"` | The repository value to use to construct the container image name: {registry}/{repo}:{version} |
-| saapi.image.version | string | `"24.4"` | The version value to use to construct the container image name: {registry}/{repo}:{version} |
+| saapi.image.version | string | `"25.1"` | The version value to use to construct the container image name: {registry}/{repo}:{version} |
 | saapi.ingress.className | string | `""` | Optional parameter to override the default ingress class |
 | saapi.ingress.host | string | `""` | Optional ingress host (see https://kubernetes.io/docs/concepts/services-networking/ingress/#ingress-rules). |
 | saapi.ingress.path | string | `"/api/"` | Ingress controller path exposing API (should end with /) |
@@ -225,7 +232,7 @@ classDef c_set stroke:#000000,fill:#ff99cc,color:#000000;
 | sessionapi.image.pullPolicy | string | `"Always"` | The policy to use to determine whether to pull the specified image (see https://kubernetes.io/docs/concepts/containers/images/#image-pull-policy) |
 | sessionapi.image.registry | string | `"microfocusidolserver"` | The registry value to use to construct the container image name: {registry}/{repo}:{version} |
 | sessionapi.image.repo | string | `"search-abstractor-session-service"` | The repository value to use to construct the container image name: {registry}/{repo}:{version} |
-| sessionapi.image.version | string | `"24.4"` | The version value to use to construct the container image name: {registry}/{repo}:{version} |
+| sessionapi.image.version | string | `"25.1"` | The version value to use to construct the container image name: {registry}/{repo}:{version} |
 | sessionapi.ingress.className | string | `""` | Optional parameter to override the default ingress class |
 | sessionapi.ingress.enabled | bool | `false` | Whether to create an ingress resource |
 | sessionapi.ingress.host | string | `""` | Optional ingress host (see https://kubernetes.io/docs/concepts/services-networking/ingress/#ingress-rules). |
@@ -239,6 +246,7 @@ classDef c_set stroke:#000000,fill:#ff99cc,color:#000000;
 | sessionapi.storage.dbName | string | `"resourcesdb"` | Database name used for api-service storage |
 | view | object | default configuration for search-abstractor view | `view` subchart values (see https://github.com/opentext-idol/idol-containers-toolkit/tree/main/helm/idol-view#values) |
 | view.enabled | bool | `true` | Whether to deploy a View component |
+| vllmdeployment | object | default configuration for search-abstractor VLLM deployment | VLLM subchart values (see https://github.com/substratusai/helm/blob/main/charts/vllm/README.md) - not enabled by default |
 
 ----------------------------------------------
 Autogenerated from chart metadata using [helm-docs v1.14.2](https://github.com/norwoodj/helm-docs/releases/v1.14.2)

@@ -1,14 +1,24 @@
--- BEGIN COPYRIGHT NOTICE
--- Copyright 2024 Open Text.
--- 
--- The only warranties for products and services of Open Text and its affiliates and licensors
--- ("Open Text") are as may be set forth in the express warranty statements accompanying such
--- products and services. Nothing herein should be construed as constituting an additional warranty.
--- Open Text shall not be liable for technical or editorial errors or omissions contained herein.
--- The information contained herein is subject to change without notice.
---
--- END COPYRIGHT NOTICE
+--[[
 
+    Copyright 2024-2025 Open Text.
+
+    The only warranties for products and services of Open Text and its
+    affiliates and licensors ("Open Text") are as may be set forth in the
+    express warranty statements accompanying such products and services.
+    Nothing herein should be construed as constituting an additional
+    warranty. Open Text shall not be liable for technical or editorial
+    errors or omissions contained herein. The information contained herein
+    is subject to change without notice.
+
+    Except as specifically indicated otherwise, this document contains
+    confidential information and a valid license is required for possession,
+    use or copying. If this work is provided to the U.S. Government,
+    consistent with FAR 12.211 and 12.212, Commercial Computer Software,
+    Computer Software Documentation, and Technical Data for Commercial Items
+    are licensed to the U.S. Government under vendor's standard commercial
+    license.
+
+]]
 local HIT_FIELD_MAPPINGS = {["reference"] = "ref", ["database"] = "source", ["title"] = "title",
                             ["weight"] = "relevance"}
 
@@ -88,6 +98,12 @@ local function ask_handler(ffdocument, session)
                 end
                 -- create source object for each entry in response_sources
                 for _,source in ipairs(response_sources) do
+                    if source["source"] == nil then
+                        source["source"] = ""
+                    end
+                    if source["title"] == nil then
+                        source["title"] = ""
+                    end
                     sources:append(LuaJsonObject:new(source))
                 end
             end

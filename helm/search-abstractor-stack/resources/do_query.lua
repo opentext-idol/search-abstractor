@@ -1,77 +1,72 @@
--- BEGIN COPYRIGHT NOTICE
--- Copyright 2024 Open Text.
--- 
--- The only warranties for products and services of Open Text and its affiliates and licensors
--- ("Open Text") are as may be set forth in the express warranty statements accompanying such
--- products and services. Nothing herein should be construed as constituting an additional warranty.
--- Open Text shall not be liable for technical or editorial errors or omissions contained herein.
--- The information contained herein is subject to change without notice.
---
--- END COPYRIGHT NOTICE
+--[[
 
-local config_string =
-[===[
-[http]
-ProxyHost=
-ProxyPort=
-]===]
-local config = LuaConfig:new(config_string)
+    Copyright 2024-2025 Open Text.
 
+    The only warranties for products and services of Open Text and its
+    affiliates and licensors ("Open Text") are as may be set forth in the
+    express warranty statements accompanying such products and services.
+    Nothing herein should be construed as constituting an additional
+    warranty. Open Text shall not be liable for technical or editorial
+    errors or omissions contained herein. The information contained herein
+    is subject to change without notice.
 
-function sendIDOLAction(url)
+    Except as specifically indicated otherwise, this document contains
+    confidential information and a valid license is required for possession,
+    use or copying. If this work is provided to the U.S. Government,
+    consistent with FAR 12.211 and 12.212, Commercial Computer Software,
+    Computer Software Documentation, and Technical Data for Commercial Items
+    are licensed to the U.S. Government under vendor's standard commercial
+    license.
 
-    local request = LuaHttpRequest:new(config, "http")
+]]
+function sendIDOLAction(idolServerHost, idolServerPort, timeout, action, params)
+    
+    log_info("IDOL Request:", action)
+    local response = send_aci_action(idolServerHost, idolServerPort, action, params, timeout)
+    log_info("IDOL Response:", response)
 
-    request:set_url(url)
-
-    local response = request:send()
-
-    log_info("IDOL Request:", url)
-    log_info("IDOL Response:", response:get_body())
-
-    local responseXml = parse_xml(response:get_body())
-    responseXml:XPathRegisterNs("autn", "http://schemas.autonomy.com/aci/")
+    local responseXml = nil
+    if response ~= nil then
+        responseXml = parse_xml(response)
+        responseXml:XPathRegisterNs("autn", "http://schemas.autonomy.com/aci/")
+    end
 
     return responseXml
 end
 
-function sendQueryAction(idolServer, securityInfo, text, maxResults, matchReferences, parametricFilters, vectorfield)
+function sendQueryAction(idolServerHost, idolServerPort, timeout, securityInfo, text, maxResults, matchReferences, parametricFilters, vectorfield)
 
     local input_text = text
     if vectorfield then
         input_text = "VECTOR{" .. text .. "}:" .. vectorfield
     end
 
-    local queryURL = idolServer
-        .. "?action=query"
-        .. "&SecurityInfo=" .. url_escape(securityInfo)
-        .. "&summary=none"
-        .. "&print=fields"
-        .. "&printfields=none"
-        .. "&MaxResults=" .. tostring(maxResults)
-        .. "&StoreState=true"
-        .. "&text=" .. url_escape(input_text)
+    local queryAction = "query"
+    local params = {SecurityInfo = securityInfo, summary = "quick", print = "none", MaxResults = tostring(maxResults), StoreState = "true", text = input_text}
 
     if matchReferences ~= nil and matchReferences ~= "" then
-        queryURL = queryURL .. "&matchreference=" .. matchReferences
+        params.matchreference = matchReferences
     end
 
-    local docQueryURL = queryURL .. "&fieldtext=" .. url_escape("NOT MATCH{4}:DOCUMENT_KEYVIEW_CLASS_STRING")
-    local imageQueryURL = queryURL .. "&fieldtext=" .. url_escape("MATCH{4}:DOCUMENT_KEYVIEW_CLASS_STRING")
+    local docFieldText = "NOT MATCH{4}:DOCUMENT_KEYVIEW_CLASS_STRING"
+    local imageFieldText = "MATCH{4}:DOCUMENT_KEYVIEW_CLASS_STRING"
+    log_info("PARAMETRIC FILTERS:", parametricFilters)
     if parametricFilters ~= nil and parametricFilters ~= "" then
-        docQueryURL = docQueryURL .. " AND (" .. parametricFilters .. ")"
-        imageQueryURL = imageQueryURL .. " AND (" .. parametricFilters .. ")"
+        parametricFilters = string.gsub(parametricFilters, "+", " ")
+        docFieldText = docFieldText .. " AND (" .. parametricFilters .. ")"
+        imageFieldText = imageFieldText .. " AND (" .. parametricFilters .. ")"
     end
     
 
     local label = "IDOLDoc"
-    local toSend = docQueryURL
+    local fieldTextToSend = docFieldText
     if vectorfield then
         label = "IDOLImage"
-        toSend = imageQueryURL
+        fieldTextToSend = imageFieldText
     end
 
-    local responseXml = sendIDOLAction(toSend)
+    params.fieldtext = fieldTextToSend
+    local responseXml = sendIDOLAction(idolServerHost, idolServerPort, timeout, queryAction, params)
 
     local errorString = {["IDOLDoc"] = nil, ["IDOLImage"] = nil}
     errorString[label] = responseXml:XPathValue("/autnresponse/responsedata/error/errorstring")
@@ -88,9 +83,13 @@ function sendQueryAction(idolServer, securityInfo, text, maxResults, matchRefere
         weights[reference] = weight
     end
 
+    local response = {[label] = responseXml}
+
     if vectorfield == nil then
-        imageQueryURL = imageQueryURL .. "&querytype=vector,conceptual&vectorconfig=VModel_clip"
-        local imageResponseXML = sendIDOLAction(imageQueryURL)
+        params.fieldtext = imageFieldText
+        params.querytype = "vector,conceptual"
+        params.vectorconfig = "VModel_clip"
+        local imageResponseXML = sendIDOLAction(idolServerHost, idolServerPort, timeout, queryAction, params)
 
         errorString["IDOLImage"] = imageResponseXML:XPathValue("/autnresponse/responsedata/error/errorstring")
         stateToken["IDOLImage"] = imageResponseXML:XPathValue("/autnresponse/responsedata/autn:state")
@@ -102,22 +101,12 @@ function sendQueryAction(idolServer, securityInfo, text, maxResults, matchRefere
             local weight = imageResponseXML:XPathValue("autn:weight", hitNode)
             weights[reference] = weight
         end
+        response["IDOLImage"] = imageResponseXML
     end
 
-    return stateToken, numHits, errorString, weights
+    return stateToken, numHits, errorString, weights, response
 end
 
-function sendGetContentAction(idolServer, securityInfo, stateId, startIndex, endIndex)
-
-    return sendIDOLAction(idolServer
-        .. "?action=getContent"
-        .. "&SecurityInfo=" .. url_escape(securityInfo)
-        .. "&summary=quick"
-        .. "&print=fields"
-        .. "&printfields=none"
-        .. "&xmlmeta=true"
-        .. "&stateId=" .. url_escape(stateId.."["..tostring(startIndex).."-"..tostring(endIndex).."]"))
-end
 
 local function splitOn(inputStr, separator)
     local elements = {}
@@ -135,10 +124,10 @@ local function getMatchReferences(refs)
         table.insert(escapedRefs, url_escape(thisRef))
     end
 
-    return url_escape(table.concat(escapedRefs, "+"))
+    return table.concat(escapedRefs, "+")
 end
 
-local function writeDocListFields(numHits, stateToken, docListField, idolServer, securityInfo, pageSize, weights, label)
+local function writeDocListFields(numHits, stateToken, docListField, idolServerHost, idolServerPort, timeout, securityInfo, pageSize, weights, response, label)
     docListField:addChild("startindex"):setValue(tostring(0))
     docListField:addChild("pagesize"):setValue(tostring(pageSize))
     docListField:addChild("numhits"):setValue(tostring(numHits[label]))
@@ -148,10 +137,14 @@ local function writeDocListFields(numHits, stateToken, docListField, idolServer,
 
         docListField:addChild("statetoken"):setValue(tostring(stateToken[label]))
 
-        local responseXml = sendGetContentAction(idolServer, securityInfo, stateToken[label], 0, math.min(numHits[label], pageSize)-1)
+        local numHitsToUse = math.min(numHits[label], pageSize)
+        local responseXml = response[label]
         local hitNodeSet = responseXml:XPathExecute("//responsedata/autn:hit")
 
         for i, hitNode in hitNodeSet:ipairs() do
+            if i >= numHitsToUse then
+                break
+            end
             local id = responseXml:XPathValue("autn:id", hitNode)
             local reference = responseXml:XPathValue("autn:reference", hitNode)
             local summary = responseXml:XPathValue("autn:summary", hitNode)
@@ -161,7 +154,7 @@ local function writeDocListFields(numHits, stateToken, docListField, idolServer,
 
             local documentField = docListField:addChild(label)
             documentField:addChild("reference"):setValue(reference)
-            documentField:addChild("url"):setValue(idolServer.."?action=GetContent&ID="..id) -- TODO
+            documentField:addChild("url"):setValue("http://"..idolServerHost..":"..idolServerPort.."/".."?action=GetContent&ID="..id) -- TODO
             documentField:addChild("database"):setValue(database)
             if title ~= nil then
                 documentField:addChild("title"):setValue(title)
@@ -176,7 +169,10 @@ end
 function handler(ffdocument, session)
 
     local securityInfo = ffdocument:getAttribute("idol.securityinfo")
-    local idolServer = session:evaluateAttributeExpressions(session:getProperty("IDOLServer"))
+    local idolServerHost = session:evaluateAttributeExpressions(session:getProperty("IDOLServerHost"))
+    local idolServerPort = session:evaluateAttributeExpressions(session:getProperty("IDOLServerPort"))
+    local large_timeout = tonumber(session:getProperty("ACIServerTimeoutLarge"))
+    local small_timeout = tonumber(session:getProperty("ACIServerTimeoutSmall"))
     local pageSize = tonumber(ffdocument:getAttribute("pagesize")) or 10
     local maxResults = tonumber(ffdocument:getAttribute("maxresults")) or 6
     local matchReferences = getMatchReferences(ffdocument:getAttribute("idol.matchreferences", ""))
@@ -184,7 +180,8 @@ function handler(ffdocument, session)
     local resourceid = ffdocument:getAttribute("idol.resourceid")
     local imageVectorField = session:evaluateAttributeExpressions(session:getProperty("ImageVectorField"))
 
-    log_info("IDOL Server:", idolServer)
+    log_info("IDOL Server Host:", idolServerHost)
+    log_info("IDOL Server Port:", idolServerPort)
 
     ffdocument:setAttribute("routepath", "idol.query")
 
@@ -197,20 +194,20 @@ function handler(ffdocument, session)
                         
                         local stateToken, numHits, errorString, weights
                         if resourceid == nil or resourceid == "" then
-                            stateToken, numHits, errorString, weights = sendQueryAction(idolServer, securityInfo, string.sub(content, 1, 2000),
+                            stateToken, numHits, errorString, weights, response = sendQueryAction(idolServerHost, idolServerPort, large_timeout, securityInfo, string.sub(content, 1, 2000),
                                                                                             maxResults, matchReferences, parametricFilters)
                         else
-                            stateToken, numHits, errorString, weights = sendQueryAction(idolServer, securityInfo, content, maxResults,
+                            stateToken, numHits, errorString, weights, response = sendQueryAction(idolServerHost, idolServerPort, large_timeout, securityInfo, content, maxResults,
                                                                                             matchReferences, parametricFilters, imageVectorField)
                         end
 
                         --TODO: errorString
 
                         local docListField = action:getXmlMetadata():addChild("IDOLDocList")
-                        writeDocListFields(numHits, stateToken, docListField, idolServer, securityInfo, pageSize, weights, "IDOLDoc")
+                        writeDocListFields(numHits, stateToken, docListField, idolServerHost, idolServerPort, small_timeout, securityInfo, pageSize, weights, response, "IDOLDoc")
                         
                         local imageListField = action:getXmlMetadata():addChild("IDOLImageList")
-                        writeDocListFields(numHits, stateToken, imageListField, idolServer, securityInfo, pageSize, weights, "IDOLImage")
+                        writeDocListFields(numHits, stateToken, imageListField, idolServerHost, idolServerPort, small_timeout, securityInfo, pageSize, weights, response, "IDOLImage")
                     end
                 )
                 action:deletePart()
@@ -218,4 +215,4 @@ function handler(ffdocument, session)
     })
 
 
-end
+end 

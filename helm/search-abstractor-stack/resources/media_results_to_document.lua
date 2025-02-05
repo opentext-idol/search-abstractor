@@ -1,14 +1,24 @@
--- BEGIN COPYRIGHT NOTICE
--- Copyright 2024 Open Text.
--- 
--- The only warranties for products and services of Open Text and its affiliates and licensors
--- ("Open Text") are as may be set forth in the express warranty statements accompanying such
--- products and services. Nothing herein should be construed as constituting an additional warranty.
--- Open Text shall not be liable for technical or editorial errors or omissions contained herein.
--- The information contained herein is subject to change without notice.
---
--- END COPYRIGHT NOTICE
+--[[
 
+    Copyright 2024-2025 Open Text.
+
+    The only warranties for products and services of Open Text and its
+    affiliates and licensors ("Open Text") are as may be set forth in the
+    express warranty statements accompanying such products and services.
+    Nothing herein should be construed as constituting an additional
+    warranty. Open Text shall not be liable for technical or editorial
+    errors or omissions contained herein. The information contained herein
+    is subject to change without notice.
+
+    Except as specifically indicated otherwise, this document contains
+    confidential information and a valid license is required for possession,
+    use or copying. If this work is provided to the U.S. Government,
+    consistent with FAR 12.211 and 12.212, Commercial Computer Software,
+    Computer Software Documentation, and Technical Data for Commercial Items
+    are licensed to the U.S. Government under vendor's standard commercial
+    license.
+
+]]
 function handler(document)
     -- Speech-to-text
     local sttresults = { document:getValuesByPath("part/idol_media/analyze_media/results/track/record/SpeechToTextResult/text") }
@@ -20,9 +30,7 @@ function handler(document)
 
     -- Insert STT results into SPEECH_TO_TEXT field using XML format
     if transcript and #transcript > 0 then
-        local stt_xml_string = "<SPEECH_TO_TEXT>"..transcript.."</SPEECH_TO_TEXT>"
-        local stt_xml = parse_xml(stt_xml_string)
-        document:insertXml(stt_xml:root(), "SPEECH_TO_TEXT")
+        document:addField("SPEECH_TO_TEXT", transcript)
     end
 
     -- OCR
@@ -35,17 +43,13 @@ function handler(document)
 
     -- Insert OCR results into OPTICAL_CHARACTER_RECOGNITION field using XML format
     if ocrtext and #ocrtext > 0 then
-        local ocr_xml_string = "<OPTICAL_CHARACTER_RECOGNITION>"..ocrtext.."</OPTICAL_CHARACTER_RECOGNITION>"
-        local ocr_xml = parse_xml(ocr_xml_string)
-        document:insertXml(ocr_xml:root(), "OPTICAL_CHARACTER_RECOGNITION")
+        document:addField("OPTICAL_CHARACTER_RECOGNITION", ocrtext)
     end
 
     -- Image embedding
     local embeddingresults = document:getValuesByPath("part/idol_media/analyze_media/results/track/record/ImageEmbeddingResult/embedding")
     local embeddingmodel = document:getValuesByPath("part/idol_media/analyze_media/results/track/record/ImageEmbeddingResult/encoder")
     if embeddingresults then
-        local xml_string = "<embedding>"..embeddingresults.."</embedding>"
-        local xml = parse_xml(xml_string)
-        document:insertXml(xml:root(), "VECTOR_"..embeddingmodel)
+        document:addField("VECTOR_"..embeddingmodel, embeddingresults)
     end
 end

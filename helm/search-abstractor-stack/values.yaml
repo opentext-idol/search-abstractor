@@ -1,13 +1,22 @@
-# BEGIN COPYRIGHT NOTICE
-# Copyright 2024 Open Text.
-# 
-# The only warranties for products and services of Open Text and its affiliates and licensors
-# ("Open Text") are as may be set forth in the express warranty statements accompanying such
-# products and services. Nothing herein should be construed as constituting an additional warranty.
-# Open Text shall not be liable for technical or editorial errors or omissions contained herein.
-# The information contained herein is subject to change without notice.
 #
-# END COPYRIGHT NOTICE
+# Copyright 2024-2025 Open Text.
+#
+# The only warranties for products and services of Open Text and its
+# affiliates and licensors ("Open Text") are as may be set forth in the
+# express warranty statements accompanying such products and services.
+# Nothing herein should be construed as constituting an additional
+# warranty. Open Text shall not be liable for technical or editorial
+# errors or omissions contained herein. The information contained herein
+# is subject to change without notice.
+#
+# Except as specifically indicated otherwise, this document contains
+# confidential information and a valid license is required for possession,
+# use or copying. If this work is provided to the U.S. Government,
+# consistent with FAR 12.211 and 12.212, Commercial Computer Software,
+# Computer Software Documentation, and Technical Data for Commercial Items
+# are licensed to the U.S. Government under vendor's standard commercial
+# license.
+#
 
 global:
   # -- Global secrets used to pull container images
@@ -16,7 +25,7 @@ global:
   - "dockerhub-secret"
   # -- Global override value for idolImage.version
   # @section -- Global Values
-  idolVersion: &idolVersion "24.4"
+  idolVersion: &idolVersion "25.1"
 
 aes:
   # -- Value used to generate a shared AES256 key for securityinfo
@@ -36,7 +45,7 @@ aes:
 content:
   # -- Whether to deploy a content component
   enabled: true
-  name: &content-name idol-content
+  name: idol-content
   queryserviceACIPort: &queryserviceACIPort "9100"
   existingConfigMap: search-abstractor-content-deployment-cfg
   cfg:
@@ -53,6 +62,35 @@ content:
   additionalVolumeMounts:
   - <<: *x-aes-key-volumeMount
     mountPath: /opt/idol/content/index/aes.keyfile
+
+# -- `distributed-idol` subchart values (see https://github.com/opentext-idol/idol-containers-toolkit/tree/main/helm/distributed-idol#values)
+# @default -- default configuration for search-abstractor distributed-idol
+distributedidol:
+  # -- Whether to deploy a distributed-idol component (either this or content should be enabled, but not both)
+  enabled: false
+  name: distributed-idol
+  content:
+    name: idol-content
+    existingConfigMap: search-abstractor-content-deployment-cfg
+    initialEngineCount: "3"
+    aciPort: "9100"
+    indexPort: "9101"
+    servicePort: "9102"
+    additionalVolumes:
+    - <<: *x-aes-key-volume
+    additionalVolumeMounts:
+    - <<: *x-aes-key-volumeMount
+      mountPath: /opt/idol/content/index/aes.keyfile
+  dah:
+    name: idol-dah
+    existingConfigMap: search-abstractor-distributed-idol-dah-deployment-cfg
+    aciPort: *queryserviceACIPort
+    servicePort: "9102"
+  dih:
+    name: idol-dih
+    existingConfigMap: search-abstractor-distributed-idol-dih-deployment-cfg
+    aciPort: "9070"
+    servicePort: "9072"
 
 # -- `answerserver` subchart values (see https://github.com/opentext-idol/idol-containers-toolkit/tree/main/helm/idol-answerserver#values)
 # @default -- default configuration for search-abstractor answerserver
@@ -150,8 +188,18 @@ nifi:
   additionalVolumeMounts:
   - name: search-abstractor-nifi-files
     mountPath: /opt/nifi/nifi-current/search_abstractor
+  nifiRegistry:
+    buckets:
+    - name: &flowsBucket search-abstractor-flows-bucket
+      flowfiles:
+      - /opt/nifi/nifi-current/search_abstractor/Query_flow.json
+      - /opt/nifi/nifi-current/search_abstractor/Ingest_flow.json
   nifi:
-    flowfile: /opt/nifi/nifi-current/search_abstractor/flow.json
+    flows:
+    - name: "Search Abstractor Query Flow"
+      bucket: *flowsBucket
+    - name: "Search Abstractor Ingest Flow"
+      bucket: *flowsBucket
     autoScaling:
       enabled: false
 
@@ -264,7 +312,7 @@ saapi:
   # -- ACI port for Community component
   backendIdolPort: *community-aciport
   # -- hostname for content component
-  backendIdolContentHost: *content-name
+  backendIdolContentHost: idol-query-service
   # -- aci port for content component
   backendIdolContentPort: *queryserviceACIPort
   backendApi:
@@ -297,7 +345,7 @@ saapi:
     # -- The LLM revision to use (branch, tag, or commitid)
     modelRevision: "9925900"
     # -- HuggingFace token to access the model/tokenizer to use for the RAG answer system
-    HFToken: ""
+    HFToken: &hf-token ""
     # -- The LLaVa model to use
     llavaModel: "llava-hf/llava-v1.6-mistral-7b-hf"
     # -- The base path of the OpenAI endpoint to use for LLaVa model access
@@ -323,3 +371,57 @@ saapi:
     name: *saapi-name
     # -- Port service runs on
     port: 8080
+
+# -- VLLM subchart values (see https://github.com/substratusai/helm/blob/main/charts/vllm/README.md) - not enabled by default
+# @default -- default configuration for search-abstractor VLLM deployment
+vllmdeployment:
+  enabled: false
+  nameOverride: vllm-deployment-sa
+  fullnameOverride: vllm-deployment-sa
+  model: mistralai/Mistral-7B-Instruct-v0.2
+  runtimeClassName: nvidia
+  gpuMemoryUtilization: 0.40
+  image:
+    tag: v0.5.0
+  ingress:
+    enabled: true
+    hosts:
+    - host: ""
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  env:
+    - name: HF_TOKEN
+      value: *hf-token
+  resources:
+    limits:
+      nvidia.com/gpu: 1
+
+# -- VLLM subchart values (see https://github.com/substratusai/helm/blob/main/charts/vllm/README.md) - not enabled by default
+# @default -- default configuration for search-abstractor Llava deployment
+llavadeployment:
+  enabled: false
+  nameOverride: llava-deployment-sa
+  fullnameOverride: llava-deployment-sa
+  model: llava-hf/llava-v1.6-mistral-7b-hf
+  runtimeClassName: nvidia
+  gpuMemoryUtilization: 0.40
+  image:
+    tag: v0.5.0
+  ingress:
+    enabled: true
+    annotations:
+      nginx.ingress.kubernetes.io/proxy-body-size: 64m
+    hosts:
+    - host: ""
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  env:
+    - name: HF_TOKEN
+      value: *hf-token
+    - name: EXTRA_ARGS
+      value: --image-input-type pixel_values --image-token-id 32000 --image-input-shape 1,3,336,336 --image-feature-size 1176 --max-model-len 21000
+  resources:
+    limits:
+      nvidia.com/gpu: 1

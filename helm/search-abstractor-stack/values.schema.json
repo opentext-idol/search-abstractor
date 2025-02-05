@@ -42,6 +42,15 @@
                 },
                 "saapi":{
                     "$ref": "#/$defs/saapi"
+                },
+                "vllmdeployment":{
+                    "$ref": "#/$defs/optional_object"
+                },
+                "llavadeployment":{
+                    "$ref": "#/$defs/optional_object"
+                },
+                "distributedidol":{
+                    "$ref": "#/$defs/distributedidol"
                 }
             },
             "required": [
@@ -57,7 +66,10 @@
                 "saapi",
                 "sessionapi",
                 "saapiPostgresql",
-                "view"
+                "view",
+                "vllmdeployment",
+                "llavadeployment",
+                "distributedidol"
             ],
             "unevaluatedProperties": false
         },
@@ -135,6 +147,28 @@
             },
             "allOf":[
                 { "$ref": "#/$defs/optional_object" }
+            ]
+        },
+        "distributedidol":{
+            "type": "object",
+            "properties": {
+                "content":{
+                    "type": "object"
+                },
+                "dah":{
+                    "type": "object"
+                },
+                "dih":{
+                    "type": "object"
+                }
+            },
+            "allOf":[
+                { "$ref": "#/$defs/optional_object" }
+            ],
+            "required":[
+                "content",
+                "dah",
+                "dih"
             ]
         },
         "community":{

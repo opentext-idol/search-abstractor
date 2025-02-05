@@ -1,53 +1,57 @@
--- BEGIN COPYRIGHT NOTICE
--- Copyright 2024 Open Text.
--- 
--- The only warranties for products and services of Open Text and its affiliates and licensors
--- ("Open Text") are as may be set forth in the express warranty statements accompanying such
--- products and services. Nothing herein should be construed as constituting an additional warranty.
--- Open Text shall not be liable for technical or editorial errors or omissions contained herein.
--- The information contained herein is subject to change without notice.
---
--- END COPYRIGHT NOTICE
+--[[
 
-local config_string =
-[===[
-[http]
-ProxyHost=
-ProxyPort=
-]===]
-local config = LuaConfig:new(config_string)
+    Copyright 2024-2025 Open Text.
 
-function sendIDOLAction(url)
-    log_info("IDOL Request:", url)
-    local request = LuaHttpRequest:new(config, "http")
-	request:set_url(url)
-    local response = request:send()
-    log_info("IDOL Response:", response:get_body())
+    The only warranties for products and services of Open Text and its
+    affiliates and licensors ("Open Text") are as may be set forth in the
+    express warranty statements accompanying such products and services.
+    Nothing herein should be construed as constituting an additional
+    warranty. Open Text shall not be liable for technical or editorial
+    errors or omissions contained herein. The information contained herein
+    is subject to change without notice.
+
+    Except as specifically indicated otherwise, this document contains
+    confidential information and a valid license is required for possession,
+    use or copying. If this work is provided to the U.S. Government,
+    consistent with FAR 12.211 and 12.212, Commercial Computer Software,
+    Computer Software Documentation, and Technical Data for Commercial Items
+    are licensed to the U.S. Government under vendor's standard commercial
+    license.
+
+]]
+function sendIDOLAction(idolServerHost, idolServerPort, timeout, action, params)
     
-    return response:get_body()   
+    log_info("IDOL Request:", action)
+    local response = send_aci_action(idolServerHost, idolServerPort, action, params, timeout)
+    log_info("IDOL Response:", response)
+
+    return response
 end
     
-function sendViewAction(idolServer, reference, securityInfo, urlPrefix)
+function sendViewAction(idolServerHost, idolServerPort, timeout, reference, securityInfo, urlPrefix)
     log_info("VIEW REFERENCE:", reference)
-    return sendIDOLAction(idolServer
-        .. "?action=view"
-        .. "&SecurityInfo=" .. url_escape(securityInfo)
-        .. "&reference=" .. reference
-        .. "&noaci=true"
-        .. "&outputtype=html"
-        .. "&urlprefix=" .. urlPrefix .. "document/" .. url_escape(reference) .. "/html/subfile?linkspec=")
+    return sendIDOLAction(idolServerHost, idolServerPort, timeout,
+           "view", {SecurityInfo = securityInfo, reference = url_unescape(reference), noaci = "true", outputtype = "html",
+           urlprefix = urlPrefix .. "document/" .. reference .. "/html/subfile?linkspec="})
 end
 
-function sendGetLinkAction(idolServer, reference)
+function sendGetLinkAction(idolServerHost, idolServerPort, timeout, reference)
     log_info("GETLINK REFERENCE:", reference)
-    return sendIDOLAction(idolServer
-            .. "?action=getlink"
-        	.. "&noaci=true"
-            .. "&linkspec=" .. reference)
+    local response = sendIDOLAction(idolServerHost, idolServerPort, timeout,
+               "getlink", {noaci = "false", linkspec = reference})
+    
+    local responseXml = nil
+    if response ~= nil then
+        responseXml = parse_xml(response)
+        responseXml:XPathRegisterNs("autn", "http://schemas.autonomy.com/aci/") 
+    end
+    return responseXml
 end
 
 function handler(ffd, session)
-    local idolServer = session:evaluateAttributeExpressions(session:getProperty("IDOLServer"))
+    local idolServerHost = session:evaluateAttributeExpressions(session:getProperty("IDOLServerHost"))
+    local idolServerPort = session:evaluateAttributeExpressions(session:getProperty("IDOLServerPort"))
+    local small_timeout = tonumber(session:getProperty("ACIServerTimeoutSmall"))
     local urlPrefix = session:evaluateAttributeExpressions(session:getProperty("ViewURLPrefix"))
     local request = ffd:getAttribute("http.request.uri")
     local response = ""
@@ -58,15 +62,20 @@ function handler(ffd, session)
     if linkspec == nil or linkspec == "" then
         -- document html view request
         -- NOTE: The input reference should be url_escaped
-    	response = sendViewAction(idolServer, string.match(request, "/document/(.+)/html"), ffd:getAttribute("idol.securityinfo"), urlPrefix)
+    	response = sendViewAction(idolServerHost, idolServerPort, small_timeout, string.match(request, "/document/(.+)/html"), ffd:getAttribute("idol.securityinfo"), urlPrefix)
     else
         -- subdocument handling request
         -- NOTE: The link should be url_escaped
-    	response = sendGetLinkAction(idolServer, linkspec)
+    	responseXml = sendGetLinkAction(idolServerHost, idolServerPort, small_timeout, linkspec)
         log_info("http.query.string", ffd:getAttribute("http.query.string"))
+        if responseXml~=nil then
+            local response_b64 = responseXml:XPathValue("//responsedata/content")
+            response = base64_decode(response_b64)
+        end
     end
             
-    log_info("IDOL Server:", idolServer)
+    log_info("IDOL Server Host:", idolServerHost)
+    log_info("IDOL Server Port:", idolServerPort)
 
     ffd:modify(
         function(action)
