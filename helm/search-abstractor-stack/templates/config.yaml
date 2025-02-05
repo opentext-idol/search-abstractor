@@ -1,13 +1,23 @@
-# BEGIN COPYRIGHT NOTICE
-# Copyright 2024 Open Text.
-# 
-# The only warranties for products and services of Open Text and its affiliates and licensors
-# ("Open Text") are as may be set forth in the express warranty statements accompanying such
-# products and services. Nothing herein should be construed as constituting an additional warranty.
-# Open Text shall not be liable for technical or editorial errors or omissions contained herein.
-# The information contained herein is subject to change without notice.
 #
-# END COPYRIGHT NOTICE
+# Copyright 2024-2025 Open Text.
+#
+# The only warranties for products and services of Open Text and its
+# affiliates and licensors ("Open Text") are as may be set forth in the
+# express warranty statements accompanying such products and services.
+# Nothing herein should be construed as constituting an additional
+# warranty. Open Text shall not be liable for technical or editorial
+# errors or omissions contained herein. The information contained herein
+# is subject to change without notice.
+#
+# Except as specifically indicated otherwise, this document contains
+# confidential information and a valid license is required for possession,
+# use or copying. If this work is provided to the U.S. Government,
+# consistent with FAR 12.211 and 12.212, Commercial Computer Software,
+# Computer Software Documentation, and Technical Data for Commercial Items
+# are licensed to the U.S. Government under vendor's standard commercial
+# license.
+#
+
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -25,6 +35,8 @@ metadata:
 data:
   prompt_template.txt: |
 {{ tpl (print "resources/prompt_template.txt" | .Files.Get) . | indent 4 }}
+  topic_template.txt: |
+{{ tpl (print "resources/topic_template.txt" | .Files.Get) . | indent 4}}
   vllm.py: |
 {{ tpl (print "resources/vllm.py" | .Files.Get) . | indent 4 }}
   conversation_tasks.json: |
@@ -40,10 +52,14 @@ data:
   OPENTEXT_VLLM_MODEL: {{ .Values.saapi.vllm.model }}
   OPENTEXT_VLLM_MODEL_REVISION: {{ .Values.saapi.vllm.modelRevision | quote }}
   {{- end }}
-  {{- if .Values.saapi.vllm.endpoint }}
+  {{- if .Values.vllmdeployment.enabled }}
+  OPENTEXT_VLLM_ENDPOINT: "http://{{ .Values.vllmdeployment.nameOverride }}:{{ .Values.vllmdeployment.service.port }}/v1/completions"
+  {{- else if .Values.saapi.vllm.endpoint }}
   OPENTEXT_VLLM_ENDPOINT: {{ .Values.saapi.vllm.endpoint }}
   {{- end }}
-  {{- if .Values.saapi.vllm.chatEndpoint }}
+  {{- if .Values.vllmdeployment.enabled }}
+  OPENTEXT_VLLM_CHAT_ENDPOINT: "http://{{ .Values.vllmdeployment.nameOverride }}:{{ .Values.vllmdeployment.service.port }}/v1/chat/completions"
+  {{- else if .Values.saapi.vllm.chatEndpoint }}
   OPENTEXT_VLLM_CHAT_ENDPOINT: {{ .Values.saapi.vllm.chatEndpoint }}
   {{- end }}
   {{- if .Values.saapi.vllm.HFToken }}
@@ -56,8 +72,29 @@ metadata:
   name: search-abstractor-content-deployment-cfg
   labels: {{- include "idol-library.labels" (dict "root" . "component" .Values.content ) | nindent 4 }}
 data:
+  {{- if and .Values.content.enabled .Values.distributedidol.enabled }}
+  {{- fail "single-content and distributedidol should not both be enabled." }}
+  {{- end }}
   content.cfg: |
 {{ tpl (print "resources/content.cfg" | .Files.Get) . | indent 4 }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: search-abstractor-distributed-idol-dah-deployment-cfg
+  labels: {{- include "idol-library.labels" (dict "root" . "component" .Values.distributedidol) | nindent 4 }}
+data:
+  dah.cfg: |
+{{ tpl (print "resources/dah.cfg" | .Files.Get) . | indent 4 }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: search-abstractor-distributed-idol-dih-deployment-cfg
+  labels: {{- include "idol-library.labels" (dict "root" . "component" .Values.distributedidol) | nindent 4 }}
+data:
+  dih.cfg: |
+{{ tpl (print "resources/dih.cfg" | .Files.Get) . | indent 4 }}
 ---
 apiVersion: v1
 kind: ConfigMap

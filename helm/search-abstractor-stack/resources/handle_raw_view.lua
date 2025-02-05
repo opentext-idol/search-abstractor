@@ -1,55 +1,56 @@
--- BEGIN COPYRIGHT NOTICE
--- Copyright 2024 Open Text.
--- 
--- The only warranties for products and services of Open Text and its affiliates and licensors
--- ("Open Text") are as may be set forth in the express warranty statements accompanying such
--- products and services. Nothing herein should be construed as constituting an additional warranty.
--- Open Text shall not be liable for technical or editorial errors or omissions contained herein.
--- The information contained herein is subject to change without notice.
---
--- END COPYRIGHT NOTICE
+--[[
 
-local config_string =
-[===[
-[http]
-ProxyHost=
-ProxyPort=
-]===]
-local config = LuaConfig:new(config_string)
+    Copyright 2024-2025 Open Text.
 
+    The only warranties for products and services of Open Text and its
+    affiliates and licensors ("Open Text") are as may be set forth in the
+    express warranty statements accompanying such products and services.
+    Nothing herein should be construed as constituting an additional
+    warranty. Open Text shall not be liable for technical or editorial
+    errors or omissions contained herein. The information contained herein
+    is subject to change without notice.
 
-function sendACIAction(url)
+    Except as specifically indicated otherwise, this document contains
+    confidential information and a valid license is required for possession,
+    use or copying. If this work is provided to the U.S. Government,
+    consistent with FAR 12.211 and 12.212, Commercial Computer Software,
+    Computer Software Documentation, and Technical Data for Commercial Items
+    are licensed to the U.S. Government under vendor's standard commercial
+    license.
 
-    local request = LuaHttpRequest:new(config, "http")
-
-    request:set_url(url)
-
-    local response = request:send()
-
-    log_info("ACI Request:", url)
-    log_info("ACI Response:", response:get_body())
+]]
+function sendIDOLAction(idolServerHost, idolServerPort, timeout, action, params)
     
-    local responseXml = parse_xml(response:get_body())
-    responseXml:XPathRegisterNs("autn", "http://schemas.autonomy.com/aci/")
+    log_info("ACI Request:", action)
+    local response = send_aci_action(idolServerHost, idolServerPort, action, params, timeout)
+    log_info("ACI Response:", response)
+
+    local responseXml = nil
+    if response ~= nil then
+        responseXml = parse_xml(response)
+        responseXml:XPathRegisterNs("autn", "http://schemas.autonomy.com/aci/") 
+    end
     
     return responseXml
 end
 
-function sendContentAction(IDOLServer, reference, securityInfo)
-    return sendACIAction(IDOLServer
-        .. "?action=getcontent"
-        .. "&SecurityInfo=" .. url_escape(securityInfo)
-        .. "&reference=" .. url_escape(reference)
-    	.. "&printfields=CONNECTOR_GROUP") 
+function sendContentAction(idolServerHost, idolServerPort, timeout, reference, securityInfo)
+    return sendIDOLAction(idolServerHost, idolServerPort, timeout,
+           "getcontent", {SecurityInfo = securityInfo, reference = reference, printfields = "CONNECTOR_GROUP"})
 end
 
 function handler(ff, session)
-    local IDOLServer = session:evaluateAttributeExpressions(session:getProperty("IDOLServer"))
+    local idolServerHost = session:evaluateAttributeExpressions(session:getProperty("IDOLServerHost"))
+    local idolServerPort = session:evaluateAttributeExpressions(session:getProperty("IDOLServerPort"))
+    local small_timeout = tonumber(session:getProperty("ACIServerTimeoutSmall"))
     -- NOTE: The input reference should be url_escaped
     local reference = string.match(ff:getAttribute("http.request.uri"), "/document/(.+)/raw")  
     ff:setAttribute("idol.securityinfo", ff:getAttribute("http.query.param.securityinfo",""))
 
-    responseXml = sendContentAction(IDOLServer, reference, ff:getAttribute("idol.securityinfo"))
+    log_info("IDOL Server Host:", idolServerHost)
+    log_info("IDOL Server Port:", idolServerPort)
+
+    responseXml = sendContentAction(idolServerHost, idolServerPort, small_timeout, reference, ff:getAttribute("idol.securityinfo"))
     
     local connector_group = responseXml:XPathValue("/autnresponse/responsedata/autn:hit/autn:content/DOCUMENT/CONNECTOR_GROUP")
     local autn_identifier = responseXml:XPathValue("/autnresponse/responsedata/autn:hit/autn:content/DOCUMENT/AUTN_IDENTIFIER")
