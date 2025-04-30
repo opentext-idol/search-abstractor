@@ -30,11 +30,10 @@ def processFile(a, openai_llava_model, openai_llava_endpoint_base, openai_llava_
         import httpx
         nonlocal content
 
+        # we should already have checked that this processor has been given image files it can cope with
+        # (KeyViewRouteOnFileType matching specific KeyView format numbers)
+        
         mime_type = a.getPartAttribute("mime.type")
-
-        if mime_type not in {'image/jpeg', 'image/jpg', 'image/png', 'image/tiff', 'image/bmp'}:
-            raise RuntimeError(f"Unsupported mime type '{mime_type}' for LLaVA processing.")
-
         image_base64 = base64.b64encode(file.readall()).decode('utf-8')
         client = OpenAI(
             api_key=openai_llava_api_key,

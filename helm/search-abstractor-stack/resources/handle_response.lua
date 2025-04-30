@@ -25,7 +25,7 @@ local HIT_FIELD_MAPPINGS = {["reference"] = "ref", ["database"] = "source", ["ti
 local function get_hits(doc_list)
     local hits = LuaJsonArray:new()
     for _, child in ipairs(doc_list) do
-        local hit = {}
+        local hit = {["title"] = ""}
         local child_list = { child:getChildren() }
         for _, field in ipairs(child_list) do
             local mapped_field = HIT_FIELD_MAPPINGS[field:getName()]

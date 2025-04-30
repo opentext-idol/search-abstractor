@@ -51,6 +51,10 @@ helm repo add idol-search-abstractor https://raw.githubusercontent.com/opentext-
 
 # Actually install the chart
 helm install -f my-values.yaml my-release idol-search-abstractor/{{ template "chart.name" . }}
+
+# Add supplementary repositories as needed
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm repo add substratusai https://substratusai.github.io/helm
 ```
 
 ### Common Setup

@@ -37,10 +37,20 @@ data:
 {{ tpl (print "resources/prompt_template.txt" | .Files.Get) . | indent 4 }}
   topic_template.txt: |
 {{ tpl (print "resources/topic_template.txt" | .Files.Get) . | indent 4}}
+  vertex.py: |
+{{ tpl (print "resources/vertex.py" | .Files.Get) . | indent 4 }}
   vllm.py: |
 {{ tpl (print "resources/vllm.py" | .Files.Get) . | indent 4 }}
   conversation_tasks.json: |
 {{ tpl (print "resources/conversation_tasks.json" | .Files.Get) . | indent 4 }}
+  {{- if eq .Values.saapi.vertexai.authentication "credentials" }}
+  google_cloud_credentials.json: |
+{{ mustToPrettyJson .Values.saapi.vertexai.credentials | indent 4 }}
+  {{- else if ne .Values.saapi.vertexai.authentication "serviceAccount" }}
+{{- fail "VertexAI authentication must be `credentials` or `serviceAccount`" }}
+  {{- else if not .Values.answerserver.serviceAccountName }}
+{{- fail "AnswerServer serviceAccountName must be set for VertexAI serviceAccount authentication" }}
+  {{- end}}
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -65,6 +75,18 @@ data:
   {{- if .Values.saapi.vllm.HFToken }}
   OPENTEXT_HUGGINGFACE_API_TOKEN: {{ .Values.saapi.vllm.HFToken }}
   {{- end }}
+  {{- if .Values.saapi.vertexai.project }}
+  OPENTEXT_VERTEX_PROJECT: {{ .Values.saapi.vertexai.project }}
+  {{- end}}
+  {{- if .Values.saapi.vertexai.location }}
+  OPENTEXT_VERTEX_LOCATION: {{ .Values.saapi.vertexai.location }}
+  {{- end}}
+  {{- if .Values.saapi.vertexai.model }}
+  OPENTEXT_VERTEX_MODEL: {{ .Values.saapi.vertexai.model }}
+  {{- end}}
+  {{- if eq .Values.saapi.vertexai.authentication "credentials" }}
+  OPENTEXT_VERTEX_CREDENTIALS: "/answerserver/resources/llmdata/google_cloud_credentials.json"
+  {{- end}}
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -122,6 +144,15 @@ metadata:
 data:
   community.cfg: |
 {{ tpl (print "resources/community.cfg" | .Files.Get) . | indent 4 }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: search-abstractor-view-deployment-cfg
+  labels: {{- include "idol-library.labels" (dict "root" . "component" .Values.view ) | nindent 4 }}
+data:
+  view.cfg: |
+{{ tpl (print "resources/view.cfg" | .Files.Get) . | indent 4 }}
 ---
 apiVersion: v1
 kind: ConfigMap

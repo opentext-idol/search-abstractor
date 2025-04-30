@@ -38,10 +38,8 @@ data:
 {{ tpl (print "resources/handle_input_text_ff.lua" | .Files.Get) . | indent 4 }}
   handle_response.lua: |
 {{ tpl (print "resources/handle_response.lua" | .Files.Get) . | indent 4 }}
-  handle_html_view.lua: |
-{{ tpl (print "resources/handle_html_view.lua" | .Files.Get) . | indent 4 }}
-  handle_raw_view.lua: |
-{{ tpl (print "resources/handle_raw_view.lua" | .Files.Get) . | indent 4 }}
+  handle_view.lua: |
+{{ tpl (print "resources/handle_view.lua" | .Files.Get) . | indent 4 }}
   media_results_to_document.lua: |
 {{ tpl (print "resources/media_results_to_document.lua" | .Files.Get) . | indent 4 }}
   generate_embeddings.lua: |
@@ -50,6 +48,8 @@ data:
 {{ tpl (print "resources/get_content.lua" | .Files.Get) . | indent 4 }}
   suggest_on_text.lua: |
 {{ tpl (print "resources/suggest_on_text.lua" | .Files.Get) . | indent 4 }}
+  utils.lua: |
+{{ tpl (print "resources/utils.lua" | .Files.Get) . | indent 4 }}
   llava.py: |
 {{ tpl (print "resources/llava.py" | .Files.Get) . | indent 4 }}
   standardizer.xml: |
