@@ -19,6 +19,9 @@
     license.
 
 ]]
+
+local utils = require "utils"
+
 local config_string =
 [===[
 [http]
@@ -56,7 +59,7 @@ local function sendAskAction(idolServerHost, idolServerPort, timeout, securityIn
     end
 
     local customData = LuaJsonArray:new()
-    for _, sys in ipairs({"RAGPassageExtractor", "LLMPassageExtractor"}) do
+    for _, sys in ipairs({"RAGPassageExtractor"}) do
         customData:append(LuaJsonObject:new({
             ["system_name"] = sys, ["security_info"] = securityInfo
         }))
@@ -72,17 +75,8 @@ local function sendAskAction(idolServerHost, idolServerPort, timeout, securityIn
     return sendIDOLAction(idolServerHost, idolServerPort, timeout, "ask", params)
 end
 
-
-local function splitOn(inputStr, separator)
-    local elements = {}
-    for element in string.gmatch(inputStr, "([^" .. separator .. "]+)") do
-        table.insert(elements, element)
-    end
-    return elements
-end
-
 local function getMatchReferences(refs)
-    local allRefs = splitOn(refs, ",")
+    local allRefs = utils.splitOn(refs, ",")
     local escapedRefs = {}
     for _, ref in ipairs(allRefs) do
         local thisRef = string.gsub(ref, "%%2C", ",")
@@ -134,12 +128,15 @@ local function getAnswer(idolServerHost, idolServerPort, timeout, securityInfo, 
     return false
 end
 
-local function getSessionData(sessionBackend, sessionInfoURL, sessionMaxSteps)
+local function getSessionData(sessionBackend, sessionInfoURL, sessionMaxSteps, authToken)
 
     local url = string.format("%s%s?sortSteps=REVERSEDATE&maxSteps=%d", sessionBackend, sessionInfoURL, sessionMaxSteps)
     local request = LuaHttpRequest:new(config, "http")
 
     request:set_url(url)
+    if authToken ~= "" then
+        request:set_header("Authorization", authToken)
+    end
 
     local response = request:send()
     local content = response:get_body()
@@ -177,6 +174,7 @@ function handler(ffdocument, session)
 
     local securityInfo = ffdocument:getAttribute("idol.securityinfo")
     local sessionInfoURL = ffdocument:getAttribute("idol.sessioninfo.url", "")
+    local authToken = ffdocument:getAttribute("idol.authtoken", "")
     local idolServerHost = session:evaluateAttributeExpressions(session:getProperty("IDOLServerHost"))
     local idolServerPort = session:evaluateAttributeExpressions(session:getProperty("IDOLServerPort"))
     local large_timeout = tonumber(session:getProperty("ACIServerTimeoutLarge"))
@@ -184,7 +182,7 @@ function handler(ffdocument, session)
     local sessionBackend = session:evaluateAttributeExpressions(session:getProperty("SessionBackend"))
     local sessionMaxSteps = session:evaluateAttributeExpressions(session:getProperty("SessionMaxSteps"))
     local systemOrderCSV = session:evaluateAttributeExpressions(session:getProperty("SystemPreferenceOrder"))
-    local systemOrder = splitOn(systemOrderCSV, ",")
+    local systemOrder = utils.splitOn(systemOrderCSV, ",")
     local matchReferences = getMatchReferences(ffdocument:getAttribute("idol.matchreferences", ""))
     local parametricFilters = ffdocument:getAttribute("idol.parametricfilters", "")
 
@@ -195,7 +193,7 @@ function handler(ffdocument, session)
 
     local sessionInfo = nil
     if sessionInfoURL ~= "" then
-        sessionInfo = getSessionData(sessionBackend, sessionInfoURL, sessionMaxSteps)
+        sessionInfo = getSessionData(sessionBackend, sessionInfoURL, sessionMaxSteps, authToken)
     end
 
     --Protected call, to ensure we destroy the context regardless of what happens below

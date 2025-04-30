@@ -1,6 +1,6 @@
 # search-abstractor-stack
 
-![Version: 25.1.0](https://img.shields.io/badge/Version-25.1.0-informational?style=flat-square) ![AppVersion: 25.1.0](https://img.shields.io/badge/AppVersion-25.1.0-informational?style=flat-square)
+![Version: 25.2.0-SNAPSHOT](https://img.shields.io/badge/Version-25.2.0--SNAPSHOT-informational?style=flat-square) ![AppVersion: 25.2.0-SNAPSHOT](https://img.shields.io/badge/AppVersion-25.2.0--SNAPSHOT-informational?style=flat-square)
 
 Provides an IDOL setup for Retrieval-augmented generation (RAG)
 
@@ -8,19 +8,20 @@ Provides an IDOL setup for Retrieval-augmented generation (RAG)
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://charts.bitnami.com/bitnami | saapiPostgresql(postgresql) | 13.2.3 |
-| https://raw.githubusercontent.com/opentext-idol/discover-deploy/develop/helm | auth(discover-auth) | 0.1.0 |
-| https://raw.githubusercontent.com/opentext-idol/idol-containers-toolkit/main/helm | distributedidol(distributed-idol) | 0.12.0 |
-| https://raw.githubusercontent.com/opentext-idol/idol-containers-toolkit/main/helm | answerserver(idol-answerserver) | 0.4.3 |
-| https://raw.githubusercontent.com/opentext-idol/idol-containers-toolkit/main/helm | community(idol-community) | 0.6.2 |
-| https://raw.githubusercontent.com/opentext-idol/idol-containers-toolkit/main/helm | idol-library(idol-library) | 0.14.3 |
-| https://raw.githubusercontent.com/opentext-idol/idol-containers-toolkit/main/helm | nifi(idol-nifi) | 0.12.3 |
-| https://raw.githubusercontent.com/opentext-idol/idol-containers-toolkit/main/helm | ogs(idol-omnigroupserver) | 0.7.3 |
-| https://raw.githubusercontent.com/opentext-idol/idol-containers-toolkit/main/helm | qms(idol-qms) | 0.6.2 |
-| https://raw.githubusercontent.com/opentext-idol/idol-containers-toolkit/main/helm | view(idol-view) | 0.6.2 |
-| https://raw.githubusercontent.com/opentext-idol/idol-containers-toolkit/main/helm | content(single-content) | 0.10.2 |
-| https://substratusai.github.io/helm | vllmdeployment(vllm) | 0.5.5 |
-| https://substratusai.github.io/helm | llavadeployment(vllm) | 0.5.5 |
+| @bitnami | otdsdb(postgresql) | 16.2.1 |
+| @bitnami | saapiPostgresql(postgresql) | 16.2.1 |
+| @substratusai | llavadeployment(vllm) | 0.5.5 |
+| @substratusai | vllmdeployment(vllm) | 0.5.5 |
+| https://raw.githubusercontent.com/opentext-idol/idol-containers-toolkit/main/helm | distributedidol(distributed-idol) | ~0.13.0 |
+| https://raw.githubusercontent.com/opentext-idol/idol-containers-toolkit/main/helm | answerserver(idol-answerserver) | ~0.5.0 |
+| https://raw.githubusercontent.com/opentext-idol/idol-containers-toolkit/main/helm | community(idol-community) | ~0.7.0 |
+| https://raw.githubusercontent.com/opentext-idol/idol-containers-toolkit/main/helm | idol-library(idol-library) | ~0.15.0 |
+| https://raw.githubusercontent.com/opentext-idol/idol-containers-toolkit/main/helm | nifi(idol-nifi) | ~0.14.0 |
+| https://raw.githubusercontent.com/opentext-idol/idol-containers-toolkit/main/helm | ogs(idol-omnigroupserver) | ~0.8.0 |
+| https://raw.githubusercontent.com/opentext-idol/idol-containers-toolkit/main/helm | qms(idol-qms) | ~0.7.0 |
+| https://raw.githubusercontent.com/opentext-idol/idol-containers-toolkit/main/helm | view(idol-view) | ~0.7.0 |
+| https://raw.githubusercontent.com/opentext-idol/idol-containers-toolkit/main/helm | content(single-content) | ~0.11.0 |
+| https://registry.opentext.com/helm | auth(otds) | 24.4.0 |
 
 ### Prerequisites
 
@@ -60,6 +61,10 @@ helm repo add idol-search-abstractor https://raw.githubusercontent.com/opentext-
 
 # Actually install the chart
 helm install -f my-values.yaml my-release idol-search-abstractor/search-abstractor-stack
+
+# Add supplementary repositories as needed
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm repo add substratusai https://substratusai.github.io/helm
 ```
 
 ### Common Setup
@@ -153,7 +158,6 @@ classDef c_set stroke:#000000,fill:#ff99cc,color:#000000;
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| global.idolVersion | string | `"25.1"` | Global override value for idolImage.version |
 | global.imagePullSecrets | list | `["dockerhub-secret"]` | Global secrets used to pull container images |
 
 ### Other Values
@@ -163,15 +167,22 @@ classDef c_set stroke:#000000,fill:#ff99cc,color:#000000;
 | aes.key | string | `"search-abstractor"` | Value used to generate a shared AES256 key for securityinfo |
 | answerserver | object | default configuration for search-abstractor answerserver | `answerserver` subchart values (see https://github.com/opentext-idol/idol-containers-toolkit/tree/main/helm/idol-answerserver#values) |
 | answerserver.enabled | bool | `true` | Whether to deploy an Answer Server component |
-| auth | object | default configuration for search-abstractor auth | `auth` subchart values (see https://github.com/opentext-idol/discover-deploy/tree/refactor/auth/helm/discover-auth#values) |
-| auth.apiClient | string | `"discover_api"` | Client to configure and use for API requests |
-| auth.apiClientSecret | string | `"d0e76ad7-7d6b-4d86-be3a-5dfe715dbf87"` | Client credentials to configure and use for API requests |
-| auth.baseRealmRoles | string | `"role1,role2,role3"` | Roles to populate in keycloak |
-| auth.enabled | bool | `true` | Whether to deploy the `discover-auth` subchart |
-| auth.realm | string | `"discover"` | Realm |
-| auth.tokenExpiryTimeSeconds | int | `600` | Expiration time in seconds for login tokens |
+| auth | object | default configuration for auth service | auth service values |
+| auth.apiClient | string | `"discover_api"` | Client and client credentials to configure and use for API requests |
+| auth.baseRealmRoles | string | `"user"` | Roles to populate in OTDS |
+| auth.createAdminPassword | string | `"admin.user.123!"` | password for Discover administrator user to create as part of system initialization |
+| auth.createAdminUsername | string | `"admin.user"` | Discover administrator user to create as part of system initialization |
+| auth.enabled | bool | `true` | whether to deploy OTDS component |
+| auth.external.host | string | `nil` | External hostname for OTDS instance |
+| auth.external.port | string | `nil` | External port number of OTDS instance |
+| auth.external.protocol | string | `"http"` | Protocol for OTDS communication (http/https) |
+| auth.otdsws | object | See also OTDS chart default values | OTDS sub chart values |
+| auth.partition | string | `"discover"` | partition in the authentication server to configure and use |
+| auth.refreshTokenExpiryTimeSeconds | int | `86400` | Expiry time in seconds for refresh tokens |
+| auth.simplePasswordPolicy | bool | `false` | if true removes restrictions on password strength only for use in testing |
+| auth.tokenExpiryTimeSeconds | int | `300` | Expiry time in seconds for login tokens |
 | auth.uiClient | string | `"discover_ui"` | Client to configure and use for logging into the UI |
-| auth.uiUrls | string | `"http://localhost:4200/*"` | URL to redirect to post authorization |
+| auth.uiUrls | string | `"http://localhost:4200/.*"` | URL to redirect to post authorization |
 | community | object | default configuration for search-abstractor community | `community` subchart values (see https://github.com/opentext-idol/idol-containers-toolkit/tree/main/helm/idol-community#values) |
 | community.cfg.security | string | `"0=Autonomy\n// add your community security setup here (appended to [Security] section)"` | Additional Community security configuration data   |
 | community.enabled | bool | `true` | Whether to deploy Community component |
@@ -187,16 +198,17 @@ classDef c_set stroke:#000000,fill:#ff99cc,color:#000000;
 | ogs | object | default configuration for search-abstractor omnigroupserver | `omnigroupserver` subchart values (see https://github.com/opentext-idol/idol-containers-toolkit/tree/main/helm/idol-omnigroupserver#values) |
 | ogs.cfg.repositories | string | "" | additional omingroupserver repositories configuration data |
 | ogs.enabled | bool | `true` | Whether to deploy an OmniGroupServer component |
+| otdsdb | object | default configuration for OTDS PostgreSQL | PostgreSQL subchart for OTDS. (see https://github.com/bitnami/charts/tree/main/bitnami/postgresql) |
 | qms | object | default configuration for search-abstractor qms | `qms` subchart values (see https://github.com/opentext-idol/idol-containers-toolkit/tree/main/helm/idol-qms#values) |
 | qms.enabled | bool | `true` | Whether to deploy a QMS component |
 | saapi.allowedOrigins | string | `"http://localhost:8080"` | CORS origin values |
 | saapi.backendApi.ingress.className | string | `""` | Optional parameter to override the default ingress class |
-| saapi.backendApi.ingress.enabled | bool | `false` | Whether to create a backend API ingress resource |
+| saapi.backendApi.ingress.enabled | bool | `false` | Whether to create a backend API ingress resource. Neither recommended nor required in normal operation. |
 | saapi.backendApi.ingress.host | string | `""` | Optional host (see https://kubernetes.io/docs/concepts/services-networking/ingress/#ingress-rules). |
-| saapi.backendApi.name | string | `"search-abstractor-api"` | Host/service name |
+| saapi.backendApi.name | string | `"idol-nifi"` | Host/service name. Should point at query nifi service |
 | saapi.backendApi.port | int | `8085` | Port |
-| saapi.backendIdolContentHost | string | `"idol-query-service"` | hostname for content component |
-| saapi.backendIdolContentPort | string | `"9100"` | aci port for content component |
+| saapi.backendIdolContentHost | string | `"idol-qms"` | hostname for content component |
+| saapi.backendIdolContentPort | string | `"16000"` | aci port for content component |
 | saapi.backendIdolHost | string | `"idol-community"` | Hostname for Community component |
 | saapi.backendIdolPort | string | `"9030"` | ACI port for Community component |
 | saapi.config | string | `"api-config"` | `configmap` name |
@@ -204,19 +216,32 @@ classDef c_set stroke:#000000,fill:#ff99cc,color:#000000;
 | saapi.image.pullPolicy | string | `"Always"` | The policy to use to determine whether to pull the specified image (see https://kubernetes.io/docs/concepts/containers/images/#image-pull-policy) |
 | saapi.image.registry | string | `"microfocusidolserver"` | The registry value to use to construct the container image name: {registry}/{repo}:{version} |
 | saapi.image.repo | string | `"search-abstractor-api-service"` | The repository value to use to construct the container image name: {registry}/{repo}:{version} |
-| saapi.image.version | string | `"25.1"` | The version value to use to construct the container image name: {registry}/{repo}:{version} |
+| saapi.image.version | string | `"25.2"` | The version value to use to construct the container image name: {registry}/{repo}:{version} |
 | saapi.ingress.className | string | `""` | Optional parameter to override the default ingress class |
 | saapi.ingress.host | string | `""` | Optional ingress host (see https://kubernetes.io/docs/concepts/services-networking/ingress/#ingress-rules). |
 | saapi.ingress.path | string | `"/api/"` | Ingress controller path exposing API (should end with /) |
 | saapi.ingress.port | int | `12080` | Port ingress service runs on |
+| saapi.javaOpts | string | `""` |  |
+| saapi.management.basePath | string | `"/actuator/"` | base path for management functions; e.g. healthcheck (must begin and end with a slash) |
 | saapi.name | string | `"saapi-api-service"` | Deployment name |
 | saapi.replicas | int | `1` | Deployment replicas |
+| saapi.resources | object | `{"enabled":false,"limits":{"cpu":"200m","memory":"1Gi"},"requests":{"cpu":"200m","memory":"1Gi"}}` | Optional resources for Search Abstractor API container (see https://kubernetes.io/docs/concepts/configuration/manage-resources-containers) |
+| saapi.resources.enabled | bool | `false` | enable resources for Search Abstractor API container. Setting to false disables this. |
 | saapi.secret | string | `"api-secret"` | Secret name for auth credentials |
+| saapi.service.managePort | int | `8081` | Port service runs on for management |
 | saapi.service.name | string | `"saapi-api-service"` | Service name |
 | saapi.service.port | int | `8080` | Port service runs on |
 | saapi.storage.dbName | string | `"resourcesdb"` | Database name used for api-service storage |
 | saapi.storage.maxFileSize | string | `"10MB"` | Maximum size for a single uploaded file |
 | saapi.storage.maxRequestSize | string | `"10MB"` | Maximum total size for a request |
+| saapi.usingDiscoverIndex | bool | `false` | are we using the Discover index for document storage? |
+| saapi.vertexai.authentication | string | `"credentials"` | How to authenticate the VertexAI client with Google Cloud; can be "serviceAccount" or "credentials" |
+| saapi.vertexai.credentials | object | `{"auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs","auth_uri":"https://accounts.google.com/o/oauth2/auth","client_email":"","client_id":"","client_x509_cert_url":"https://www.googleapis.com/robot/v1/metadata/x509/svc-vertex-aviator%40otl-csd-architecture.iam.gserviceaccount.com","private_key":"","private_key_id":"","project_id":"","token_uri":"https://oauth2.googleapis.com/token","type":"service_account","universe_domain":"googleapis.com"}` | Application credentials for VertexAI client API calls, used if `authentication` is "credentials". Will be used to initialize a Google service account Credentials instance; see https://google-auth.readthedocs.io/en/master/reference/google.oauth2.service_account.html#google.oauth2.service_account.Credentials.from_service_account_file |
+| saapi.vertexai.enabled | bool | `false` | Should we use VertexAI, rather than vLLM, for LLM support? |
+| saapi.vertexai.location | string | `"us-east4"` | Location for VertexAI client to use for API calls |
+| saapi.vertexai.maxOutputTokens | int | `500` | Limit the number of output tokens returned by the Generative model |
+| saapi.vertexai.model | string | `"gemini-1.5-flash-001"` | Name of generative model to use with VertexAI |
+| saapi.vertexai.project | string | `"otl-csd-architecture"` | Project name for VertexAI client to use for API calls |
 | saapi.vllm.HFToken | string | `""` | HuggingFace token to access the model/tokenizer to use for the RAG answer system |
 | saapi.vllm.chatEndpoint | string | `"http://vllm-endpoint:8000/v1/chat/completions"` | vllm chat endpoint to use for llm access |
 | saapi.vllm.endpoint | string | `"http://vllm-endpoint:8000/v1/completions"` | vllm endpoint to use for llm access |
@@ -232,7 +257,7 @@ classDef c_set stroke:#000000,fill:#ff99cc,color:#000000;
 | sessionapi.image.pullPolicy | string | `"Always"` | The policy to use to determine whether to pull the specified image (see https://kubernetes.io/docs/concepts/containers/images/#image-pull-policy) |
 | sessionapi.image.registry | string | `"microfocusidolserver"` | The registry value to use to construct the container image name: {registry}/{repo}:{version} |
 | sessionapi.image.repo | string | `"search-abstractor-session-service"` | The repository value to use to construct the container image name: {registry}/{repo}:{version} |
-| sessionapi.image.version | string | `"25.1"` | The version value to use to construct the container image name: {registry}/{repo}:{version} |
+| sessionapi.image.version | string | `"25.2"` | The version value to use to construct the container image name: {registry}/{repo}:{version} |
 | sessionapi.ingress.className | string | `""` | Optional parameter to override the default ingress class |
 | sessionapi.ingress.enabled | bool | `false` | Whether to create an ingress resource |
 | sessionapi.ingress.host | string | `""` | Optional ingress host (see https://kubernetes.io/docs/concepts/services-networking/ingress/#ingress-rules). |
@@ -241,6 +266,9 @@ classDef c_set stroke:#000000,fill:#ff99cc,color:#000000;
 | sessionapi.licensor.port | int | `12000` | Port session licensor runs on |
 | sessionapi.name | string | `"saapi-session-api-service"` | Deployment name |
 | sessionapi.replicas | int | `1` | Deployment replicas |
+| sessionapi.resources | object | `{"enabled":false,"limits":{"cpu":"200m","memory":"1Gi"},"requests":{"cpu":"200m","memory":"1Gi"}}` | Optional resources for Search Abstractor session API container (see https://kubernetes.io/docs/concepts/configuration/manage-resources-containers) |
+| sessionapi.resources.enabled | bool | `false` | enable resources for Search Abstractor session API container. Setting to false disables this. |
+| sessionapi.secret | string | `"session-api-secret"` | Secret name for auth credentials |
 | sessionapi.service.name | string | `"saapi-session-api-service"` | Session service name |
 | sessionapi.service.port | int | `8080` | Port that the session service runs on |
 | sessionapi.storage.dbName | string | `"resourcesdb"` | Database name used for api-service storage |

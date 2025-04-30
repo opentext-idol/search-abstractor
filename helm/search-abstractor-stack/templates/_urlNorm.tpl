@@ -18,28 +18,9 @@
 # license.
 #
 
-{{- if .Values.saapi.backendApi.ingress.enabled }}
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  annotations:
-    nginx.ingress.kubernetes.io/proxy-body-size: 2048m
-  name: saapi-ingress-backend
-spec:
-  {{- if .Values.saapi.backendApi.ingress.className }}
-  ingressClassName: {{ .Values.saapi.backendApi.ingress.className | quote }}
-  {{- end }}
-  rules:
-  - {{- if .Values.saapi.backendApi.ingress.host }}
-    host: {{ .Values.saapi.backendApi.ingress.host | quote }}
-    {{- end }}
-    http:
-      paths:
-      - backend:
-          service:
-            name: {{ .Values.saapi.backendApi.name | quote }}
-            port:
-              name: sa-api-port
-        path: /
-        pathType: Prefix
+{{- define "auth.urlNorm" -}}
+{{ .external.protocol }}://{{ .external.host -}}
+  {{- if not (or (eq "80" (.external.port | toString)) (eq "443" (.external.port | toString))) -}}
+    :{{- .external.port -}}{{- end -}}
+  {{- if .path -}}/{{trimAll "/" .path }}{{- end -}}
 {{- end -}}

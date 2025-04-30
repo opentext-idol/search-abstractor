@@ -41,8 +41,13 @@ spec:
             - containerPort: 8080
               name: sa-session-port
           envFrom:
+          - secretRef:
+              name: {{ .Values.sessionapi.secret }}
           - configMapRef:
               name: {{ .Values.sessionapi.config }}
+          {{- if (dig "resources" "enabled" false (.Values.sessionapi | merge (dict))) }}
+          resources: {{- omit .Values.sessionapi.resources "enabled" | toYaml | nindent 12 }}
+          {{- end }}
           startupProbe:
 {{ include "saapi_probe.session.api" . | indent 12 }}
             initialDelaySeconds: 60

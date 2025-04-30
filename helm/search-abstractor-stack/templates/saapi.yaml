@@ -40,11 +40,16 @@ spec:
           ports:
             - containerPort: 8080
               name: saapi-port
+            - containerPort: 8081
+              name: saapi-mgmt-port
           envFrom:
             - secretRef:
                 name: {{ .Values.saapi.secret }}
             - configMapRef:
                 name: {{ .Values.saapi.config }}
+          {{- if (dig "resources" "enabled" false (.Values.saapi | merge (dict))) }}
+          resources: {{- omit .Values.saapi.resources "enabled" | toYaml | nindent 12 }}
+          {{- end }}
           startupProbe:
 {{ include "saapi_probe.api" . | indent 12 }}
             initialDelaySeconds: 60
@@ -57,9 +62,22 @@ spec:
 {{ include "saapi_probe.api" . | indent 12 }}
             periodSeconds: 60
             failureThreshold: 20
+          {{- if .Values.global.idolOemLicenseSecret }}
+          volumeMounts:
+          - name: oem-license
+            mountPath: "/data/license-oem/encryptionkey-encrypted.dat"
+            subPath: encryptionkey-encrypted.dat
+            readOnly: true
+          {{- end }}
       imagePullSecrets:
       {{- range .Values.global.imagePullSecrets }}
         - name: {{ . }}
+      {{- end }}
+      {{- if .Values.global.idolOemLicenseSecret }}
+      volumes:
+      - name: oem-license
+        secret:
+          secretName: {{ .Values.global.idolOemLicenseSecret }}
       {{- end }}
 ---
 
@@ -72,6 +90,9 @@ spec:
   - port: {{ .Values.saapi.service.port }}
     targetPort: saapi-port
     name: saapi-port
+  - port: {{ .Values.saapi.service.managePort }}
+    targetPort: saapi-mgmt-port
+    name: saapi-mgmt-port
   selector:
     component: {{ .Values.saapi.name | quote }}
 ---
@@ -97,6 +118,13 @@ spec:
                 name: {{ .Values.saapi.service.name }}
                 port:
                   name: saapi-port
+          - path: {{ .Values.saapi.management.basePath }}
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Values.saapi.service.name }}
+                port:
+                  name: saapi-mgmt-port
 {{- if .Values.saapi.ingress.host }}
       host: {{ .Values.saapi.ingress.host | quote }}
 {{- end }}

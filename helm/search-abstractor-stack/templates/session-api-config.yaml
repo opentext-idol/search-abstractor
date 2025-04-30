@@ -23,9 +23,31 @@ kind: ConfigMap
 metadata:
   name: {{ .Values.sessionapi.config }}
 data:
+  ISOL_AUTH_SERVICE_PARTITION: "{{ .Values.auth.partition }}"
+  ISOL_AUTH_SERVICE_API_URL:  "{{- include "auth.urlNorm" (dict "external" .Values.auth.external "path" .Values.saapi.ingress.path ) -}}"
+  ISOL_OTDS_AUTH_SERVICE_PROTOCOL: "{{ .Values.auth.external.protocol }}"
+  ISOL_OTDS_AUTH_SERVICE_HOST: "{{ .Values.auth.external.host }}"
+  ISOL_OTDS_AUTH_SERVICE_PORT: "{{ .Values.auth.external.port }}"
+  ISOL_OTDS_AUTH_SERVICE_URL: "{{- include "auth.urlNorm" (dict "external" .Values.auth.external "path" .Values.auth.otdsws.ingress.prependPath) -}}"
+  ISOL_OTDS_AUTH_SERVICE_PATH: "{{- if .Values.auth.otdsws.ingress.prependPath -}}/{{- .Values.auth.otdsws.ingress.prependPath -}}{{- end -}}"
+  ISOL_OTDS_AUTH_SERVICE_UI_URL: "{{ .Values.auth.uiUrls }}"
+  ISOL_OTDS_SIMPLE_PASSWORD_POLICY: "{{- .Values.auth.simplePasswordPolicy }}"
+  ISOL_AUTH_SERVICE_REFRESH_TOKEN_EXPIRY_TIME: "{{ .Values.auth.refreshTokenExpiryTimeSeconds }}"
+  ISOL_AUTH_SERVICE_API_CLIENT: "{{ .Values.auth.apiClient }}"
+  SEARCH_ABSTRACTOR_SERVER_ALLOWED_ORIGINS: "{{ .Values.saapi.allowedOrigins }}"
   SEARCHABSTRACTOR_SESSION_SERVICE_DATABASE_HOST: {{ .Values.saapiPostgresql.fullnameOverride | quote }}
   SEARCHABSTRACTOR_SESSION_SERVICE_DATABASE_PORT: {{ .Values.saapiPostgresql.service.port | quote }}
   SEARCHABSTRACTOR_SESSION_SERVICE_DATABASE_USERNAME: {{ .Values.saapiPostgresql.auth.username | quote }}
   SEARCHABSTRACTOR_SESSION_SERVICE_DATABASE_PASSWORD: {{ .Values.saapiPostgresql.auth.password | quote }}
   SEARCHABSTRACTOR_SESSION_SERVICE_DATABASE_NAME: {{ .Values.saapiPostgresql.auth.database | quote }}
   SEARCHABSTRACTOR_SESSION_SERVICE_DATABASE_APPNAME: "searchabstractor_session_service"
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ .Values.sessionapi.secret }}
+data:
+  ISOL_AUTH_SERVICE_API_CLIENT_SECRET: "{{ .Values.auth.apiClientSecret | b64enc }}"
+  ISOL_AUTH_SERVICE_ADMIN_USER: "{{ .Values.auth.otdsws.adminEmail  | b64enc }}"
+  ISOL_AUTH_SERVICE_ADMIN_PASS: "{{ .Values.auth.otdsws.adminPassword  | b64enc }}"

@@ -130,6 +130,9 @@
                 "key"
             ]
         },
+        "resources": {
+            "$ref": "#/$defs/optional_object"
+        },
         "content":{
             "type": "object",
             "properties": {
@@ -203,16 +206,26 @@
                 { "$ref": "#/$defs/optional_object" }
             ]
         },
+        "otdsdb": { "$ref": "#/$defs/optional_object" },
+        "google_auth_mode": {
+            "type": "string",
+            "enum": [ "serviceAccount", "credentials" ]
+        },
         "auth":{
             "type": "object",
             "properties": {
-                "realm": { "type": "string" },
+                "partition": { "type": "string" },
+                "simplePasswordPolicy": { "type": "boolean" },
+                "createAdminUsername": { "type": "string" },
+                "createAdminPassword": { "type": "string" },
                 "apiClient": { "type": "string" },
                 "apiClientSecret": { "type": "string" },
                 "uiClient": { "type": "string" },
                 "uiUrls": { "type": "string" },
                 "baseRealmRoles": { "type": "string" },
-                "tokenExpiryTimeSeconds": { "type": "integer" }
+                "refreshTokenExpiryTimeSeconds": { "type": "integer" },
+                "tokenExpiryTimeSeconds": { "type": "integer" },
+                "otdsws": { "type": "object" }
             },
             "allOf":[
                 { "$ref": "#/$defs/optional_object" }
@@ -221,7 +234,7 @@
                 "apiClient",
                 "apiClientSecret",
                 "baseRealmRoles",
-                "realm",
+                "partition",
                 "tokenExpiryTimeSeconds",
                 "uiClient",
                 "uiUrls"
@@ -261,6 +274,7 @@
                     ],
                     "unevaluatedProperties": false
                 },
+                "resources": { "$ref": "#/$defs/resources" },
                 "service": {
                     "type": "object",
                     "properties": {
@@ -279,7 +293,8 @@
                 "service",
                 "licensor",
                 "config",
-                "ingress"
+                "ingress",
+                "resources"
             ]
         },
         "saapi":{
@@ -346,6 +361,7 @@
                     ],
                     "unevaluatedProperties": false
                 },
+                "resources": { "$ref": "#/$defs/resources" },
                 "service":{
                     "type": "object",
                     "properties": {
@@ -355,6 +371,23 @@
                     "required":[
                         "name","port"
                     ]
+                },
+                "vertexai":{
+                    "type": "object",
+                    "properties":{
+                        "enabled": { "type": "boolean" },
+                        "project": { "type": "string" },
+                        "location": { "type": "string" },
+                        "model": { "type": "string" },
+                        "maxOutputTokens": { "type": "integer" },
+                        "authentication": { "$ref": "#/$defs/google_auth_mode" },
+                        "credentials": { "type": "object" }
+                    },
+                    "required": [
+                        "enabled",
+                        "authentication"
+                    ],
+                    "unevaluatedProperties": false
                 },
                 "vllm":{
                     "type": "object",
@@ -394,6 +427,7 @@
                 "backendApi",
                 "storage",
                 "ingress",
+                "resources",
                 "service",
                 "vllm"
             ],

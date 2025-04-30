@@ -19,6 +19,9 @@
     license.
 
 ]]
+
+local utils = require "utils"
+
 function sendIDOLAction(idolServerHost, idolServerPort, timeout, action, params)
     
     log_info("IDOL Request:", action)
@@ -34,7 +37,7 @@ function sendIDOLAction(idolServerHost, idolServerPort, timeout, action, params)
     return responseXml
 end
 
-function sendQueryAction(idolServerHost, idolServerPort, timeout, securityInfo, text, maxResults, matchReferences, parametricFilters, vectorfield)
+function sendQueryAction(idolServerHost, idolServerPort, timeout, securityInfo, text, maxResults, matchReferences, parametricFilters, vectorfield, usingDiscoverIndex)
 
     local input_text = text
     if vectorfield then
@@ -50,9 +53,14 @@ function sendQueryAction(idolServerHost, idolServerPort, timeout, securityInfo, 
 
     local docFieldText = "NOT MATCH{4}:DOCUMENT_KEYVIEW_CLASS_STRING"
     local imageFieldText = "MATCH{4}:DOCUMENT_KEYVIEW_CLASS_STRING"
+
+    if usingDiscoverIndex then
+        docFieldText = "NOT EXISTS{}:PROPERTY1ENTITY1IMAGEENTITY1FILESIZEBYTES"
+        imageFieldText = "EXISTS{}:PROPERTY1ENTITY1IMAGEENTITY1FILESIZEBYTES"
+    end
+
     log_info("PARAMETRIC FILTERS:", parametricFilters)
     if parametricFilters ~= nil and parametricFilters ~= "" then
-        parametricFilters = string.gsub(parametricFilters, "+", " ")
         docFieldText = docFieldText .. " AND (" .. parametricFilters .. ")"
         imageFieldText = imageFieldText .. " AND (" .. parametricFilters .. ")"
     end
@@ -107,17 +115,8 @@ function sendQueryAction(idolServerHost, idolServerPort, timeout, securityInfo, 
     return stateToken, numHits, errorString, weights, response
 end
 
-
-local function splitOn(inputStr, separator)
-    local elements = {}
-    for element in string.gmatch(inputStr, "([^" .. separator .. "]+)") do
-        table.insert(elements, element)
-    end
-    return elements
-end
-
 local function getMatchReferences(refs)
-    local allRefs = splitOn(refs, ",")
+    local allRefs = utils.splitOn(refs, ",")
     local escapedRefs = {}
     for _, ref in ipairs(allRefs) do
         local thisRef = string.gsub(ref, "%%2C", ",")
@@ -179,6 +178,7 @@ function handler(ffdocument, session)
     local parametricFilters = ffdocument:getAttribute("idol.parametricfilters", "")
     local resourceid = ffdocument:getAttribute("idol.resourceid")
     local imageVectorField = session:evaluateAttributeExpressions(session:getProperty("ImageVectorField"))
+    local usingDiscoverIndex = session:getProperty("UsingDiscoverIndex") == "true"
 
     log_info("IDOL Server Host:", idolServerHost)
     log_info("IDOL Server Port:", idolServerPort)
@@ -195,10 +195,10 @@ function handler(ffdocument, session)
                         local stateToken, numHits, errorString, weights
                         if resourceid == nil or resourceid == "" then
                             stateToken, numHits, errorString, weights, response = sendQueryAction(idolServerHost, idolServerPort, large_timeout, securityInfo, string.sub(content, 1, 2000),
-                                                                                            maxResults, matchReferences, parametricFilters)
+                                                                                            maxResults, matchReferences, parametricFilters, nil, usingDiscoverIndex)
                         else
                             stateToken, numHits, errorString, weights, response = sendQueryAction(idolServerHost, idolServerPort, large_timeout, securityInfo, content, maxResults,
-                                                                                            matchReferences, parametricFilters, imageVectorField)
+                                                                                            matchReferences, parametricFilters, imageVectorField, usingDiscoverIndex)
                         end
 
                         --TODO: errorString
