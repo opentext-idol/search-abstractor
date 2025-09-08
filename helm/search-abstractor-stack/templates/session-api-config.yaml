@@ -23,6 +23,7 @@ kind: ConfigMap
 metadata:
   name: {{ .Values.sessionapi.config }}
 data:
+  SEARCH_ABSTRACTOR_SESSION_TRUSTED_CERTS_PATH: {{ .Values.sessionapi.security.trustedCertsPath | quote }}
   ISOL_AUTH_SERVICE_PARTITION: "{{ .Values.auth.partition }}"
   ISOL_AUTH_SERVICE_API_URL:  "{{- include "auth.urlNorm" (dict "external" .Values.auth.external "path" .Values.saapi.ingress.path ) -}}"
   ISOL_OTDS_AUTH_SERVICE_PROTOCOL: "{{ .Values.auth.external.protocol }}"

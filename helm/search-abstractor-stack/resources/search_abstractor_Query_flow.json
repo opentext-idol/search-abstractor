@@ -22,7 +22,7 @@
     "outputPorts": [],
     "position": {
       "x": 0.0,
-      "y": 222.0
+      "y": 0.0
     },
     "processGroups": [
       {
@@ -4676,6 +4676,41 @@
                     "bends": [],
                     "componentType": "CONNECTION",
                     "destination": {
+                      "groupId": "8d233d1f-dec4-3f14-bff3-39bc840dd0bd",
+                      "id": "b364336d-042d-382d-950b-9cabe17eb7a9",
+                      "instanceIdentifier": "b364336d-042d-382d-950b-9cabe17eb7a9",
+                      "name": "non_question",
+                      "type": "OUTPUT_PORT"
+                    },
+                    "flowFileExpiration": "0 sec",
+                    "groupIdentifier": "8d233d1f-dec4-3f14-bff3-39bc840dd0bd",
+                    "identifier": "1c32efbd-26e6-3a6e-bfbb-4866b86f793c",
+                    "instanceIdentifier": "1c32efbd-26e6-3a6e-bfbb-4866b86f793c",
+                    "labelIndex": 0,
+                    "loadBalanceCompression": "DO_NOT_COMPRESS",
+                    "loadBalanceStrategy": "DO_NOT_LOAD_BALANCE",
+                    "name": "",
+                    "partitioningAttribute": "",
+                    "prioritizers": [],
+                    "selectedRelationships": [
+                      ""
+                    ],
+                    "source": {
+                      "comments": "",
+                      "groupId": "8d233d1f-dec4-3f14-bff3-39bc840dd0bd",
+                      "id": "7419f757-5217-39db-bea0-1343ddb21714",
+                      "instanceIdentifier": "7419f757-5217-39db-bea0-1343ddb21714",
+                      "name": "Funnel",
+                      "type": "FUNNEL"
+                    },
+                    "zIndex": 0
+                  },
+                  {
+                    "backPressureDataSizeThreshold": "1 GB",
+                    "backPressureObjectThreshold": 10000,
+                    "bends": [],
+                    "componentType": "CONNECTION",
+                    "destination": {
                       "comments": "",
                       "groupId": "8d233d1f-dec4-3f14-bff3-39bc840dd0bd",
                       "id": "6b711f53-e94e-3370-aa8d-a281dab3fda6",
@@ -4744,6 +4779,128 @@
                   {
                     "backPressureDataSizeThreshold": "1 GB",
                     "backPressureObjectThreshold": 10000,
+                    "bends": [
+                      {
+                        "x": 384.0,
+                        "y": -328.0
+                      },
+                      {
+                        "x": 384.0,
+                        "y": 160.0
+                      }
+                    ],
+                    "componentType": "CONNECTION",
+                    "destination": {
+                      "comments": "",
+                      "groupId": "8d233d1f-dec4-3f14-bff3-39bc840dd0bd",
+                      "id": "7419f757-5217-39db-bea0-1343ddb21714",
+                      "instanceIdentifier": "7419f757-5217-39db-bea0-1343ddb21714",
+                      "name": "Funnel",
+                      "type": "FUNNEL"
+                    },
+                    "flowFileExpiration": "0 sec",
+                    "groupIdentifier": "8d233d1f-dec4-3f14-bff3-39bc840dd0bd",
+                    "identifier": "65031cbf-4fe5-389c-9143-793ac4a7877f",
+                    "instanceIdentifier": "65031cbf-4fe5-389c-9143-793ac4a7877f",
+                    "labelIndex": 0,
+                    "loadBalanceCompression": "DO_NOT_COMPRESS",
+                    "loadBalanceStrategy": "DO_NOT_LOAD_BALANCE",
+                    "name": "",
+                    "partitioningAttribute": "",
+                    "prioritizers": [],
+                    "selectedRelationships": [
+                      "search"
+                    ],
+                    "source": {
+                      "comments": "",
+                      "groupId": "8d233d1f-dec4-3f14-bff3-39bc840dd0bd",
+                      "id": "d2fa7425-cd85-3749-9e21-cd492b5de80d",
+                      "instanceIdentifier": "d2fa7425-cd85-3749-9e21-cd492b5de80d",
+                      "name": "RouteOnAttribute",
+                      "type": "PROCESSOR"
+                    },
+                    "zIndex": 0
+                  },
+                  {
+                    "backPressureDataSizeThreshold": "1 GB",
+                    "backPressureObjectThreshold": 10000,
+                    "bends": [
+                      {
+                        "x": -496.0,
+                        "y": -328.0
+                      }
+                    ],
+                    "componentType": "CONNECTION",
+                    "destination": {
+                      "comments": "",
+                      "groupId": "8d233d1f-dec4-3f14-bff3-39bc840dd0bd",
+                      "id": "12951ebd-4f7a-32ab-9b7c-77f3e3704460",
+                      "instanceIdentifier": "12951ebd-4f7a-32ab-9b7c-77f3e3704460",
+                      "name": "Funnel",
+                      "type": "FUNNEL"
+                    },
+                    "flowFileExpiration": "0 sec",
+                    "groupIdentifier": "8d233d1f-dec4-3f14-bff3-39bc840dd0bd",
+                    "identifier": "84a0b933-6ca2-3744-be5d-6dc9c959f7de",
+                    "instanceIdentifier": "84a0b933-6ca2-3744-be5d-6dc9c959f7de",
+                    "labelIndex": 0,
+                    "loadBalanceCompression": "DO_NOT_COMPRESS",
+                    "loadBalanceStrategy": "DO_NOT_LOAD_BALANCE",
+                    "name": "",
+                    "partitioningAttribute": "",
+                    "prioritizers": [],
+                    "selectedRelationships": [
+                      "ask"
+                    ],
+                    "source": {
+                      "comments": "",
+                      "groupId": "8d233d1f-dec4-3f14-bff3-39bc840dd0bd",
+                      "id": "d2fa7425-cd85-3749-9e21-cd492b5de80d",
+                      "instanceIdentifier": "d2fa7425-cd85-3749-9e21-cd492b5de80d",
+                      "name": "RouteOnAttribute",
+                      "type": "PROCESSOR"
+                    },
+                    "zIndex": 0
+                  },
+                  {
+                    "backPressureDataSizeThreshold": "1 GB",
+                    "backPressureObjectThreshold": 10000,
+                    "bends": [],
+                    "componentType": "CONNECTION",
+                    "destination": {
+                      "comments": "",
+                      "groupId": "8d233d1f-dec4-3f14-bff3-39bc840dd0bd",
+                      "id": "2d077a13-e5c2-3b39-86a4-7ebcbe709e0c",
+                      "instanceIdentifier": "2d077a13-e5c2-3b39-86a4-7ebcbe709e0c",
+                      "name": "Count Ask",
+                      "type": "PROCESSOR"
+                    },
+                    "flowFileExpiration": "0 sec",
+                    "groupIdentifier": "8d233d1f-dec4-3f14-bff3-39bc840dd0bd",
+                    "identifier": "88b76733-4a6b-3501-af22-8d87e544be96",
+                    "instanceIdentifier": "88b76733-4a6b-3501-af22-8d87e544be96",
+                    "labelIndex": 0,
+                    "loadBalanceCompression": "DO_NOT_COMPRESS",
+                    "loadBalanceStrategy": "DO_NOT_LOAD_BALANCE",
+                    "name": "",
+                    "partitioningAttribute": "",
+                    "prioritizers": [],
+                    "selectedRelationships": [
+                      ""
+                    ],
+                    "source": {
+                      "comments": "",
+                      "groupId": "8d233d1f-dec4-3f14-bff3-39bc840dd0bd",
+                      "id": "12951ebd-4f7a-32ab-9b7c-77f3e3704460",
+                      "instanceIdentifier": "12951ebd-4f7a-32ab-9b7c-77f3e3704460",
+                      "name": "Funnel",
+                      "type": "FUNNEL"
+                    },
+                    "zIndex": 0
+                  },
+                  {
+                    "backPressureDataSizeThreshold": "1 GB",
+                    "backPressureObjectThreshold": 10000,
                     "bends": [],
                     "componentType": "CONNECTION",
                     "destination": {
@@ -4791,6 +4948,42 @@
                     },
                     "flowFileExpiration": "0 sec",
                     "groupIdentifier": "8d233d1f-dec4-3f14-bff3-39bc840dd0bd",
+                    "identifier": "a748338b-fbb8-3a6d-8556-1e1ef592d63c",
+                    "instanceIdentifier": "a748338b-fbb8-3a6d-8556-1e1ef592d63c",
+                    "labelIndex": 0,
+                    "loadBalanceCompression": "DO_NOT_COMPRESS",
+                    "loadBalanceStrategy": "DO_NOT_LOAD_BALANCE",
+                    "name": "",
+                    "partitioningAttribute": "",
+                    "prioritizers": [],
+                    "selectedRelationships": [
+                      "unmatched"
+                    ],
+                    "source": {
+                      "comments": "",
+                      "groupId": "8d233d1f-dec4-3f14-bff3-39bc840dd0bd",
+                      "id": "d2fa7425-cd85-3749-9e21-cd492b5de80d",
+                      "instanceIdentifier": "d2fa7425-cd85-3749-9e21-cd492b5de80d",
+                      "name": "RouteOnAttribute",
+                      "type": "PROCESSOR"
+                    },
+                    "zIndex": 0
+                  },
+                  {
+                    "backPressureDataSizeThreshold": "1 GB",
+                    "backPressureObjectThreshold": 10000,
+                    "bends": [],
+                    "componentType": "CONNECTION",
+                    "destination": {
+                      "comments": "",
+                      "groupId": "8d233d1f-dec4-3f14-bff3-39bc840dd0bd",
+                      "id": "d2fa7425-cd85-3749-9e21-cd492b5de80d",
+                      "instanceIdentifier": "d2fa7425-cd85-3749-9e21-cd492b5de80d",
+                      "name": "RouteOnAttribute",
+                      "type": "PROCESSOR"
+                    },
+                    "flowFileExpiration": "0 sec",
+                    "groupIdentifier": "8d233d1f-dec4-3f14-bff3-39bc840dd0bd",
                     "identifier": "c06333a6-a6ca-3f8e-b05c-39ab068a5fa7",
                     "instanceIdentifier": "c06333a6-a6ca-3f8e-b05c-39ab068a5fa7",
                     "labelIndex": 0,
@@ -4814,6 +5007,42 @@
                   {
                     "backPressureDataSizeThreshold": "1 GB",
                     "backPressureObjectThreshold": 10000,
+                    "bends": [],
+                    "componentType": "CONNECTION",
+                    "destination": {
+                      "comments": "",
+                      "groupId": "8d233d1f-dec4-3f14-bff3-39bc840dd0bd",
+                      "id": "12951ebd-4f7a-32ab-9b7c-77f3e3704460",
+                      "instanceIdentifier": "12951ebd-4f7a-32ab-9b7c-77f3e3704460",
+                      "name": "Funnel",
+                      "type": "FUNNEL"
+                    },
+                    "flowFileExpiration": "0 sec",
+                    "groupIdentifier": "8d233d1f-dec4-3f14-bff3-39bc840dd0bd",
+                    "identifier": "c45a514a-064e-39f8-855f-9d2aabd36ad6",
+                    "instanceIdentifier": "c45a514a-064e-39f8-855f-9d2aabd36ad6",
+                    "labelIndex": 0,
+                    "loadBalanceCompression": "DO_NOT_COMPRESS",
+                    "loadBalanceStrategy": "DO_NOT_LOAD_BALANCE",
+                    "name": "",
+                    "partitioningAttribute": "",
+                    "prioritizers": [],
+                    "selectedRelationships": [
+                      "question"
+                    ],
+                    "source": {
+                      "comments": "",
+                      "groupId": "8d233d1f-dec4-3f14-bff3-39bc840dd0bd",
+                      "id": "6b711f53-e94e-3370-aa8d-a281dab3fda6",
+                      "instanceIdentifier": "6b711f53-e94e-3370-aa8d-a281dab3fda6",
+                      "name": "Route Question",
+                      "type": "PROCESSOR"
+                    },
+                    "zIndex": 0
+                  },
+                  {
+                    "backPressureDataSizeThreshold": "1 GB",
+                    "backPressureObjectThreshold": 10000,
                     "bends": [
                       {
                         "x": 200.0,
@@ -4822,11 +5051,12 @@
                     ],
                     "componentType": "CONNECTION",
                     "destination": {
+                      "comments": "",
                       "groupId": "8d233d1f-dec4-3f14-bff3-39bc840dd0bd",
-                      "id": "b364336d-042d-382d-950b-9cabe17eb7a9",
-                      "instanceIdentifier": "b364336d-042d-382d-950b-9cabe17eb7a9",
-                      "name": "non_question",
-                      "type": "OUTPUT_PORT"
+                      "id": "7419f757-5217-39db-bea0-1343ddb21714",
+                      "instanceIdentifier": "7419f757-5217-39db-bea0-1343ddb21714",
+                      "name": "Funnel",
+                      "type": "FUNNEL"
                     },
                     "flowFileExpiration": "0 sec",
                     "groupIdentifier": "8d233d1f-dec4-3f14-bff3-39bc840dd0bd",
@@ -4850,47 +5080,6 @@
                       "type": "PROCESSOR"
                     },
                     "zIndex": 0
-                  },
-                  {
-                    "backPressureDataSizeThreshold": "1 GB",
-                    "backPressureObjectThreshold": 10000,
-                    "bends": [
-                      {
-                        "x": -128.0,
-                        "y": 152.0
-                      }
-                    ],
-                    "componentType": "CONNECTION",
-                    "destination": {
-                      "comments": "",
-                      "groupId": "8d233d1f-dec4-3f14-bff3-39bc840dd0bd",
-                      "id": "2d077a13-e5c2-3b39-86a4-7ebcbe709e0c",
-                      "instanceIdentifier": "2d077a13-e5c2-3b39-86a4-7ebcbe709e0c",
-                      "name": "Count Ask",
-                      "type": "PROCESSOR"
-                    },
-                    "flowFileExpiration": "0 sec",
-                    "groupIdentifier": "8d233d1f-dec4-3f14-bff3-39bc840dd0bd",
-                    "identifier": "cfdf7213-0d16-320c-9fb0-7835306dd3ce",
-                    "instanceIdentifier": "cfdf7213-0d16-320c-9fb0-7835306dd3ce",
-                    "labelIndex": 0,
-                    "loadBalanceCompression": "DO_NOT_COMPRESS",
-                    "loadBalanceStrategy": "DO_NOT_LOAD_BALANCE",
-                    "name": "",
-                    "partitioningAttribute": "",
-                    "prioritizers": [],
-                    "selectedRelationships": [
-                      "question"
-                    ],
-                    "source": {
-                      "comments": "",
-                      "groupId": "8d233d1f-dec4-3f14-bff3-39bc840dd0bd",
-                      "id": "6b711f53-e94e-3370-aa8d-a281dab3fda6",
-                      "instanceIdentifier": "6b711f53-e94e-3370-aa8d-a281dab3fda6",
-                      "name": "Route Question",
-                      "type": "PROCESSOR"
-                    },
-                    "zIndex": 0
                   }
                 ],
                 "controllerServices": [],
@@ -4900,7 +5089,28 @@
                 "executionEngine": "INHERITED",
                 "flowFileConcurrency": "UNBOUNDED",
                 "flowFileOutboundPolicy": "STREAM_WHEN_AVAILABLE",
-                "funnels": [],
+                "funnels": [
+                  {
+                    "componentType": "FUNNEL",
+                    "groupIdentifier": "8d233d1f-dec4-3f14-bff3-39bc840dd0bd",
+                    "identifier": "12951ebd-4f7a-32ab-9b7c-77f3e3704460",
+                    "instanceIdentifier": "12951ebd-4f7a-32ab-9b7c-77f3e3704460",
+                    "position": {
+                      "x": -520.0,
+                      "y": 32.0
+                    }
+                  },
+                  {
+                    "componentType": "FUNNEL",
+                    "groupIdentifier": "8d233d1f-dec4-3f14-bff3-39bc840dd0bd",
+                    "identifier": "7419f757-5217-39db-bea0-1343ddb21714",
+                    "instanceIdentifier": "7419f757-5217-39db-bea0-1343ddb21714",
+                    "position": {
+                      "x": 176.0,
+                      "y": 248.0
+                    }
+                  }
+                ],
                 "groupIdentifier": "f6b62379-6ed8-3f7d-83b0-15d994a9f931",
                 "identifier": "8d233d1f-dec4-3f14-bff3-39bc840dd0bd",
                 "inputPorts": [
@@ -4914,8 +5124,8 @@
                     "name": "input",
                     "portFunction": "STANDARD",
                     "position": {
-                      "x": -131.0,
-                      "y": -328.0
+                      "x": -136.0,
+                      "y": -488.0
                     },
                     "scheduledState": "ENABLED",
                     "type": "INPUT_PORT"
@@ -5523,6 +5733,67 @@
                     "schedulingStrategy": "TIMER_DRIVEN",
                     "style": {},
                     "type": "idol.nifi.processor.ExecuteDocumentLua",
+                    "yieldDuration": "1 sec"
+                  },
+                  {
+                    "autoTerminatedRelationships": [],
+                    "backoffMechanism": "PENALIZE_FLOWFILE",
+                    "bulletinLevel": "WARN",
+                    "bundle": {
+                      "artifact": "nifi-standard-nar",
+                      "group": "org.apache.nifi",
+                      "version": "2.0.0"
+                    },
+                    "comments": "",
+                    "componentType": "PROCESSOR",
+                    "concurrentlySchedulableTaskCount": 1,
+                    "executionNode": "ALL",
+                    "groupIdentifier": "8d233d1f-dec4-3f14-bff3-39bc840dd0bd",
+                    "identifier": "d2fa7425-cd85-3749-9e21-cd492b5de80d",
+                    "instanceIdentifier": "d2fa7425-cd85-3749-9e21-cd492b5de80d",
+                    "maxBackoffPeriod": "10 mins",
+                    "name": "RouteOnAttribute",
+                    "penaltyDuration": "30 sec",
+                    "position": {
+                      "x": -192.0,
+                      "y": -392.0
+                    },
+                    "properties": {
+                      "Routing Strategy": "Route to Property name",
+                      "ask": "${subvariant:equalsIgnoreCase('ask')}",
+                      "search": "${subvariant:equalsIgnoreCase('search')}"
+                    },
+                    "propertyDescriptors": {
+                      "Routing Strategy": {
+                        "displayName": "Routing Strategy",
+                        "dynamic": false,
+                        "identifiesControllerService": false,
+                        "name": "Routing Strategy",
+                        "sensitive": false
+                      },
+                      "ask": {
+                        "displayName": "ask",
+                        "dynamic": true,
+                        "identifiesControllerService": false,
+                        "name": "ask",
+                        "sensitive": false
+                      },
+                      "search": {
+                        "displayName": "search",
+                        "dynamic": true,
+                        "identifiesControllerService": false,
+                        "name": "search",
+                        "sensitive": false
+                      }
+                    },
+                    "retriedRelationships": [],
+                    "retryCount": 10,
+                    "runDurationMillis": 25,
+                    "scheduledState": "ENABLED",
+                    "schedulingPeriod": "0 sec",
+                    "schedulingStrategy": "TIMER_DRIVEN",
+                    "style": {},
+                    "type": "org.apache.nifi.processors.standard.RouteOnAttribute",
                     "yieldDuration": "1 sec"
                   }
                 ],
@@ -6840,7 +7111,7 @@
           "name": "AskAnswerSystemPreferenceOrder",
           "provided": false,
           "sensitive": false,
-          "value": "AnswerBank,FactBank,RAGPassageExtractor,LLMPassageExtractor,NTSBPassageExtractor"
+          "value": "AnswerBank,FactBank,RAGPassageExtractor"
         },
         {
           "description": "",

@@ -180,9 +180,9 @@
                 "cfg":{
                     "type": "object",
                     "properties":{
-                        "security": {
-                            "type": "string"
-                        }
+                        "overwrite": { "type": "boolean" },
+                        "security": { "type": "string" },
+                        "otds": { "type": "string" }
                     }
                 }
             },
@@ -196,9 +196,9 @@
                 "cfg":{
                     "type": "object",
                     "properties":{
-                        "repositories": {
-                            "type": "string"
-                        }
+                        "overwrite": { "type": "boolean" },
+                        "repositories": { "type": "string" },
+                        "otds": { "type": "string" }
                     }
                 }
             },
@@ -220,12 +220,16 @@
                 "createAdminPassword": { "type": "string" },
                 "apiClient": { "type": "string" },
                 "apiClientSecret": { "type": "string" },
+                "ogsClient": { "type": "string" },
+                "ogsClientSecret": { "type": "string" },
                 "uiClient": { "type": "string" },
                 "uiUrls": { "type": "string" },
+                "usersFile": { "type": "string" },
                 "baseRealmRoles": { "type": "string" },
                 "refreshTokenExpiryTimeSeconds": { "type": "integer" },
                 "tokenExpiryTimeSeconds": { "type": "integer" },
-                "otdsws": { "type": "object" }
+                "otdsws": { "type": "object" },
+                "userSecurity": { "$ref": "#/$defs/userSecurity" }
             },
             "allOf":[
                 { "$ref": "#/$defs/optional_object" }
@@ -239,6 +243,14 @@
                 "uiClient",
                 "uiUrls"
             ]
+        },
+        "userSecurity": {
+            "type": "object",
+            "properties": {
+                "repository": { "type": "string" },
+                "resourceId": { "type": "string" },
+                "jwtUserField": { "type": "string" }
+            }
         },
         "saapiPostgresql": {
             "$ref": "#/$defs/optional_object"
@@ -284,6 +296,12 @@
                     "required": [
                         "name","port"
                     ]
+                },
+                "additionalVolumes":{
+                    "type": "object"
+                },
+                "additionalVolumeMounts":{
+                   "type": "object"
                 }
             },
             "required": [
@@ -371,6 +389,12 @@
                     "required":[
                         "name","port"
                     ]
+                },
+                "additionalVolumes":{
+                    "type": "object"
+                },
+                "additionalVolumeMounts":{
+                   "type": "object"
                 },
                 "vertexai":{
                     "type": "object",

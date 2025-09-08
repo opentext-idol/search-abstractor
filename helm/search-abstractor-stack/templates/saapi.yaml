@@ -18,6 +18,27 @@
 # license.
 #
 
+{{- define "sa.saapi.volumeMounts" }}
+{{- include "idol-library.util.range_array_or_map_values" (dict "root" . "vals" .Values.saapi.additionalVolumeMounts) }}
+{{- if .Values.global.idolOemLicenseSecret }}
+- name: oem-license
+  mountPath: "/data/license-oem/encryptionkey-encrypted.dat"
+  subPath: encryptionkey-encrypted.dat
+  readOnly: true
+{{- end }}
+{{- end }}
+{{- $volumeMountsDict := dict "volumeMounts" (include "sa.saapi.volumeMounts" . | fromYamlArray) }}
+
+{{- define "sa.saapi.volumes" }}
+{{- include "idol-library.util.range_array_or_map_values" (dict "root" . "vals" .Values.saapi.additionalVolumes) }}
+{{- if .Values.global.idolOemLicenseSecret }}
+- name: oem-license
+  secret:
+    secretName: {{ .Values.global.idolOemLicenseSecret }}
+{{- end }}
+{{- end }}
+{{- $volumesDict := dict "volumes" (include "sa.saapi.volumes" . | fromYamlArray) }}
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -62,23 +83,13 @@ spec:
 {{ include "saapi_probe.api" . | indent 12 }}
             periodSeconds: 60
             failureThreshold: 20
-          {{- if .Values.global.idolOemLicenseSecret }}
-          volumeMounts:
-          - name: oem-license
-            mountPath: "/data/license-oem/encryptionkey-encrypted.dat"
-            subPath: encryptionkey-encrypted.dat
-            readOnly: true
-          {{- end }}
+{{ $volumeMountsDict | toYaml | indent 10 }}
       imagePullSecrets:
       {{- range .Values.global.imagePullSecrets }}
         - name: {{ . }}
       {{- end }}
-      {{- if .Values.global.idolOemLicenseSecret }}
-      volumes:
-      - name: oem-license
-        secret:
-          secretName: {{ .Values.global.idolOemLicenseSecret }}
-      {{- end }}
+{{ $volumesDict | toYaml | indent 6 }}
+
 ---
 
 apiVersion: v1

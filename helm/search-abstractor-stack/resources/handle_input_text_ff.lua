@@ -24,6 +24,7 @@ function handler(flowfile, session)
     local ffd = flowfile:getAsFlowFileDocument()
     local sessioninfo = flowfile:getAttribute("http.query.param.sessionid","")
     local resourceid = flowfile:getAttribute("http.query.param.resourceid","")
+    local classification = flowfile:getAttribute("http.query.param.classification", "")
     local authToken = flowfile:getAttribute("http.headers.Authorization","")
     ffd:overwrite(function(action)
             action:setAttribute("idol.reference", "handleInputText")
@@ -39,6 +40,9 @@ function handler(flowfile, session)
             action:setAttribute("idol.resourceid", resourceid)
             action:setAttribute("processaction", "IDOL")
             action:setAttribute("variant", "Query")
+            if classification ~= "" then
+                action:setAttribute("subvariant", classification)
+            end
             action:addContent(text)
     	end)
 end
