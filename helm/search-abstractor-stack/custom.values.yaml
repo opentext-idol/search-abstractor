@@ -121,6 +121,8 @@ auth:
     port: *ingressPort
   db:
     dataVolumeStorageClass: *storageClass
+  otdsws:
+    publicHostname: *authIngressHost
 
 saapi:
   backendApi:
