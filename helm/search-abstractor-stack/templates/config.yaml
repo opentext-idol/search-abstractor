@@ -21,15 +21,6 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: search-abstractor-answerserver-deployment-cfg
-  labels: {{- include "idol-library.labels" (dict "root" . "component" .Values.answerserver ) | nindent 4 }}
-data:
-  answerserver.cfg: |
-{{ tpl (print "resources/answerserver.cfg" | .Files.Get) . | indent 4 }}
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
   name: search-abstractor-answerserver-deployment-resources-cfg
   labels: {{- include "idol-library.labels" (dict "root" . "component" .Values.answerserver ) | nindent 4 }}
 data:
@@ -91,68 +82,11 @@ data:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: search-abstractor-content-deployment-cfg
-  labels: {{- include "idol-library.labels" (dict "root" . "component" .Values.content ) | nindent 4 }}
-data:
-  {{- if and .Values.content.enabled .Values.distributedidol.enabled }}
-  {{- fail "single-content and distributedidol should not both be enabled." }}
-  {{- end }}
-  content.cfg: |
-{{ tpl (print "resources/content.cfg" | .Files.Get) . | indent 4 }}
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: search-abstractor-distributed-idol-dah-deployment-cfg
-  labels: {{- include "idol-library.labels" (dict "root" . "component" .Values.distributedidol) | nindent 4 }}
-data:
-  dah.cfg: |
-{{ tpl (print "resources/dah.cfg" | .Files.Get) . | indent 4 }}
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: search-abstractor-distributed-idol-dih-deployment-cfg
-  labels: {{- include "idol-library.labels" (dict "root" . "component" .Values.distributedidol) | nindent 4 }}
-data:
-  dih.cfg: |
-{{ tpl (print "resources/dih.cfg" | .Files.Get) . | indent 4 }}
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: search-abstractor-qms-deployment-cfg
-  labels: {{- include "idol-library.labels" (dict "root" . "component" .Values.qms ) | nindent 4 }}
-data:
-  qms.cfg: |
-{{ tpl (print "resources/qms.cfg" | .Files.Get) . | indent 4 }}
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: search-abstractor-ogs-deployment-cfg
+  name: search-abstractor-ogs-deployment-oauth-cfg
   labels: {{- include "idol-library.labels" (dict "root" . "component" .Values.ogs ) | nindent 4 }}
 data:
-  omnigroupserver.cfg: |
-{{ tpl (print "resources/ogs.cfg" | .Files.Get) . | indent 4 }}
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: search-abstractor-community-deployment-cfg
-  labels: {{- include "idol-library.labels" (dict "root" . "component" .Values.community ) | nindent 4 }}
-data:
-  community.cfg: |
-{{ tpl (print "resources/community.cfg" | .Files.Get) . | indent 4 }}
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: search-abstractor-view-deployment-cfg
-  labels: {{- include "idol-library.labels" (dict "root" . "component" .Values.view ) | nindent 4 }}
-data:
-  view.cfg: |
-{{ tpl (print "resources/view.cfg" | .Files.Get) . | indent 4 }}
+  oauth_tool.cfg: |
+{{ tpl (print "resources/oauth_tool.cfg" | .Files.Get) . | indent 4 }}
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -161,4 +95,42 @@ metadata:
   labels: {{- include "idol-library.labels" (dict "root" . "component" .Values ) | nindent 4 }}
 data:
   aes.keyfile: |-
-{{ tpl (sha256sum .Values.aes.key) . | indent 4 }}
+{{ sha256sum .Values.aes.key | indent 4 }}
+
+{{- define "searchabstractor.configmap" }}
+{{- $root := get . "root" | required "searchabstractor.configmap missing root" -}}
+{{- $name := get . "name" | required "searchabstractor.configmap missing name" -}}
+{{- $component := get . "component" | required "searchabstractor.configmap missing component" -}}
+{{- $filename := get . "filename" | required "searchabstractor.configmap missing filename" -}}
+{{- $file := dig "file" (print "resources/" $filename) . -}}
+{{- $enabled := dig "enabled" $component.enabled . -}}
+{{- if and $enabled (eq $component.existingConfigMap $name) -}}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $name }}
+  labels: {{- include "idol-library.labels" (dict "root" $root "component" $component ) | nindent 4 }}
+data:
+  {{ $filename }}: |-
+{{ tpl (print $file | $root.Files.Get) $root | indent 4 }}
+{{- end }}
+{{- end }}
+
+{{- if and .Values.content.enabled .Values.distributedidol.enabled }}
+{{- fail "single-content and distributedidol should not both be enabled." }}
+{{- end }}
+
+{{/* Search Abstractor configmaps for ACI Server config files (unless overridden by user) */}}
+{{ range $vals := list 
+  (dict "root" . "name" "search-abstractor-answerserver-deployment-cfg" "component" .Values.answerserver "filename" "answerserver.cfg" )
+  (dict "root" . "name" "search-abstractor-content-deployment-cfg" "component" .Values.content "filename" "content.cfg" "enabled" (or .Values.content.enabled .Values.distributedidol.enabled) )
+  (dict "root" . "name" "search-abstractor-idol-dah-deployment-cfg" "component" .Values.distributedidol "filename" "dah.cfg" )
+  (dict "root" . "name" "search-abstractor-idol-dih-deployment-cfg" "component" .Values.distributedidol "filename" "dih.cfg" )
+  (dict "root" . "name" "search-abstractor-community-deployment-cfg" "component" .Values.community "filename" "community.cfg" )
+  (dict "root" . "name" "search-abstractor-ogs-deployment-cfg" "component" .Values.ogs "filename" "omnigroupserver.cfg" )
+  (dict "root" . "name" "search-abstractor-qms-deployment-cfg" "component" .Values.qms "filename" "qms.cfg" )
+  (dict "root" . "name" "search-abstractor-view-deployment-cfg" "component" .Values.view "filename" "view.cfg" )
+}}
+{{ include "searchabstractor.configmap" $vals }}
+{{ end }}

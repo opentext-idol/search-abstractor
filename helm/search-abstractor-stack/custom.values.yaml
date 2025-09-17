@@ -28,7 +28,7 @@ x-custom:
     host: &ingressHost "my.ingress.host"
     # -- External hostname for accessing NiFi
     nifiHost: &nifiIngressHost "my.nifi.ingress.host"
-    # -- External hostname for accessing Keycloak
+    # -- External hostname for accessing authorization server
     authHost: &authIngressHost "my.auth.ingress.host"
     # -- Whether to enable direct ingress access to internal services
     enableDev: &enableDevIngress true
@@ -108,6 +108,11 @@ nifi:
   nifiRegistry:
     ingress:
       host: *nifiIngressHost
+    dataVolume:
+      storageClass: *storageClass
+  postgresql:
+    persistence:
+      storageClass: *storageClass
 
 auth:
   external:
@@ -116,6 +121,8 @@ auth:
     port: *ingressPort
   db:
     dataVolumeStorageClass: *storageClass
+  otdsws:
+    publicHostname: *authIngressHost
 
 saapi:
   backendApi:

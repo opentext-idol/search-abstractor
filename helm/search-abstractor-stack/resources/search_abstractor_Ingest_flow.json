@@ -3826,7 +3826,7 @@
                   "ACI Context Service": "cdbf2201-fe45-3c22-93aa-a3b355246ac1",
                   "Authorized DN Pattern": null,
                   "Hostname": null,
-                  "IdolLicenseService": null,
+                  "IdolLicenseService": "{{ if .Values.nifi.global.idolOemLicenseSecret }}136e4558-3701-3e26-8ed5-f243dd0dfec7{{ else }}270745e9-d01a-3b8e-ac5f-363c4264d812{{ end }}",
                   "Listening Port": "11000",
                   "Max Request Header Size": "8192",
                   "Multipart Parameters": null,
@@ -5201,7 +5201,7 @@
           "name": "AskAnswerSystemPreferenceOrder",
           "provided": false,
           "sensitive": false,
-          "value": "AnswerBank,FactBank,RAGPassageExtractor,LLMPassageExtractor,NTSBPassageExtractor"
+          "value": "AnswerBank,FactBank,RAGPassageExtractor"
         },
         {
           "description": "",

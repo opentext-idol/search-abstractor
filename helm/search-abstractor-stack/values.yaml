@@ -30,9 +30,10 @@ aes:
   # @ignored DRY definitions
   common:
     volume: &x-aes-key-volume
-      name: aes-key-files
-      configMap:
-        name: search-abstractor-security-aes-key
+      aes-key-volume:
+        name: aes-key-files
+        configMap:
+          name: search-abstractor-security-aes-key
     volumeMount: &x-aes-key-volumeMount
       name: aes-key-files
       subPath: aes.keyfile
@@ -44,7 +45,7 @@ content:
   enabled: true
   name: idol-content
   idolImage:
-    version: &idolVersion "25.2"
+    version: &idolVersion "25.2.0"
   queryserviceACIPort: &queryserviceACIPort "9100"
   existingConfigMap: search-abstractor-content-deployment-cfg
   cfg:
@@ -57,10 +58,11 @@ content:
     security: |-
       // add additional Content security setup here (appended to [Security] section)
   additionalVolumes:
-  - <<: *x-aes-key-volume  
+    <<: *x-aes-key-volume
   additionalVolumeMounts:
-  - <<: *x-aes-key-volumeMount
-    mountPath: /opt/idol/content/index/aes.keyfile
+    aes-key-volumeMount:
+      <<: *x-aes-key-volumeMount
+      mountPath: /opt/idol/content/index/aes.keyfile
 
 # -- `distributed-idol` subchart values (see https://github.com/opentext-idol/idol-containers-toolkit/tree/main/helm/distributed-idol#values)
 # @default -- default configuration for search-abstractor distributed-idol
@@ -78,10 +80,11 @@ distributedidol:
     indexPort: "9101"
     servicePort: "9102"
     additionalVolumes:
-    - <<: *x-aes-key-volume
+      <<: *x-aes-key-volume
     additionalVolumeMounts:
-    - <<: *x-aes-key-volumeMount
-      mountPath: /opt/idol/content/index/aes.keyfile
+      aes-key-volumeMount:
+        <<: *x-aes-key-volumeMount
+        mountPath: /opt/idol/content/index/aes.keyfile
   dah:
     name: idol-dah
     idolImage:
@@ -104,25 +107,49 @@ answerserver:
   enabled: true
   idolImage:
     repo: answerserver-searchabstractor
-    version: *idolVersion
+    version: &saAciVersion "25.2.4"
   single-content:
     enabled: false
+  factbank:
+    # -- whether to enable factbank answer system. See also answerserver.postgresql.enabled.
+    enabled: &factbank-enabled false
+    # -- Connection string for factbank postgres database - set if you want to use an external database rather than deploy one here
+    psqlConnectionString: ""
+    # -- Connection string for factbank codings postgres database - set if you want to use a separate external database for codings
+    codingsPsqlConnectionString: ""
+  postgresql:
+    # -- whether to enable backing postgresl for factbank answer system. See also answerserver.factbank.enabled.
+    enabled: *factbank-enabled
+  answerbank:
+    # -- whether to enable answerbank answer system. See also answerserver.answserbankAgentstore.enabled.
+    enabled: &answerbank-enabled false
+  answerbankAgentstore:
+    # -- whether to enable backing agentstore for answerbank answer system. See also answerserver.answserbankAgentstore.enabled.
+    enabled: *answerbank-enabled
+    idolImage:
+      version: *idolVersion
   passageextractorAgentstore:
     enabled: false
+    idolImage:
+      version: *idolVersion
   existingConfigMap: search-abstractor-answerserver-deployment-cfg
   additionalVolumes:
-  - name: idol-answerserver-scripts
-    configMap:
+    idol-answerserver-scripts:
       name: idol-answerserver-scripts
-  - name: search-abstractor-answerserver-deployment-resources-cfg
-    configMap:
+      configMap:
+        name: idol-answerserver-scripts
+    search-abstractor-answerserver-deployment-resources-cfg:
       name: search-abstractor-answerserver-deployment-resources-cfg
+      configMap:
+        name: search-abstractor-answerserver-deployment-resources-cfg
   additionalVolumeMounts:
-  - name: idol-answerserver-scripts
-    mountPath: /answerserver/prestart_scripts/00_config.sh
-    subPath: config.sh
-  - name: search-abstractor-answerserver-deployment-resources-cfg
-    mountPath: /answerserver/resources/llmdata
+    idol-answerserver-scripts:
+      name: idol-answerserver-scripts
+      mountPath: /answerserver/prestart_scripts/00_config.sh
+      subPath: config.sh
+    search-abstractor-answerserver-deployment-resources-cfg:
+      name: search-abstractor-answerserver-deployment-resources-cfg
+      mountPath: /answerserver/resources/llmdata
   envConfigMap: search-abstractor-answerserver-deployment-env-cfg
 
 # -- `qms` subchart values (see https://github.com/opentext-idol/idol-containers-toolkit/tree/main/helm/idol-qms#values)
@@ -130,9 +157,10 @@ answerserver:
 qms:
   # -- Whether to deploy a QMS component
   enabled: true
+  queryserviceSSLMethod: None
   idolImage:
     repo: qms-searchabstractor
-    version: *idolVersion
+    version: *saAciVersion
   aciPort: &qms-aci-port "16000"
   singleAgentstore:
     enabled: false
@@ -140,12 +168,14 @@ qms:
     enabled: false
   existingConfigMap: search-abstractor-qms-deployment-cfg
   additionalVolumes:
-  - name: poststart
-    configMap:
-      name: idol-qms-poststart
+    poststart:
+      name: poststart
+      configMap:
+        name: idol-qms-poststart
   additionalVolumeMounts:
-  - name: poststart
-    mountPath: /qms/poststart_scripts
+    poststart:
+      name: poststart
+      mountPath: /qms/poststart_scripts
 
 # -- `omnigroupserver` subchart values (see https://github.com/opentext-idol/idol-containers-toolkit/tree/main/helm/idol-omnigroupserver#values)
 # @default -- default configuration for search-abstractor omnigroupserver
@@ -153,13 +183,19 @@ ogs:
   # -- Whether to deploy an OmniGroupServer component
   enabled: true
   existingConfigMap: search-abstractor-ogs-deployment-cfg
+  oauthToolConfigMap: search-abstractor-ogs-deployment-oauth-cfg
   idolImage:
     version: *idolVersion
   cfg:
-    # -- additional omingroupserver repositories configuration data
-    # @default -- ""
+    # -- Set to `true` to completely overwrite default [Repositories] settings
+    overwrite: false
+    # -- additional omnigroupserver repositories configuration data
     repositories: |-
       // add your OmniGroupServer repo setup here (appended to [Repositories] section)
+      // start numbering at 1=... unless overwriting (0 is the OTDS repository config)
+    # -- additional OTDS configuration data
+    otds: |-
+      // appended to the [OTDS] repository configuration section
 
 # -- `community` subchart values (see https://github.com/opentext-idol/idol-containers-toolkit/tree/main/helm/idol-community#values)
 # @default -- default configuration for search-abstractor community
@@ -171,19 +207,25 @@ community:
     version: *idolVersion
   aciPort: &community-aciport "9030"
   queryserviceACIPort: *queryserviceACIPort
-  agentStoreName: "idol-answerbank-agentstore"
-  agentStoreACIPort: "12200"
+  queryserviceSSLMethod: None
+  agentStoreName: "idol-content"
+  agentStoreACIPort: *queryserviceACIPort
   existingConfigMap: search-abstractor-community-deployment-cfg
   cfg:
-    # -- Additional Community security configuration data  
+    # -- Set to `true` to completely overwrite default [Security] settings
+    overwrite: false
+    # -- Additional Community security configuration data
     security: |-
-      0=Autonomy
       // add your community security setup here (appended to [Security] section)
+    # -- Additional OTDS security repository settings
+    otds: |-
+      // add you OTDS security settings here (appended to [OTDS] section)
   additionalVolumes:
-  - <<: *x-aes-key-volume  
+    <<: *x-aes-key-volume  
   additionalVolumeMounts:
-  - <<: *x-aes-key-volumeMount
-    mountPath: /community/cfg/aes.keyfile
+    aes-key-volumeMount:
+      <<: *x-aes-key-volumeMount
+      mountPath: /community/cfg/aes.keyfile
 
 # -- `nifi` subchart values (see https://github.com/opentext-idol/idol-containers-toolkit/tree/main/helm/idol-nifi#values)
 # @default -- default configuration for search-abstractor nifi
@@ -194,12 +236,14 @@ nifi:
     repo: nifi-ver2-searchabstractor
     version: *idolVersion
   additionalVolumes:
-  - name: search-abstractor-nifi-files
-    configMap:
-      name: search-abstractor-nifi-deployment-files
+    search-abstractor-nifi-files:
+      name: search-abstractor-nifi-files
+      configMap:
+        name: search-abstractor-nifi-deployment-files
   additionalVolumeMounts:
-  - name: search-abstractor-nifi-files
-    mountPath: /opt/nifi/nifi-current/search_abstractor
+    search-abstractor-nifi-files:
+      name: search-abstractor-nifi-files
+      mountPath: /opt/nifi/nifi-current/search_abstractor
   nifiRegistry:
     buckets:
       default-bucket:
@@ -223,6 +267,7 @@ nifi:
           name: "Search Abstractor Ingest Flow"
           bucket: *flowsBucket
       service:
+        # this service required by query flow
         additionalPorts:
           saApiListener:
             name: sa-api-port
@@ -237,8 +282,9 @@ view:
   # -- Whether to deploy a View component
   enabled: true
   idolImage:
-    version: "25.2.1"
+    version: "25.2.2"
   queryserviceACIPort: *queryserviceACIPort
+  queryserviceSSLMethod: None
   nifiserviceName: *nifiClusterId   # Should be pointed at the ingestion nifi service
   existingConfigMap: search-abstractor-view-deployment-cfg
 
@@ -246,7 +292,7 @@ view:
 # @default -- default configuration for OTDS PostgreSQL
 otdsdb:
   enabled: true
-  fullnameOverride: otds-postgresql
+  fullnameOverride: otds-psqldb
   service:
     port: 5432
   auth:
@@ -258,14 +304,16 @@ otdsdb:
 # @default -- default configuration for auth service
 auth:
   # -- whether to deploy OTDS component
+  # If you are not deploying OTDS here, you still need to configure values as if it was being deployed and set this to false
   enabled: true
   # -- OTDS sub chart values
   # @default -- See also OTDS chart default values
   otdsws:
     ingress:
+      # -- Ingress prefix for OTDS. e.g. eventually resolves as proto://host.name:port/prependPath/otdsws
       prependPath: "OTDS"
     otdsdb:
-      url: jdbc:postgresql://otds-postgresql:5432/otdsdb
+      url: jdbc:postgresql://otds-psqldb:5432/otdsdb
       username: *otds-db-username
       password: *otds-db-password
     image:
@@ -276,6 +324,8 @@ auth:
     cryptKey: MTIzNDU2Nzg5YWNiZGVmZw==
     enableBootstrapConfig: false
 
+  # -- Whether to initialize OTDS with the partition and clients
+  initEnabled: true
   # -- if true removes restrictions on password strength
   # only for use in testing
   simplePasswordPolicy: false
@@ -285,9 +335,16 @@ auth:
   createAdminUsername: admin.user
   # -- password for Discover administrator user to create as part of system initialization
   createAdminPassword: admin.user.123!
-  # -- Client and client credentials to configure and use for API requests
+  # -- Optional path to file to populate additional users from
+  usersFile: ""
+  # -- Client to use for API requests. Configured using OTDS creds if not existing (see auth.otdsws.adminEmail/adminPassword)
   apiClient: discover_api
+  # -- Client credentials for API requests. Configured using OTDS creds if not existing (see auth.otdsws.adminEmail/adminPassword)
   apiClientSecret: d0e76ad7-7d6b-4d86-be3a-5dfe715dbf87
+  # -- Client to use for OGS requests. Should be created in advance by an OTDS admin.
+  ogsClient: otds-ogs-client
+  # -- Client credentials for OGS requests. Should be provided by the OTDS admin after creating the OGS client.
+  ogsClientSecret: ""
   # -- Client to configure and use for logging into the UI
   uiClient: discover_ui
   # -- URL to redirect to post authorization
@@ -299,12 +356,19 @@ auth:
   # -- Roles to populate in OTDS
   baseRealmRoles: user
   external:
-    # -- External hostname for OTDS instance
+    # -- External hostname for OTDS instance (e.g. host.name)
     host:
-    # -- External port number of OTDS instance
+    # -- External port number of OTDS instance (e.g. 8080)
     port:
     # -- Protocol for OTDS communication (http/https)
     protocol: http
+  userSecurity:
+    # -- Security Repository in Community to use for UserRead authentication
+    repository: OTDS
+    # -- OTDS Resource ID to supply on UserRead authentication requests
+    resourceId: ""
+    # -- Field from decoded JWT for Community to compare against username
+    jwtUserField: name
 
 # -- PostgreSQL subchart values (see https://github.com/bitnami/charts/tree/main/bitnami/postgresql)
 # @default -- default configuration for search-abstractor session api PostgreSQL
@@ -343,9 +407,12 @@ sessionapi:
     # -- The repository value to use to construct the container image name: {registry}/{repo}:{version}
     repo: search-abstractor-session-service
     # -- The version value to use to construct the container image name: {registry}/{repo}:{version}
-    version: *idolVersion
+    version: &saVersion "25.2.4"
     # -- The policy to use to determine whether to pull the specified image (see https://kubernetes.io/docs/concepts/containers/images/#image-pull-policy)
     pullPolicy: Always
+  security:
+    # -- Optional path within the container to load trusted TLS certificates from
+    trustedCertsPath: ""
   service:
     # -- Session service name
     name: *saapi-session-name
@@ -369,9 +436,6 @@ sessionapi:
     host: ""
     # -- Optional parameter to override the default ingress class
     className: ""
-  storage:
-    # -- Database name used for api-service storage
-    dbName: resourcesdb
   # -- Optional resources for Search Abstractor session API container (see https://kubernetes.io/docs/concepts/configuration/manage-resources-containers)
   resources:
     # -- enable resources for Search Abstractor session API container. Setting to false disables this.
@@ -382,6 +446,15 @@ sessionapi:
     requests:
       cpu: 200m
       memory: 1Gi
+  # -- Additional PodSpec Volume(s) (see <https://kubernetes.io/docs/reference/kubernetes-api/workload-resources/pod-v1/#volumes>)
+  # Typical usage might be to mount in custom TLS certificates
+  # dict of (name, Volume)
+  additionalVolumes: {}
+
+  # -- Additional PodSpec VolumeMount(s) (see <https://kubernetes.io/docs/reference/kubernetes-api/workload-resources/pod-v1/#volumes-1>)
+  # Typical usage might be to mount in custom TLS certificates
+  # dict of (name, VolumeMount)
+  additionalVolumeMounts: {}
 
 saapi:
   # -- Deployment name
@@ -394,7 +467,7 @@ saapi:
     # -- The repository value to use to construct the container image name: {registry}/{repo}:{version}
     repo: search-abstractor-api-service
     # -- The version value to use to construct the container image name: {registry}/{repo}:{version}
-    version: *idolVersion
+    version: *saVersion
      # -- The policy to use to determine whether to pull the specified image (see https://kubernetes.io/docs/concepts/containers/images/#image-pull-policy)
     pullPolicy: Always
   management:
@@ -408,7 +481,7 @@ saapi:
   backendIdolHost: *community-name
   # -- ACI port for Community component
   backendIdolPort: *community-aciport
-  # -- hostname for content component
+  # -- hostname for Content component
   backendIdolContentHost: idol-qms
   # -- aci port for content component
   backendIdolContentPort: *qms-aci-port
@@ -456,6 +529,19 @@ saapi:
     port: 12080
     # -- Optional parameter to override the default ingress class
     className: ""
+  security:
+    # -- Optional path within the container to load trusted TLS certificates from
+    trustedCertsPath: ""
+
+  # -- Additional PodSpec Volume(s) (see <https://kubernetes.io/docs/reference/kubernetes-api/workload-resources/pod-v1/#volumes>)
+  # Typical usage might be to mount in custom TLS certificates
+  # dict of (name, Volume)
+  additionalVolumes: {}
+
+  # -- Additional PodSpec VolumeMount(s) (see <https://kubernetes.io/docs/reference/kubernetes-api/workload-resources/pod-v1/#volumes-1>)
+  # Typical usage might be to mount in custom TLS certificates
+  # dict of (name, VolumeMount)
+  additionalVolumeMounts: {}
 
   service:
     # -- Service name
@@ -502,7 +588,7 @@ saapi:
     # -- The LLM to use
     model: mistralai/Mistral-7B-Instruct-v0.2
     # -- The LLM revision to use (branch, tag, or commitid)
-    modelRevision: "9925900"
+    modelRevision: "99259002b41e116d28ccb2d04a9fbe22baed0c7f"
     # -- HuggingFace token to access the model/tokenizer to use for the RAG answer system
     HFToken: &hf-token ""
     # -- The LLaVa model to use

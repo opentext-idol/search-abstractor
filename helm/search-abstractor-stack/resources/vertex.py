@@ -134,6 +134,6 @@ def get_token_count(text: str, token_limit: int) -> Tuple[str, int]:
         # This will just tokenize the raw text (i.e. without special tokens)
         tokenization_results = vertex_tokenizer.compute_tokens(text)
         iter_tokens = itertools.chain.from_iterable(info.tokens for info in tokenization_results.tokens_info)
-        truncated_text = ''.join(tok.decode('utf-8') for tok in itertools.islice(iter_tokens, token_limit))
+        truncated_text = b''.join(itertools.islice(iter_tokens, token_limit)).decode('utf-8', errors='backslashreplace')
 
     return truncated_text, original_token_count

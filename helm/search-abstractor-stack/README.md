@@ -1,6 +1,6 @@
 # search-abstractor-stack
 
-![Version: 25.2.0-SNAPSHOT](https://img.shields.io/badge/Version-25.2.0--SNAPSHOT-informational?style=flat-square) ![AppVersion: 25.2.0-SNAPSHOT](https://img.shields.io/badge/AppVersion-25.2.0--SNAPSHOT-informational?style=flat-square)
+![Version: 25.2.4](https://img.shields.io/badge/Version-25.2.4-informational?style=flat-square) ![AppVersion: 25.2.4](https://img.shields.io/badge/AppVersion-25.2.4-informational?style=flat-square)
 
 Provides an IDOL setup for Retrieval-augmented generation (RAG)
 
@@ -16,7 +16,7 @@ Provides an IDOL setup for Retrieval-augmented generation (RAG)
 | https://raw.githubusercontent.com/opentext-idol/idol-containers-toolkit/main/helm | answerserver(idol-answerserver) | ~0.5.0 |
 | https://raw.githubusercontent.com/opentext-idol/idol-containers-toolkit/main/helm | community(idol-community) | ~0.7.0 |
 | https://raw.githubusercontent.com/opentext-idol/idol-containers-toolkit/main/helm | idol-library(idol-library) | ~0.15.0 |
-| https://raw.githubusercontent.com/opentext-idol/idol-containers-toolkit/main/helm | nifi(idol-nifi) | ~0.14.0 |
+| https://raw.githubusercontent.com/opentext-idol/idol-containers-toolkit/main/helm | nifi(idol-nifi) | ~0.15.0 |
 | https://raw.githubusercontent.com/opentext-idol/idol-containers-toolkit/main/helm | ogs(idol-omnigroupserver) | ~0.8.0 |
 | https://raw.githubusercontent.com/opentext-idol/idol-containers-toolkit/main/helm | qms(idol-qms) | ~0.7.0 |
 | https://raw.githubusercontent.com/opentext-idol/idol-containers-toolkit/main/helm | view(idol-view) | ~0.7.0 |
@@ -166,25 +166,42 @@ classDef c_set stroke:#000000,fill:#ff99cc,color:#000000;
 |-----|------|---------|-------------|
 | aes.key | string | `"search-abstractor"` | Value used to generate a shared AES256 key for securityinfo |
 | answerserver | object | default configuration for search-abstractor answerserver | `answerserver` subchart values (see https://github.com/opentext-idol/idol-containers-toolkit/tree/main/helm/idol-answerserver#values) |
+| answerserver.answerbank.enabled | bool | `false` | whether to enable answerbank answer system. See also answerserver.answserbankAgentstore.enabled. |
+| answerserver.answerbankAgentstore.enabled | bool | `false` | whether to enable backing agentstore for answerbank answer system. See also answerserver.answserbankAgentstore.enabled. |
 | answerserver.enabled | bool | `true` | Whether to deploy an Answer Server component |
+| answerserver.factbank.codingsPsqlConnectionString | string | `""` | Connection string for factbank codings postgres database - set if you want to use a separate external database for codings |
+| answerserver.factbank.enabled | bool | `false` | whether to enable factbank answer system. See also answerserver.postgresql.enabled. |
+| answerserver.factbank.psqlConnectionString | string | `""` | Connection string for factbank postgres database - set if you want to use an external database rather than deploy one here |
+| answerserver.postgresql.enabled | bool | `false` | whether to enable backing postgresl for factbank answer system. See also answerserver.factbank.enabled. |
 | auth | object | default configuration for auth service | auth service values |
-| auth.apiClient | string | `"discover_api"` | Client and client credentials to configure and use for API requests |
+| auth.apiClient | string | `"discover_api"` | Client to use for API requests. Configured using OTDS creds if not existing (see auth.otdsws.adminEmail/adminPassword) |
+| auth.apiClientSecret | string | `"d0e76ad7-7d6b-4d86-be3a-5dfe715dbf87"` | Client credentials for API requests. Configured using OTDS creds if not existing (see auth.otdsws.adminEmail/adminPassword) |
 | auth.baseRealmRoles | string | `"user"` | Roles to populate in OTDS |
 | auth.createAdminPassword | string | `"admin.user.123!"` | password for Discover administrator user to create as part of system initialization |
 | auth.createAdminUsername | string | `"admin.user"` | Discover administrator user to create as part of system initialization |
-| auth.enabled | bool | `true` | whether to deploy OTDS component |
-| auth.external.host | string | `nil` | External hostname for OTDS instance |
-| auth.external.port | string | `nil` | External port number of OTDS instance |
+| auth.enabled | bool | `true` | whether to deploy OTDS component If you are not deploying OTDS here, you still need to configure values as if it was being deployed and set this to false |
+| auth.external.host | string | `nil` | External hostname for OTDS instance (e.g. host.name) |
+| auth.external.port | string | `nil` | External port number of OTDS instance (e.g. 8080) |
 | auth.external.protocol | string | `"http"` | Protocol for OTDS communication (http/https) |
+| auth.initEnabled | bool | `true` | Whether to initialize OTDS with the partition and clients |
+| auth.ogsClient | string | `"otds-ogs-client"` | Client to use for OGS requests. Should be created in advance by an OTDS admin. |
+| auth.ogsClientSecret | string | `""` | Client credentials for OGS requests. Should be provided by the OTDS admin after creating the OGS client. |
 | auth.otdsws | object | See also OTDS chart default values | OTDS sub chart values |
+| auth.otdsws.ingress.prependPath | string | `"OTDS"` | Ingress prefix for OTDS. e.g. eventually resolves as proto://host.name:port/prependPath/otdsws |
 | auth.partition | string | `"discover"` | partition in the authentication server to configure and use |
 | auth.refreshTokenExpiryTimeSeconds | int | `86400` | Expiry time in seconds for refresh tokens |
 | auth.simplePasswordPolicy | bool | `false` | if true removes restrictions on password strength only for use in testing |
 | auth.tokenExpiryTimeSeconds | int | `300` | Expiry time in seconds for login tokens |
 | auth.uiClient | string | `"discover_ui"` | Client to configure and use for logging into the UI |
 | auth.uiUrls | string | `"http://localhost:4200/.*"` | URL to redirect to post authorization |
+| auth.userSecurity.jwtUserField | string | `"name"` | Field from decoded JWT for Community to compare against username |
+| auth.userSecurity.repository | string | `"OTDS"` | Security Repository in Community to use for UserRead authentication |
+| auth.userSecurity.resourceId | string | `""` | OTDS Resource ID to supply on UserRead authentication requests |
+| auth.usersFile | string | `""` | Optional path to file to populate additional users from |
 | community | object | default configuration for search-abstractor community | `community` subchart values (see https://github.com/opentext-idol/idol-containers-toolkit/tree/main/helm/idol-community#values) |
-| community.cfg.security | string | `"0=Autonomy\n// add your community security setup here (appended to [Security] section)"` | Additional Community security configuration data   |
+| community.cfg.otds | string | `"// add you OTDS security settings here (appended to [OTDS] section)"` | Additional OTDS security repository settings |
+| community.cfg.overwrite | bool | `false` | Set to `true` to completely overwrite default [Security] settings |
+| community.cfg.security | string | `"// add your community security setup here (appended to [Security] section)"` | Additional Community security configuration data |
 | community.enabled | bool | `true` | Whether to deploy Community component |
 | content | object | default configuration for search-abstractor content | `content` subchart values (see https://github.com/opentext-idol/idol-containers-toolkit/tree/main/helm/single-content#values) |
 | content.cfg.fieldprocessing | string | "" | Additional Content field processing configuration data |
@@ -196,18 +213,22 @@ classDef c_set stroke:#000000,fill:#ff99cc,color:#000000;
 | nifi | object | default configuration for search-abstractor nifi | `nifi` subchart values (see https://github.com/opentext-idol/idol-containers-toolkit/tree/main/helm/idol-nifi#values) |
 | nifi.enabled | bool | `true` | Whether to deploy a NiFi instance |
 | ogs | object | default configuration for search-abstractor omnigroupserver | `omnigroupserver` subchart values (see https://github.com/opentext-idol/idol-containers-toolkit/tree/main/helm/idol-omnigroupserver#values) |
-| ogs.cfg.repositories | string | "" | additional omingroupserver repositories configuration data |
+| ogs.cfg.otds | string | `"// appended to the [OTDS] repository configuration section"` | additional OTDS configuration data |
+| ogs.cfg.overwrite | bool | `false` | Set to `true` to completely overwrite default [Repositories] settings |
+| ogs.cfg.repositories | string | `"// add your OmniGroupServer repo setup here (appended to [Repositories] section)\n// start numbering at 1=... unless overwriting (0 is the OTDS repository config)"` | additional omnigroupserver repositories configuration data |
 | ogs.enabled | bool | `true` | Whether to deploy an OmniGroupServer component |
 | otdsdb | object | default configuration for OTDS PostgreSQL | PostgreSQL subchart for OTDS. (see https://github.com/bitnami/charts/tree/main/bitnami/postgresql) |
 | qms | object | default configuration for search-abstractor qms | `qms` subchart values (see https://github.com/opentext-idol/idol-containers-toolkit/tree/main/helm/idol-qms#values) |
 | qms.enabled | bool | `true` | Whether to deploy a QMS component |
+| saapi.additionalVolumeMounts | object | `{}` | Additional PodSpec VolumeMount(s) (see <https://kubernetes.io/docs/reference/kubernetes-api/workload-resources/pod-v1/#volumes-1>) Typical usage might be to mount in custom TLS certificates dict of (name, VolumeMount) |
+| saapi.additionalVolumes | object | `{}` | Additional PodSpec Volume(s) (see <https://kubernetes.io/docs/reference/kubernetes-api/workload-resources/pod-v1/#volumes>) Typical usage might be to mount in custom TLS certificates dict of (name, Volume) |
 | saapi.allowedOrigins | string | `"http://localhost:8080"` | CORS origin values |
 | saapi.backendApi.ingress.className | string | `""` | Optional parameter to override the default ingress class |
 | saapi.backendApi.ingress.enabled | bool | `false` | Whether to create a backend API ingress resource. Neither recommended nor required in normal operation. |
 | saapi.backendApi.ingress.host | string | `""` | Optional host (see https://kubernetes.io/docs/concepts/services-networking/ingress/#ingress-rules). |
 | saapi.backendApi.name | string | `"idol-nifi"` | Host/service name. Should point at query nifi service |
 | saapi.backendApi.port | int | `8085` | Port |
-| saapi.backendIdolContentHost | string | `"idol-qms"` | hostname for content component |
+| saapi.backendIdolContentHost | string | `"idol-qms"` | hostname for Content component |
 | saapi.backendIdolContentPort | string | `"16000"` | aci port for content component |
 | saapi.backendIdolHost | string | `"idol-community"` | Hostname for Community component |
 | saapi.backendIdolPort | string | `"9030"` | ACI port for Community component |
@@ -216,7 +237,7 @@ classDef c_set stroke:#000000,fill:#ff99cc,color:#000000;
 | saapi.image.pullPolicy | string | `"Always"` | The policy to use to determine whether to pull the specified image (see https://kubernetes.io/docs/concepts/containers/images/#image-pull-policy) |
 | saapi.image.registry | string | `"microfocusidolserver"` | The registry value to use to construct the container image name: {registry}/{repo}:{version} |
 | saapi.image.repo | string | `"search-abstractor-api-service"` | The repository value to use to construct the container image name: {registry}/{repo}:{version} |
-| saapi.image.version | string | `"25.2"` | The version value to use to construct the container image name: {registry}/{repo}:{version} |
+| saapi.image.version | string | `"25.2.4"` | The version value to use to construct the container image name: {registry}/{repo}:{version} |
 | saapi.ingress.className | string | `""` | Optional parameter to override the default ingress class |
 | saapi.ingress.host | string | `""` | Optional ingress host (see https://kubernetes.io/docs/concepts/services-networking/ingress/#ingress-rules). |
 | saapi.ingress.path | string | `"/api/"` | Ingress controller path exposing API (should end with /) |
@@ -228,6 +249,7 @@ classDef c_set stroke:#000000,fill:#ff99cc,color:#000000;
 | saapi.resources | object | `{"enabled":false,"limits":{"cpu":"200m","memory":"1Gi"},"requests":{"cpu":"200m","memory":"1Gi"}}` | Optional resources for Search Abstractor API container (see https://kubernetes.io/docs/concepts/configuration/manage-resources-containers) |
 | saapi.resources.enabled | bool | `false` | enable resources for Search Abstractor API container. Setting to false disables this. |
 | saapi.secret | string | `"api-secret"` | Secret name for auth credentials |
+| saapi.security.trustedCertsPath | string | `""` | Optional path within the container to load trusted TLS certificates from |
 | saapi.service.managePort | int | `8081` | Port service runs on for management |
 | saapi.service.name | string | `"saapi-api-service"` | Service name |
 | saapi.service.port | int | `8080` | Port service runs on |
@@ -248,16 +270,18 @@ classDef c_set stroke:#000000,fill:#ff99cc,color:#000000;
 | saapi.vllm.llavaEndpointBase | string | `"http://openai-llava-server:8000/v1/"` | The base path of the OpenAI endpoint to use for LLaVa model access |
 | saapi.vllm.llavaModel | string | `"llava-hf/llava-v1.6-mistral-7b-hf"` | The LLaVa model to use |
 | saapi.vllm.model | string | `"mistralai/Mistral-7B-Instruct-v0.2"` | The LLM to use |
-| saapi.vllm.modelRevision | string | `"9925900"` | The LLM revision to use (branch, tag, or commitid) |
+| saapi.vllm.modelRevision | string | `"99259002b41e116d28ccb2d04a9fbe22baed0c7f"` | The LLM revision to use (branch, tag, or commitid) |
 | saapi.vllm.openAiApiKey | string | `"My API Key"` | The OpenAI API key to use for the endpoint |
 | saapiPostgresql | object | default configuration for search-abstractor session api PostgreSQL | PostgreSQL subchart values (see https://github.com/bitnami/charts/tree/main/bitnami/postgresql) |
 | saapiPostgresql.enabled | bool | `true` | Whether to deploy the PostgreSQL subchart for the session api service |
 | saapiPostgresql.service.port | int | `5432` | Port session API PostgreSQL service runs on |
+| sessionapi.additionalVolumeMounts | object | `{}` | Additional PodSpec VolumeMount(s) (see <https://kubernetes.io/docs/reference/kubernetes-api/workload-resources/pod-v1/#volumes-1>) Typical usage might be to mount in custom TLS certificates dict of (name, VolumeMount) |
+| sessionapi.additionalVolumes | object | `{}` | Additional PodSpec Volume(s) (see <https://kubernetes.io/docs/reference/kubernetes-api/workload-resources/pod-v1/#volumes>) Typical usage might be to mount in custom TLS certificates dict of (name, Volume) |
 | sessionapi.config | string | `"session-api-config"` | `configmap` name |
 | sessionapi.image.pullPolicy | string | `"Always"` | The policy to use to determine whether to pull the specified image (see https://kubernetes.io/docs/concepts/containers/images/#image-pull-policy) |
 | sessionapi.image.registry | string | `"microfocusidolserver"` | The registry value to use to construct the container image name: {registry}/{repo}:{version} |
 | sessionapi.image.repo | string | `"search-abstractor-session-service"` | The repository value to use to construct the container image name: {registry}/{repo}:{version} |
-| sessionapi.image.version | string | `"25.2"` | The version value to use to construct the container image name: {registry}/{repo}:{version} |
+| sessionapi.image.version | string | `"25.2.4"` | The version value to use to construct the container image name: {registry}/{repo}:{version} |
 | sessionapi.ingress.className | string | `""` | Optional parameter to override the default ingress class |
 | sessionapi.ingress.enabled | bool | `false` | Whether to create an ingress resource |
 | sessionapi.ingress.host | string | `""` | Optional ingress host (see https://kubernetes.io/docs/concepts/services-networking/ingress/#ingress-rules). |
@@ -269,9 +293,9 @@ classDef c_set stroke:#000000,fill:#ff99cc,color:#000000;
 | sessionapi.resources | object | `{"enabled":false,"limits":{"cpu":"200m","memory":"1Gi"},"requests":{"cpu":"200m","memory":"1Gi"}}` | Optional resources for Search Abstractor session API container (see https://kubernetes.io/docs/concepts/configuration/manage-resources-containers) |
 | sessionapi.resources.enabled | bool | `false` | enable resources for Search Abstractor session API container. Setting to false disables this. |
 | sessionapi.secret | string | `"session-api-secret"` | Secret name for auth credentials |
+| sessionapi.security.trustedCertsPath | string | `""` | Optional path within the container to load trusted TLS certificates from |
 | sessionapi.service.name | string | `"saapi-session-api-service"` | Session service name |
 | sessionapi.service.port | int | `8080` | Port that the session service runs on |
-| sessionapi.storage.dbName | string | `"resourcesdb"` | Database name used for api-service storage |
 | view | object | default configuration for search-abstractor view | `view` subchart values (see https://github.com/opentext-idol/idol-containers-toolkit/tree/main/helm/idol-view#values) |
 | view.enabled | bool | `true` | Whether to deploy a View component |
 | vllmdeployment | object | default configuration for search-abstractor VLLM deployment | VLLM subchart values (see https://github.com/substratusai/helm/blob/main/charts/vllm/README.md) - not enabled by default |

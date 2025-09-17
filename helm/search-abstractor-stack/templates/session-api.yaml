@@ -18,6 +18,11 @@
 # license.
 #
 
+{{- $volumeMountsDict := dict "volumeMounts" 
+  (include "idol-library.util.range_array_or_map_values" (dict "root" . "vals" .Values.sessionapi.additionalVolumeMounts) | fromYamlArray) }}
+{{- $volumesDict := dict "volumes" 
+  (include "idol-library.util.range_array_or_map_values" (dict "root" . "vals" .Values.sessionapi.additionalVolumes) | fromYamlArray) }}
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -60,10 +65,12 @@ spec:
 {{ include "saapi_probe.session.api" . | indent 12 }}
             periodSeconds: 60
             failureThreshold: 20
+{{ $volumeMountsDict | toYaml | indent 10 }}
       imagePullSecrets:
       {{- range .Values.global.imagePullSecrets }}
         - name: {{ . }}
       {{- end }}
+{{ $volumesDict | toYaml | indent 6 }}
 ---
 
 apiVersion: v1
