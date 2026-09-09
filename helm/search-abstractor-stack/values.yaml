@@ -1,5 +1,5 @@
 #
-# Copyright 2024-2025 Open Text.
+# Copyright 2024-2026 Open Text.
 #
 # The only warranties for products and services of Open Text and its
 # affiliates and licensors ("Open Text") are as may be set forth in the
@@ -45,7 +45,7 @@ content:
   enabled: true
   name: idol-content
   idolImage:
-    version: &idolVersion "25.2.0"
+    version: &idolVersion "26.3.0"
   queryserviceACIPort: &queryserviceACIPort "9100"
   existingConfigMap: search-abstractor-content-deployment-cfg
   cfg:
@@ -69,7 +69,6 @@ content:
 distributedidol:
   # -- Whether to deploy a distributed-idol component (either this or content should be enabled, but not both)
   enabled: false
-  name: distributed-idol
   content:
     name: idol-content
     idolImage:
@@ -79,6 +78,15 @@ distributedidol:
     aciPort: "9100"
     indexPort: "9101"
     servicePort: "9102"
+    cfg:
+      # -- Additional Content field processing configuration data
+      # @default -- ""
+      fieldprocessing: |-
+        // add additional Content field setup here (appended to [FieldProcessing] section)
+      # -- Additional Content security configuration data
+      # @default -- ""
+      security: |-
+        // add additional Content security setup here (appended to [Security] section)
     additionalVolumes:
       <<: *x-aes-key-volume
     additionalVolumeMounts:
@@ -107,7 +115,7 @@ answerserver:
   enabled: true
   idolImage:
     repo: answerserver-searchabstractor
-    version: &saAciVersion "25.2.4"
+    version: &saAciVersion "26.3.0"
   single-content:
     enabled: false
   factbank:
@@ -251,27 +259,17 @@ nifi:
       search-abstractor-flows-bucket:
         name: &flowsBucket search-abstractor-flows-bucket
         flowfiles:
-        - /opt/nifi/nifi-current/search_abstractor/Query_flow.json
         - /opt/nifi/nifi-current/search_abstractor/Ingest_flow.json
   nifiClusters:
     idol-nifi:
-      # base Search Abstractor setup deploys a single nifi instance with both query and ingest flow
+      # base Search Abstractor setup deploys a single nifi instance with ingest flow
       clusterId: &nifiClusterId idol-nifi
       flows:
         basic-idol:
           DELETE: true
-        query-flow:
-          name: "Search Abstractor Query Flow"
-          bucket: *flowsBucket
         ingest-flow:
           name: "Search Abstractor Ingest Flow"
           bucket: *flowsBucket
-      service:
-        # this service required by query flow
-        additionalPorts:
-          saApiListener:
-            name: sa-api-port
-            port: &sa-api-port 8085 # must match saapi.backendApi.port
   nifi:
     autoScaling:
       enabled: false
@@ -282,7 +280,7 @@ view:
   # -- Whether to deploy a View component
   enabled: true
   idolImage:
-    version: "25.2.2"
+    version: "26.3.0"
   queryserviceACIPort: *queryserviceACIPort
   queryserviceSSLMethod: None
   nifiserviceName: *nifiClusterId   # Should be pointed at the ingestion nifi service
@@ -293,6 +291,8 @@ view:
 otdsdb:
   enabled: true
   fullnameOverride: otds-psqldb
+  image:
+    repository: bitnamilegacy/postgresql
   service:
     port: 5432
   auth:
@@ -317,12 +317,14 @@ auth:
       username: *otds-db-username
       password: *otds-db-password
     image:
-      source: registry.opentext.com
+      source: artifactory.otxlab.net/plteng-otds-docker-rel
       pullSecret: opentext
     adminEmail: discover.admin
     adminPassword: discover.admin.123!
     cryptKey: MTIzNDU2Nzg5YWNiZGVmZw==
     enableBootstrapConfig: false
+    # -- Public hostname for OTDS instance (e.g. host.name)
+    publicHostname: ""
 
   # -- Whether to initialize OTDS with the partition and clients
   initEnabled: true
@@ -331,12 +333,6 @@ auth:
   simplePasswordPolicy: false
   # -- partition in the authentication server to configure and use
   partition: discover
-  # -- Discover administrator user to create as part of system initialization
-  createAdminUsername: admin.user
-  # -- password for Discover administrator user to create as part of system initialization
-  createAdminPassword: admin.user.123!
-  # -- Optional path to file to populate additional users from
-  usersFile: ""
   # -- Client to use for API requests. Configured using OTDS creds if not existing (see auth.otdsws.adminEmail/adminPassword)
   apiClient: discover_api
   # -- Client credentials for API requests. Configured using OTDS creds if not existing (see auth.otdsws.adminEmail/adminPassword)
@@ -353,13 +349,12 @@ auth:
   tokenExpiryTimeSeconds: 300
   # -- Expiry time in seconds for refresh tokens
   refreshTokenExpiryTimeSeconds: 86400
-  # -- Roles to populate in OTDS
-  baseRealmRoles: user
   external:
     # -- External hostname for OTDS instance (e.g. host.name)
-    host:
+    # Should match auth.otdsws.publicHostname
+    host: ""
     # -- External port number of OTDS instance (e.g. 8080)
-    port:
+    port: 80
     # -- Protocol for OTDS communication (http/https)
     protocol: http
   userSecurity:
@@ -367,13 +362,20 @@ auth:
     repository: OTDS
     # -- OTDS Resource ID to supply on UserRead authentication requests
     resourceId: ""
-    # -- Field from decoded JWT for Community to compare against username
-    jwtUserField: name
+  # -- set of users to create in OTDS partition on initialization if initEnabled is true
+  users:
+    sample_user:
+      passwordEnv: SAMPLE_USER_PASSWORD  # See value definition in additionalSecrets
+      passwordTemporary: true # forces user to change password on first login
+  additionalSecrets:
+    SAMPLE_USER_PASSWORD: Sample.User.123!
 
 # -- PostgreSQL subchart values (see https://github.com/bitnami/charts/tree/main/bitnami/postgresql)
 # @default -- default configuration for search-abstractor session api PostgreSQL
 saapiPostgresql:
   fullnameOverride: saapi-postgresql
+  image:
+    repository: bitnamilegacy/postgresql
   # -- Whether to deploy the PostgreSQL subchart for the session api service
   enabled: true
   service:
@@ -396,66 +398,6 @@ saapiPostgresql:
       password: postgres
       scriptsConfigMap: session-api-postgres-cfg-map
 
-sessionapi:
-  # -- Deployment name
-  name: &saapi-session-name saapi-session-api-service
-  # -- Deployment replicas
-  replicas: 1
-  image:
-    # -- The registry value to use to construct the container image name: {registry}/{repo}:{version}
-    registry: microfocusidolserver
-    # -- The repository value to use to construct the container image name: {registry}/{repo}:{version}
-    repo: search-abstractor-session-service
-    # -- The version value to use to construct the container image name: {registry}/{repo}:{version}
-    version: &saVersion "25.2.4"
-    # -- The policy to use to determine whether to pull the specified image (see https://kubernetes.io/docs/concepts/containers/images/#image-pull-policy)
-    pullPolicy: Always
-  security:
-    # -- Optional path within the container to load trusted TLS certificates from
-    trustedCertsPath: ""
-  service:
-    # -- Session service name
-    name: *saapi-session-name
-    # -- Port that the session service runs on
-    port: 8080
-  licensor:
-    # -- Session licensor name
-    name: idol-answerserver
-    # -- Port session licensor runs on
-    port: 12000
-  # -- `configmap` name
-  config: session-api-config
-  # -- Secret name for auth credentials
-  secret: session-api-secret
-  ingress:
-    # -- Whether to create an ingress resource
-    enabled: false
-    # -- Ingress controller path exposing session API
-    path: /session-api/
-    # -- Optional ingress host (see https://kubernetes.io/docs/concepts/services-networking/ingress/#ingress-rules).
-    host: ""
-    # -- Optional parameter to override the default ingress class
-    className: ""
-  # -- Optional resources for Search Abstractor session API container (see https://kubernetes.io/docs/concepts/configuration/manage-resources-containers)
-  resources:
-    # -- enable resources for Search Abstractor session API container. Setting to false disables this.
-    enabled: false
-    limits:
-      cpu: 200m
-      memory: 1Gi
-    requests:
-      cpu: 200m
-      memory: 1Gi
-  # -- Additional PodSpec Volume(s) (see <https://kubernetes.io/docs/reference/kubernetes-api/workload-resources/pod-v1/#volumes>)
-  # Typical usage might be to mount in custom TLS certificates
-  # dict of (name, Volume)
-  additionalVolumes: {}
-
-  # -- Additional PodSpec VolumeMount(s) (see <https://kubernetes.io/docs/reference/kubernetes-api/workload-resources/pod-v1/#volumes-1>)
-  # Typical usage might be to mount in custom TLS certificates
-  # dict of (name, VolumeMount)
-  additionalVolumeMounts: {}
-
 saapi:
   # -- Deployment name
   name: &saapi-name saapi-api-service
@@ -467,7 +409,7 @@ saapi:
     # -- The repository value to use to construct the container image name: {registry}/{repo}:{version}
     repo: search-abstractor-api-service
     # -- The version value to use to construct the container image name: {registry}/{repo}:{version}
-    version: *saVersion
+    version: "26.3.0"
      # -- The policy to use to determine whether to pull the specified image (see https://kubernetes.io/docs/concepts/containers/images/#image-pull-policy)
     pullPolicy: Always
   management:
@@ -485,8 +427,22 @@ saapi:
   backendIdolContentHost: idol-qms
   # -- aci port for content component
   backendIdolContentPort: *qms-aci-port
+  # -- hostname for Answer Server component
+  backendIdolAnswerServerHost: idol-answerserver
+  # -- port for Answer Server component
+  backendIdolAnswerServerPort: "12000"
+  # -- system ordering for AnswerServer: ask questions of these systems in this order
+  backendIdolAnswerServerSystemOrdering: "AnswerBank,FactBank,RAGPassageExtractor"
+  # -- hostname for View Server component
+  backendIdolViewHost: idol-view
+  # -- port for View Server component
+  backendIdolViewPort: "9080"
   # -- are we using the Discover index for document storage?
   usingDiscoverIndex: false
+  # -- Should query rewriting and metadata identification be enabled?
+  rewriteQueries: false
+  # -- Prompt file to use for LLM-based metadata filter extraction (used when rewriteQueries is true)
+  metadataPromptFile: resources/filters_mistral.json
   # -- Optional resources for Search Abstractor API container (see https://kubernetes.io/docs/concepts/configuration/manage-resources-containers)
   resources:
     # -- enable resources for Search Abstractor API container. Setting to false disables this.
@@ -497,18 +453,6 @@ saapi:
     requests:
       cpu: 200m
       memory: 1Gi
-  backendApi:
-    # -- Host/service name. Should point at query nifi service
-    name: *nifiClusterId
-    # -- Port
-    port: *sa-api-port
-    ingress:
-      # -- Whether to create a backend API ingress resource. Neither recommended nor required in normal operation.
-      enabled: false
-      # -- Optional host (see https://kubernetes.io/docs/concepts/services-networking/ingress/#ingress-rules).
-      host: ""
-      # -- Optional parameter to override the default ingress class
-      className: ""
   storage:
     # -- Database name used for api-service storage
     dbName: resourcesdb
@@ -532,6 +476,11 @@ saapi:
   security:
     # -- Optional path within the container to load trusted TLS certificates from
     trustedCertsPath: ""
+  sessionLicensor: 
+    # -- Session licensor name
+    name: idol-answerserver
+    # -- Port session licensor runs on
+    port: 12000
 
   # -- Additional PodSpec Volume(s) (see <https://kubernetes.io/docs/reference/kubernetes-api/workload-resources/pod-v1/#volumes>)
   # Typical usage might be to mount in custom TLS certificates
@@ -551,6 +500,24 @@ saapi:
     # -- Port service runs on for management
     managePort: 8081
 
+  llama:
+    # -- Should we use a deployed LLaMA model for LLM support?
+    enabled: false
+    # -- Endpoint base for the deployed LLaMA model
+    endpointBase: "http://llama-endpoint:8000/v1"
+    # -- Is the model multimodal (i.e. does it support image inputs?) If it is, it will also be used for image processing at ingest time
+    multimodal: false
+    # -- Name of the deployed LLaMA model to use
+    model: "my model"
+    # -- equivalent HuggingFace model name (used to obtain tokenizer)
+    hfModel: "my model"
+    # -- The LLM revision to use (branch, tag, or commitid)
+    modelRevision: ""
+    # -- HuggingFace token to access the model tokenizer. If empty, a cached tokenizer will be used if available
+    hfToken: ""
+    # -- The API key to use for the endpoint
+    apiKey: "My API Key"
+
   vertexai:
     # -- Should we use VertexAI, rather than vLLM, for LLM support?
     enabled: false
@@ -559,9 +526,10 @@ saapi:
     # -- Location for VertexAI client to use for API calls
     location: "us-east4"
     # -- Name of generative model to use with VertexAI
-    model: "gemini-1.5-flash-001"
-    # -- Limit the number of output tokens returned by the Generative model
-    maxOutputTokens: 500
+    model: "gemini-2.5-flash"
+    # -- Limit the number of output tokens returned by the Generative model (includes thinking tokens).
+    # Set to 0 for no limit (model default maximum).
+    maxOutputTokens: 1024
     # -- How to authenticate the VertexAI client with Google Cloud; can be "serviceAccount" or "credentials"
     authentication: "credentials"
     # -- Application credentials for VertexAI client API calls, used if `authentication` is "credentials".
@@ -588,7 +556,7 @@ saapi:
     # -- The LLM to use
     model: mistralai/Mistral-7B-Instruct-v0.2
     # -- The LLM revision to use (branch, tag, or commitid)
-    modelRevision: "99259002b41e116d28ccb2d04a9fbe22baed0c7f"
+    modelRevision: ""
     # -- HuggingFace token to access the model/tokenizer to use for the RAG answer system
     HFToken: &hf-token ""
     # -- The LLaVa model to use

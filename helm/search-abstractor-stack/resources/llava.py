@@ -1,5 +1,5 @@
 #
-# Copyright 2024-2025 Open Text.
+# Copyright 2024-2026 Open Text.
 #
 # The only warranties for products and services of Open Text and its
 # affiliates and licensors ("Open Text") are as may be set forth in the
@@ -48,7 +48,7 @@ def processFile(a, openai_llava_model, openai_llava_endpoint_base, openai_llava_
             messages=[{
                 "role": "user",
                 "content": [
-                    {"type": "text", "text": "What's in this image?"},
+                    {"type": "text", "text": "What's in this image? Be factual in your response."},
                     {
                         "type": "image_url",
                         "image_url": {

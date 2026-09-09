@@ -1,0 +1,59 @@
+#
+# Copyright 2024-2026 Open Text.
+#
+# The only warranties for products and services of Open Text and its
+# affiliates and licensors ("Open Text") are as may be set forth in the
+# express warranty statements accompanying such products and services.
+# Nothing herein should be construed as constituting an additional
+# warranty. Open Text shall not be liable for technical or editorial
+# errors or omissions contained herein. The information contained herein
+# is subject to change without notice.
+#
+# Except as specifically indicated otherwise, this document contains
+# confidential information and a valid license is required for possession,
+# use or copying. If this work is provided to the U.S. Government,
+# consistent with FAR 12.211 and 12.212, Commercial Computer Software,
+# Computer Software Documentation, and Technical Data for Commercial Items
+# are licensed to the U.S. Government under vendor's standard commercial
+# license.
+#
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: "search-abstractor-auth-setup"
+data:
+  00-sa-partition.yaml: |
+    applicationRoles:
+      - searchabstractor.all
+      - searchabstractor.nothing
+    partitions:
+      default:
+        name: {{ .Values.auth.partition }}
+        simplePasswordPolicy: {{ .Values.auth.simplePasswordPolicy }}
+{{ if .Values.auth.users }}
+        users:
+{{ .Values.auth.users | toYaml | indent 10 }}
+{{ end }}
+{{ if .Values.auth.resources }}
+        resources:
+{{ .Values.auth.resources | toYaml | indent 10 }}
+{{ end }}
+        clients:
+{{ .Values.auth.apiClient | indent 10 -}}:
+            confidential: true
+            clientSecretEnv: ISOL_AUTH_SERVICE_API_CLIENT_SECRET
+            tokenLifetime: {{ .Values.auth.tokenExpiryTimeSeconds | quote }}
+            refreshTokenLifetime: {{ .Values.auth.refreshTokenExpiryTimeSeconds | quote }}
+            redirectUris: [{{- include "auth.urlNorm" (dict "external" (dict "protocol" "http" "host" .Values.saapi.ingress.host "port" .Values.saapi.ingress.port) "path" .Values.saapi.ingress.path) -}}]
+            allowedCorsOrigins: []
+{{ .Values.auth.uiClient | indent 10 -}}:
+            confidential: false
+            tokenLifetime: {{ .Values.auth.tokenExpiryTimeSeconds | quote }}
+            refreshTokenLifetime: {{ .Values.auth.refreshTokenExpiryTimeSeconds | quote }}
+            redirectUris: [{{ .Values.auth.uiUrls }}]
+            allowedCorsOrigins: [{{ .Values.auth.uiUrls }}]
+{{ if .Values.auth.additionalClients }}
+{{ .Values.auth.additionalClients | toYaml | indent 10 }}
+{{ end }}
+
