@@ -1,5 +1,5 @@
 #
-# Copyright 2024-2025 Open Text.
+# Copyright 2024-2026 Open Text.
 #
 # The only warranties for products and services of Open Text and its
 # affiliates and licensors ("Open Text") are as may be set forth in the
@@ -26,6 +26,9 @@
   subPath: encryptionkey-encrypted.dat
   readOnly: true
 {{- end }}
+- name: auth-setup
+  mountPath: "/data/auth-setup/00-search-abstractor-partition.yaml"
+  subPath: 00-sa-partition.yaml
 {{- end }}
 {{- $volumeMountsDict := dict "volumeMounts" (include "sa.saapi.volumeMounts" . | fromYamlArray) }}
 
@@ -36,6 +39,9 @@
   secret:
     secretName: {{ .Values.global.idolOemLicenseSecret }}
 {{- end }}
+- name: "auth-setup"
+  configMap:
+    name: "search-abstractor-auth-setup"
 {{- end }}
 {{- $volumesDict := dict "volumes" (include "sa.saapi.volumes" . | fromYamlArray) }}
 

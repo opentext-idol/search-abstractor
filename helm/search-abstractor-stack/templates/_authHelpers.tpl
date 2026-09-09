@@ -1,5 +1,5 @@
 #
-# Copyright 2024-2025 Open Text.
+# Copyright 2024-2026 Open Text.
 #
 # The only warranties for products and services of Open Text and its
 # affiliates and licensors ("Open Text") are as may be set forth in the
@@ -41,13 +41,10 @@
 OTDSHost={{ $auth.external.host }}
 OTDSPort={{ $auth.external.port }}
 {{- if $auth.otdsws.ingress.prependPath }}
-OTDSPath={{ trimAll "/" $auth.otdsws.ingress.prependPath }}
+OTDSPath=/{{ trimAll "/" $auth.otdsws.ingress.prependPath }}
 {{- end -}}
 {{- if eq (get $auth.external "protocol") "https" }}
 SSLConfigOTDS={{ $sslsettings }}
-{{- end -}}
-{{- if $auth.userSecurity.jwtUserField }}
-OTDSUserField={{ $auth.userSecurity.jwtUserField }}
 {{- end -}}
 {{- if not $auth.userSecurity.resourceId }}
 RequireResourceId=FALSE

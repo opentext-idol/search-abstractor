@@ -1,0 +1,59 @@
+{
+    "examples": [
+        {
+            "text": "Give me documents from the last seven days about crime reports in London",
+            "filters": {"location": "London", "time_range": "-7d"},
+            "subject": "crime reports"
+        },
+        {
+            "text": "Get documents that talk about cities with population over 1 million",
+            "filters": {"population": ">1000000"},
+            "subject": "cities"
+        },
+        {
+            "text": "Documents written by Adam Smith about economics",
+            "filters": {"author": "Adam Smith"},
+            "subject": "economics"
+        },
+        {
+            "text": "Documents about Birmingham car crashes from the last two weeks",
+            "filters": {"location": "Birmingham", "time_range": "-14d"},
+            "subject": "car crashes"
+        },
+        {
+            "text": "Tell me about HP financial reports from this year",
+            "filters": {"date_start": "2025-01-01", "date_end": "2025-12-31", "company": "HP"},
+            "subject": "HP financial reports"
+        },
+        {
+            "text": "Find me restaurants with revenue greater than $10000000",
+            "filters": {"revenue": ">10000000"},
+            "subject": "restaurants"
+        },
+        {
+            "text": "Reviews about Ford cars",
+            "filters": {"company": "Ford"},
+            "subject": "car reviews"
+        },
+        {
+            "text": "PDFs written by Jane Brown describing climate change",
+            "filters": {"author": "Jane Brown", "document_type": "PDF"},
+            "subject": "climate change"
+        },
+        {
+            "text": "Find documents about visitor attractions with a rating of 5",
+            "filters": {"rating": "5"},
+            "subject": "visitor attractions"
+        },
+        {
+            "text": "Find documents about visitor attractions with a rating between 4 and 5",
+            "filters": {"rating_lower_bound": "4", "rating_upper_bound": "5"},
+            "subject": "visitor attractions"
+        },
+        {
+            "text": "Find documents about cricket published between 5th September 2025 and 30th September 2025",
+            "filters": {"date_start": "2025-09-05", "date_end": "2025-09-30"},
+            "subject": "cricket"
+        }
+    ]
+}

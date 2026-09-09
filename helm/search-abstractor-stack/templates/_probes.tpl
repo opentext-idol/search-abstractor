@@ -1,5 +1,5 @@
 #
-# Copyright 2024-2025 Open Text.
+# Copyright 2024-2026 Open Text.
 #
 # The only warranties for products and services of Open Text and its
 # affiliates and licensors ("Open Text") are as may be set forth in the
@@ -21,11 +21,5 @@
 {{- define "saapi_probe.api" -}}
 httpGet:
   port: 8080
-  path: {{ .Values.saapi.ingress.path }}swagger/?url=openapi.yaml
-{{- end }}
-
-{{- define "saapi_probe.session.api" -}}
-httpGet:
-  port: 8080
-  path: /swagger/?url=openapi.yaml
+  path: {{ .Values.saapi.ingress.path }}swagger/
 {{- end }}
