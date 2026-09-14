@@ -13,7 +13,7 @@ entries:
   search-abstractor-stack:
   - apiVersion: v2
     appVersion: 26.3.0
-    created: "2026-09-09T15:52:05.922188197Z"
+    created: "2026-09-14T14:06:19.322956102Z"
     dependencies:
     - alias: content
       condition: content.enabled
@@ -85,7 +85,7 @@ entries:
       repository: '@substratusai'
       version: 0.5.5
     description: An IDOL setup for RAG
-    digest: a6f61479c1d177f57eb50146fbded445986433fc74785cc268f102acf72381d1
+    digest: c520eb7831b53c1487c76d00c8119613d9d64985f3839242c4de72cdad4a1d7d
     name: search-abstractor-stack
     urls:
     - release/search-abstractor-stack-26.3.0.tgz
