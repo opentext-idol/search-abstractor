@@ -317,7 +317,7 @@ auth:
       username: *otds-db-username
       password: *otds-db-password
     image:
-      source: artifactory.otxlab.net/plteng-otds-docker-rel
+      source: registry.opentext.com
       pullSecret: opentext
     adminEmail: discover.admin
     adminPassword: discover.admin.123!
