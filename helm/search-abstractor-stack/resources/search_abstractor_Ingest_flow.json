@@ -898,7 +898,7 @@
             "bundle": {
               "artifact": "idol-nifi-framework",
               "group": "idol.nifi",
-              "version": "25.2.0-nifi2"
+              "version": "25.4.0-nifi2"
             },
             "comments": "",
             "componentType": "CONTROLLER_SERVICE",
@@ -907,7 +907,7 @@
                 "bundle": {
                   "artifact": "idol-nifi-framework-api",
                   "group": "idol.nifi",
-                  "version": "25.2.0-nifi2"
+                  "version": "25.4.0-nifi2"
                 },
                 "type": "idol.nifi.service.IdolLicenseService"
               }
@@ -936,7 +936,7 @@
             "bundle": {
               "artifact": "idol-nifi-framework",
               "group": "idol.nifi",
-              "version": "25.2.0-nifi2"
+              "version": "25.4.0-nifi2"
             },
             "comments": "",
             "componentType": "CONTROLLER_SERVICE",
@@ -945,7 +945,7 @@
                 "bundle": {
                   "artifact": "idol-nifi-framework-api",
                   "group": "idol.nifi",
-                  "version": "25.2.0-nifi2"
+                  "version": "25.4.0-nifi2"
                 },
                 "type": "idol.nifi.service.IdolLicenseService"
               }
@@ -990,7 +990,7 @@
             "bundle": {
               "artifact": "idol-nifi-framework",
               "group": "idol.nifi",
-              "version": "25.2.0-nifi2"
+              "version": "25.4.0-nifi2"
             },
             "componentType": "CONTROLLER_SERVICE",
             "controllerServiceApis": [
@@ -998,7 +998,7 @@
                 "bundle": {
                   "artifact": "idol-nifi-framework-api",
                   "group": "idol.nifi",
-                  "version": "25.2.0-nifi2"
+                  "version": "25.4.0-nifi2"
                 },
                 "type": "idol.nifi.service.KeyViewFilterService"
               }
@@ -1033,9 +1033,55 @@
           {
             "bulletinLevel": "WARN",
             "bundle": {
+              "artifact": "idol-nifi-framework",
+              "group": "idol.nifi",
+              "version": "25.4.0-nifi2"
+            },
+            "comments": "",
+            "componentType": "CONTROLLER_SERVICE",
+            "controllerServiceApis": [
+              {
+                "bundle": {
+                  "artifact": "idol-nifi-framework-api",
+                  "group": "idol.nifi",
+                  "version": "25.4.0-nifi2"
+                },
+                "type": "idol.nifi.service.KeyViewExportService"
+              }
+            ],
+            "groupIdentifier": "2073fe25-3757-375b-98ed-635c7193162e",
+            "identifier": "86433367-43f7-3e29-9b44-f5edd43b87e0",
+            "instanceIdentifier": "86433367-43f7-3e29-9b44-f5edd43b87e0",
+            "name": "KeyViewExportServiceImpl",
+            "properties": {
+              "FileStorageDirectory": "${idol.repository.files.storage.dir}",
+              "KeyViewDirectory": "${idol.repository.resources.dir}/KeyViewSDK"
+            },
+            "propertyDescriptors": {
+              "FileStorageDirectory": {
+                "displayName": "File storage directory",
+                "dynamic": false,
+                "identifiesControllerService": false,
+                "name": "FileStorageDirectory",
+                "sensitive": false
+              },
+              "KeyViewDirectory": {
+                "displayName": "KeyView directory",
+                "dynamic": false,
+                "identifiesControllerService": false,
+                "name": "KeyViewDirectory",
+                "sensitive": false
+              }
+            },
+            "scheduledState": "DISABLED",
+            "type": "idol.nifi.service.KeyViewExportServiceImpl"
+          },
+          {
+            "bulletinLevel": "WARN",
+            "bundle": {
               "artifact": "idol-nifi-media-narid",
               "group": "idol.nifi.media",
-              "version": "25.2.0-nifi2"
+              "version": "25.4.0-nifi2"
             },
             "comments": "",
             "componentType": "CONTROLLER_SERVICE",
@@ -1044,7 +1090,7 @@
                 "bundle": {
                   "artifact": "idol-nifi-media-api-nar",
                   "group": "idol.nifi.media",
-                  "version": "25.2.0-nifi2"
+                  "version": "25.4.0-nifi2"
                 },
                 "type": "idol.nifi.media.service.MediaService"
               }
@@ -1058,7 +1104,8 @@
               "DatabaseType": "Postgres",
               "ExternalOutputDirectories": null,
               "FFmpegDirectory": null,
-              "KeyViewService": null,
+              "GPUdeviceID": null,
+              "KeyViewService": "86433367-43f7-3e29-9b44-f5edd43b87e0",
               "SpeechLanguagePackDirectory": "/opt/nifi/nifi-current/medialanguagepack",
               "libheifDirectory": null
             },
@@ -1091,6 +1138,13 @@
                 "name": "FFmpegDirectory",
                 "sensitive": false
               },
+              "GPUdeviceID": {
+                "displayName": "GPU device ID",
+                "dynamic": false,
+                "identifiesControllerService": false,
+                "name": "GPUdeviceID",
+                "sensitive": false
+              },
               "KeyViewService": {
                 "displayName": "KeyView Service",
                 "dynamic": false,
@@ -1121,7 +1175,7 @@
             "bundle": {
               "artifact": "idol-nifi-framework",
               "group": "idol.nifi",
-              "version": "25.2.0-nifi2"
+              "version": "25.4.0-nifi2"
             },
             "componentType": "CONTROLLER_SERVICE",
             "controllerServiceApis": [
@@ -1129,7 +1183,7 @@
                 "bundle": {
                   "artifact": "idol-nifi-framework-api",
                   "group": "idol.nifi",
-                  "version": "25.2.0-nifi2"
+                  "version": "25.4.0-nifi2"
                 },
                 "type": "idol.nifi.service.DocumentRegistryService"
               }
@@ -1934,7 +1988,7 @@
                 "bundle": {
                   "artifact": "idol-nifi-framework",
                   "group": "idol.nifi",
-                  "version": "25.2.0-nifi2"
+                  "version": "25.4.0-nifi2"
                 },
                 "comments": "",
                 "componentType": "PROCESSOR",
@@ -1979,7 +2033,7 @@
                 "bundle": {
                   "artifact": "idol-nifi-framework",
                   "group": "idol.nifi",
-                  "version": "25.2.0-nifi2"
+                  "version": "25.4.0-nifi2"
                 },
                 "comments": "",
                 "componentType": "PROCESSOR",
@@ -2072,7 +2126,7 @@
                 "bundle": {
                   "artifact": "idol-nifi-framework",
                   "group": "idol.nifi",
-                  "version": "25.2.0-nifi2"
+                  "version": "25.4.0-nifi2"
                 },
                 "comments": "",
                 "componentType": "PROCESSOR",
@@ -2189,7 +2243,7 @@
                 "bundle": {
                   "artifact": "idol-nifi-media-narid",
                   "group": "idol.nifi.media",
-                  "version": "25.2.0-nifi2"
+                  "version": "25.4.0-nifi2"
                 },
                 "comments": "",
                 "componentType": "PROCESSOR",
@@ -2210,6 +2264,7 @@
                   "IdolLicenseService": "{{ if .Values.nifi.global.idolOemLicenseSecret }}136e4558-3701-3e26-8ed5-f243dd0dfec7{{ else }}270745e9-d01a-3b8e-ac5f-363c4264d812{{ end }}",
                   "MediaService": "883aac14-b286-34f5-8c92-1c53749a1341",
                   "ModelFiles": "",
+                  "RemoveContent": "false",
                   "XSLtemplate": "<?xml version='1.0'?>\n<xsl:stylesheet xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" version=\"1.0\">\n<xsl:output method=\"text\" version=\"4.0\" omit-xml-declaration=\"yes\" encoding=\"UTF-8\" indent=\"yes\"/>\n<xsl:template match=\"importantRecord\" />\n<xsl:template match=\"BarcodeResult|BarcodeResultAndImage|OCRResult|OCRResultAndImage|character|SpeechToTextResult|TextSegmentationData\">\n<xsl:value-of select=\"text\"/><xsl:text>&#10;</xsl:text>\n</xsl:template>\n<xsl:template match=\"text()\" />\n</xsl:stylesheet>"
                 },
                 "propertyDescriptors": {
@@ -2241,6 +2296,13 @@
                     "name": "ModelFiles",
                     "sensitive": false
                   },
+                  "RemoveContent": {
+                    "displayName": "Remove document content parts",
+                    "dynamic": false,
+                    "identifiesControllerService": false,
+                    "name": "RemoveContent",
+                    "sensitive": false
+                  },
                   "XSLtemplate": {
                     "displayName": "XSL Template",
                     "dynamic": false,
@@ -2266,7 +2328,7 @@
                 "bundle": {
                   "artifact": "idol-nifi-framework",
                   "group": "idol.nifi",
-                  "version": "25.2.0-nifi2"
+                  "version": "25.4.0-nifi2"
                 },
                 "comments": "",
                 "componentType": "PROCESSOR",
@@ -2383,7 +2445,7 @@
                 "bundle": {
                   "artifact": "idol-nifi-framework",
                   "group": "idol.nifi",
-                  "version": "25.2.0-nifi2"
+                  "version": "25.4.0-nifi2"
                 },
                 "comments": "",
                 "componentType": "PROCESSOR",
@@ -2460,7 +2522,7 @@
                 "bundle": {
                   "artifact": "idol-nifi-media-narid",
                   "group": "idol.nifi.media",
-                  "version": "25.2.0-nifi2"
+                  "version": "25.4.0-nifi2"
                 },
                 "comments": "",
                 "componentType": "PROCESSOR",
@@ -2481,6 +2543,7 @@
                   "IdolLicenseService": "{{ if .Values.nifi.global.idolOemLicenseSecret }}136e4558-3701-3e26-8ed5-f243dd0dfec7{{ else }}270745e9-d01a-3b8e-ac5f-363c4264d812{{ end }}",
                   "MediaService": "883aac14-b286-34f5-8c92-1c53749a1341",
                   "ModelFiles": "/opt/nifi/nifi-current/mediapretrainedmodels/Common/ImageEmbedding_Clip-ViT-B-32.dat",
+                  "RemoveContent": "false",
                   "XSLtemplate": "<?xml version='1.0'?>\n<xsl:stylesheet xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" version=\"1.0\">\n<xsl:output method=\"text\" version=\"4.0\" omit-xml-declaration=\"yes\" encoding=\"UTF-8\" indent=\"yes\"/>\n<xsl:template match=\"importantRecord\" />\n<xsl:template match=\"BarcodeResult|BarcodeResultAndImage|OCRResult|OCRResultAndImage|character|SpeechToTextResult|TextSegmentationData\">\n<xsl:value-of select=\"text\"/><xsl:text>&#10;</xsl:text>\n</xsl:template>\n<xsl:template match=\"text()\" />\n</xsl:stylesheet>"
                 },
                 "propertyDescriptors": {
@@ -2510,6 +2573,13 @@
                     "dynamic": false,
                     "identifiesControllerService": false,
                     "name": "ModelFiles",
+                    "sensitive": false
+                  },
+                  "RemoveContent": {
+                    "displayName": "Remove document content parts",
+                    "dynamic": false,
+                    "identifiesControllerService": false,
+                    "name": "RemoveContent",
                     "sensitive": false
                   },
                   "XSLtemplate": {
@@ -2537,7 +2607,7 @@
                 "bundle": {
                   "artifact": "idol-nifi-media-narid",
                   "group": "idol.nifi.media",
-                  "version": "25.2.0-nifi2"
+                  "version": "25.4.0-nifi2"
                 },
                 "comments": "",
                 "componentType": "PROCESSOR",
@@ -2558,6 +2628,7 @@
                   "IdolLicenseService": "{{ if .Values.nifi.global.idolOemLicenseSecret }}136e4558-3701-3e26-8ed5-f243dd0dfec7{{ else }}270745e9-d01a-3b8e-ac5f-363c4264d812{{ end }}",
                   "MediaService": "883aac14-b286-34f5-8c92-1c53749a1341",
                   "ModelFiles": "",
+                  "RemoveContent": "false",
                   "XSLtemplate": "<?xml version='1.0'?>\n<xsl:stylesheet xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" version=\"1.0\">\n<xsl:output method=\"text\" version=\"4.0\" omit-xml-declaration=\"yes\" encoding=\"UTF-8\" indent=\"yes\"/>\n<xsl:template match=\"importantRecord\" />\n<xsl:template match=\"BarcodeResult|BarcodeResultAndImage|OCRResult|OCRResultAndImage|character|SpeechToTextResult|TextSegmentationData\">\n<xsl:value-of select=\"text\"/><xsl:text>&#10;</xsl:text>\n</xsl:template>\n<xsl:template match=\"text()\" />\n</xsl:stylesheet>"
                 },
                 "propertyDescriptors": {
@@ -2587,6 +2658,13 @@
                     "dynamic": false,
                     "identifiesControllerService": false,
                     "name": "ModelFiles",
+                    "sensitive": false
+                  },
+                  "RemoveContent": {
+                    "displayName": "Remove document content parts",
+                    "dynamic": false,
+                    "identifiesControllerService": false,
+                    "name": "RemoveContent",
                     "sensitive": false
                   },
                   "XSLtemplate": {
@@ -2838,7 +2916,7 @@
                 "bundle": {
                   "artifact": "idol-nifi-framework",
                   "group": "idol.nifi",
-                  "version": "25.2.0-nifi2"
+                  "version": "25.4.0-nifi2"
                 },
                 "componentType": "CONTROLLER_SERVICE",
                 "controllerServiceApis": [
@@ -2846,7 +2924,7 @@
                     "bundle": {
                       "artifact": "idol-nifi-framework-api",
                       "group": "idol.nifi",
-                      "version": "25.2.0-nifi2"
+                      "version": "25.4.0-nifi2"
                     },
                     "type": "idol.nifi.service.AciContextService"
                   }
@@ -3289,7 +3367,7 @@
                     "bundle": {
                       "artifact": "idol-nifi-connector-filesystem",
                       "group": "idol.nifi.connector",
-                      "version": "25.2.0-nifi2"
+                      "version": "25.4.0-nifi2"
                     },
                     "comments": "",
                     "componentType": "PROCESSOR",
@@ -3429,7 +3507,7 @@
                     "bundle": {
                       "artifact": "idol-nifi-connector-router-nar",
                       "group": "idol.nifi.connector",
-                      "version": "25.2.0-nifi2"
+                      "version": "25.4.0-nifi2"
                     },
                     "componentType": "PROCESSOR",
                     "concurrentlySchedulableTaskCount": 1,
@@ -3476,7 +3554,7 @@
                     "bundle": {
                       "artifact": "idol-nifi-connector-filesystem",
                       "group": "idol.nifi.connector",
-                      "version": "25.2.0-nifi2"
+                      "version": "25.4.0-nifi2"
                     },
                     "comments": "",
                     "componentType": "PROCESSOR",
@@ -3806,7 +3884,7 @@
                 "bundle": {
                   "artifact": "idol-nifi-framework",
                   "group": "idol.nifi",
-                  "version": "25.2.0-nifi2"
+                  "version": "25.4.0-nifi2"
                 },
                 "comments": "",
                 "componentType": "PROCESSOR",
@@ -3820,7 +3898,7 @@
                 "penaltyDuration": "30 sec",
                 "position": {
                   "x": 576.0,
-                  "y": 40.0
+                  "y": -160.0
                 },
                 "properties": {
                   "ACI Context Service": "cdbf2201-fe45-3c22-93aa-a3b355246ac1",
@@ -3942,7 +4020,7 @@
                 "bundle": {
                   "artifact": "idol-nifi-framework",
                   "group": "idol.nifi",
-                  "version": "25.2.0-nifi2"
+                  "version": "25.4.0-nifi2"
                 },
                 "comments": "",
                 "componentType": "PROCESSOR",
@@ -3987,7 +4065,7 @@
                 "bundle": {
                   "artifact": "idol-nifi-connector-router-nar",
                   "group": "idol.nifi.connector",
-                  "version": "25.2.0-nifi2"
+                  "version": "25.4.0-nifi2"
                 },
                 "comments": "",
                 "componentType": "PROCESSOR",
@@ -4049,7 +4127,7 @@
             "bundle": {
               "artifact": "nifi-standard-nar",
               "group": "org.apache.nifi",
-              "version": "2.0.0"
+              "version": "2.3.0"
             },
             "comments": "",
             "componentType": "PROCESSOR",
@@ -4103,7 +4181,7 @@
             "bundle": {
               "artifact": "idol-nifi-framework",
               "group": "idol.nifi",
-              "version": "25.2.0-nifi2"
+              "version": "25.4.0-nifi2"
             },
             "comments": "",
             "componentType": "PROCESSOR",
@@ -4182,7 +4260,7 @@
             "bundle": {
               "artifact": "idol-nifi-framework",
               "group": "idol.nifi",
-              "version": "25.2.0-nifi2"
+              "version": "25.4.0-nifi2"
             },
             "comments": "",
             "componentType": "PROCESSOR",
@@ -4227,7 +4305,7 @@
             "bundle": {
               "artifact": "idol-nifi-framework",
               "group": "idol.nifi",
-              "version": "25.2.0-nifi2"
+              "version": "25.4.0-nifi2"
             },
             "comments": "",
             "componentType": "PROCESSOR",
@@ -4424,7 +4502,7 @@
             "bundle": {
               "artifact": "idol-nifi-framework",
               "group": "idol.nifi",
-              "version": "25.2.0-nifi2"
+              "version": "25.4.0-nifi2"
             },
             "comments": "",
             "componentType": "PROCESSOR",
@@ -4584,7 +4662,7 @@
             "bundle": {
               "artifact": "idol-nifi-framework",
               "group": "idol.nifi",
-              "version": "25.2.0-nifi2"
+              "version": "25.4.0-nifi2"
             },
             "comments": "",
             "componentType": "PROCESSOR",
@@ -4629,7 +4707,7 @@
             "bundle": {
               "artifact": "idol-nifi-framework",
               "group": "idol.nifi",
-              "version": "25.2.0-nifi2"
+              "version": "25.4.0-nifi2"
             },
             "comments": "",
             "componentType": "PROCESSOR",
@@ -4706,7 +4784,7 @@
             "bundle": {
               "artifact": "idol-nifi-framework",
               "group": "idol.nifi",
-              "version": "25.2.0-nifi2"
+              "version": "25.4.0-nifi2"
             },
             "comments": "",
             "componentType": "PROCESSOR",
@@ -4831,7 +4909,7 @@
             "bundle": {
               "artifact": "idol-nifi-framework",
               "group": "idol.nifi",
-              "version": "25.2.0-nifi2"
+              "version": "25.4.0-nifi2"
             },
             "comments": "",
             "componentType": "PROCESSOR",
@@ -4940,7 +5018,7 @@
             "bundle": {
               "artifact": "idol-nifi-framework",
               "group": "idol.nifi",
-              "version": "25.2.0-nifi2"
+              "version": "25.4.0-nifi2"
             },
             "comments": "",
             "componentType": "PROCESSOR",
@@ -5019,7 +5097,7 @@
             "bundle": {
               "artifact": "idol-nifi-framework",
               "group": "idol.nifi",
-              "version": "25.2.0-nifi2"
+              "version": "25.4.0-nifi2"
             },
             "comments": "",
             "componentType": "PROCESSOR",
@@ -5159,147 +5237,21 @@
           "name": "OpenaiLlavaApiKey",
           "provided": false,
           "sensitive": false,
-          "value": "{{ .Values.saapi.vllm.openAiApiKey }}"
+          "value": "{{ (and .Values.saapi.llama.enabled .Values.saapi.llama.multimodal) | ternary .Values.saapi.llama.apiKey .Values.saapi.vllm.openAiApiKey }}"
         },
         {
           "description": "The base path of the OpenAI endpoint to use for LLaVa model access",
           "name": "OpenaiLlavaEndpointBase",
           "provided": false,
           "sensitive": false,
-          "value": "{{ .Values.saapi.vllm.llavaEndpointBase }}"
+          "value": "{{ (and .Values.saapi.llama.enabled .Values.saapi.llama.multimodal) | ternary .Values.saapi.llama.endpointBase .Values.saapi.vllm.llavaEndpointBase }}"
         },
         {
           "description": "The LLaVa model to use",
           "name": "OpenaiLlavaModel",
           "provided": false,
           "sensitive": false,
-          "value": "{{ .Values.saapi.vllm.llavaModel }}"
-        }
-      ]
-    },
-    "Query Params": {
-      "componentType": "PARAMETER_CONTEXT",
-      "inheritedParameterContexts": [],
-      "name": "Query Params",
-      "parameters": [
-        {
-          "description": "",
-          "name": "ACIServerTimeoutLarge",
-          "provided": false,
-          "sensitive": false,
-          "value": "300000"
-        },
-        {
-          "description": "",
-          "name": "ACIServerTimeoutSmall",
-          "provided": false,
-          "sensitive": false,
-          "value": "30000"
-        },
-        {
-          "description": "CSV of AnswerSystems to use when answering questions, in preference order",
-          "name": "AskAnswerSystemPreferenceOrder",
-          "provided": false,
-          "sensitive": false,
-          "value": "AnswerBank,FactBank,RAGPassageExtractor"
-        },
-        {
-          "description": "",
-          "name": "IDOLAnswerServerHost",
-          "provided": false,
-          "sensitive": false,
-          "value": "idol-answerserver"
-        },
-        {
-          "description": "",
-          "name": "IDOLAnswerServerPort",
-          "provided": false,
-          "sensitive": false,
-          "value": "12000"
-        },
-        {
-          "description": "",
-          "name": "IDOLCommunityServerHost",
-          "provided": false,
-          "sensitive": false,
-          "value": "idol-community"
-        },
-        {
-          "description": "",
-          "name": "IDOLCommunityServerPort",
-          "provided": false,
-          "sensitive": false,
-          "value": "9030"
-        },
-        {
-          "description": "",
-          "name": "IDOLContentServerHost",
-          "provided": false,
-          "sensitive": false,
-          "value": "idol-qms"
-        },
-        {
-          "description": "",
-          "name": "IDOLContentServerPort",
-          "provided": false,
-          "sensitive": false,
-          "value": "16000"
-        },
-        {
-          "description": "",
-          "name": "IDOLViewServerHost",
-          "provided": false,
-          "sensitive": false,
-          "value": "idol-view"
-        },
-        {
-          "description": "",
-          "name": "IDOLViewServerPort",
-          "provided": false,
-          "sensitive": false,
-          "value": "9080"
-        },
-        {
-          "description": "",
-          "name": "IdolLicenseServerHost",
-          "provided": false,
-          "sensitive": false,
-          "value": "{{ .Values.content.licenseServerHostname }}"
-        },
-        {
-          "description": "",
-          "name": "ImageVectorField",
-          "provided": false,
-          "sensitive": false,
-          "value": "{{ if .Values.saapi.usingDiscoverIndex }}PROPERTY1ENTITY1IMAGEENTITY1MEDIAVECTOR/VECTOR{{ else }}VECTOR_CLIP-VIT-B-32{{ end }}"
-        },
-        {
-          "description": "",
-          "name": "SessionBackend",
-          "provided": false,
-          "sensitive": false,
-          "value": "http://saapi-session-api-service:8080"
-        },
-        {
-          "description": "Maximum number of historical question/answer pairs to send as session data",
-          "name": "SessionMaxSteps",
-          "provided": false,
-          "sensitive": false,
-          "value": "5"
-        },
-        {
-          "description": "Whether we are using a Discover-provided document index",
-          "name": "UsingDiscoverIndex",
-          "provided": false,
-          "sensitive": false,
-          "value": "{{ .Values.saapi.usingDiscoverIndex }}"
-        },
-        {
-          "description": "",
-          "name": "ViewURLPrefix",
-          "provided": false,
-          "sensitive": false,
-          "value": "http://{{ .Values.saapi.ingress.host }}:{{ .Values.saapi.ingress.port }}{{ .Values.saapi.ingress.path }}"
+          "value": "{{ (and .Values.saapi.llama.enabled .Values.saapi.llama.multimodal) | ternary .Values.saapi.llama.model .Values.saapi.vllm.llavaModel }}"
         }
       ]
     }

@@ -1,5 +1,5 @@
 #
-# Copyright 2024-2025 Open Text.
+# Copyright 2024-2026 Open Text.
 #
 # The only warranties for products and services of Open Text and its
 # affiliates and licensors ("Open Text") are as may be set forth in the
@@ -32,6 +32,8 @@ data:
 {{ tpl (print "resources/vertex.py" | .Files.Get) . | indent 4 }}
   vllm.py: |
 {{ tpl (print "resources/vllm.py" | .Files.Get) . | indent 4 }}
+  llama.py: |
+{{ tpl (print "resources/llama.py" | .Files.Get) . | indent 4 }}
   conversation_tasks.json: |
 {{ tpl (print "resources/conversation_tasks.json" | .Files.Get) . | indent 4 }}
   {{- if eq .Values.saapi.vertexai.authentication "credentials" }}
@@ -51,7 +53,9 @@ metadata:
 data:
   {{- if .Values.saapi.vllm.model }}
   OPENTEXT_VLLM_MODEL: {{ .Values.saapi.vllm.model }}
+  {{- if .Values.saapi.vllm.modelRevision }}
   OPENTEXT_VLLM_MODEL_REVISION: {{ .Values.saapi.vllm.modelRevision | quote }}
+  {{- end }}
   {{- end }}
   {{- if .Values.vllmdeployment.enabled }}
   OPENTEXT_VLLM_ENDPOINT: "http://{{ .Values.vllmdeployment.nameOverride }}:{{ .Values.vllmdeployment.service.port }}/v1/completions"
@@ -78,6 +82,26 @@ data:
   {{- if eq .Values.saapi.vertexai.authentication "credentials" }}
   OPENTEXT_VERTEX_CREDENTIALS: "/answerserver/resources/llmdata/google_cloud_credentials.json"
   {{- end}}
+  {{- if .Values.saapi.llama.enabled }}
+  {{- if .Values.saapi.llama.endpointBase }}
+  OPENTEXT_LLAMA_ENDPOINT_BASE: {{ .Values.saapi.llama.endpointBase }}
+  {{- end }}
+  {{- if .Values.saapi.llama.model }}
+  OPENTEXT_LLAMA_MODEL: {{ .Values.saapi.llama.model }}
+  {{- if .Values.saapi.llama.modelRevision }}
+  OPENTEXT_LLAMA_MODEL_REVISION: {{ .Values.saapi.llama.modelRevision | quote }}
+  {{- end }}
+  {{- end }}
+  {{- if .Values.saapi.llama.apiKey }}
+  OPENTEXT_LLAMA_API_KEY: {{ .Values.saapi.llama.apiKey }}
+  {{- end }}
+  {{- if .Values.saapi.llama.hfModel }}
+  OPENTEXT_LLAMA_HUGGINGFACE_MODEL: {{ .Values.saapi.llama.hfModel }}
+  {{- end }}
+  {{- if .Values.saapi.llama.hfToken }}
+  OPENTEXT_LLAMA_HUGGINGFACE_API_TOKEN: {{ .Values.saapi.llama.hfToken }}
+  {{- end }}
+  {{- end }}
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -101,6 +125,7 @@ data:
 {{- $root := get . "root" | required "searchabstractor.configmap missing root" -}}
 {{- $name := get . "name" | required "searchabstractor.configmap missing name" -}}
 {{- $component := get . "component" | required "searchabstractor.configmap missing component" -}}
+{{- $useComponentValues := dig "useComponentValues" false . -}}
 {{- $filename := get . "filename" | required "searchabstractor.configmap missing filename" -}}
 {{- $file := dig "file" (print "resources/" $filename) . -}}
 {{- $enabled := dig "enabled" $component.enabled . -}}
@@ -113,7 +138,7 @@ metadata:
   labels: {{- include "idol-library.labels" (dict "root" $root "component" $component ) | nindent 4 }}
 data:
   {{ $filename }}: |-
-{{ tpl (print $file | $root.Files.Get) $root | indent 4 }}
+{{ tpl (print $file | $root.Files.Get) (ternary $component $root $useComponentValues) | indent 4 }}
 {{- end }}
 {{- end }}
 
@@ -124,9 +149,9 @@ data:
 {{/* Search Abstractor configmaps for ACI Server config files (unless overridden by user) */}}
 {{ range $vals := list 
   (dict "root" . "name" "search-abstractor-answerserver-deployment-cfg" "component" .Values.answerserver "filename" "answerserver.cfg" )
-  (dict "root" . "name" "search-abstractor-content-deployment-cfg" "component" .Values.content "filename" "content.cfg" "enabled" (or .Values.content.enabled .Values.distributedidol.enabled) )
-  (dict "root" . "name" "search-abstractor-idol-dah-deployment-cfg" "component" .Values.distributedidol "filename" "dah.cfg" )
-  (dict "root" . "name" "search-abstractor-idol-dih-deployment-cfg" "component" .Values.distributedidol "filename" "dih.cfg" )
+  (dict "root" . "name" "search-abstractor-content-deployment-cfg" "component" (ternary .Values.distributedidol.content .Values.content .Values.distributedidol.enabled) "filename" "content.cfg" "enabled" (or .Values.content.enabled .Values.distributedidol.enabled) "useComponentValues" true )
+  (dict "root" . "name" "search-abstractor-distributed-idol-dah-deployment-cfg" "component" .Values.distributedidol.dah "filename" "dah.cfg" "enabled" .Values.distributedidol.enabled )
+  (dict "root" . "name" "search-abstractor-distributed-idol-dih-deployment-cfg" "component" .Values.distributedidol.dih "filename" "dih.cfg" "enabled" .Values.distributedidol.enabled )
   (dict "root" . "name" "search-abstractor-community-deployment-cfg" "component" .Values.community "filename" "community.cfg" )
   (dict "root" . "name" "search-abstractor-ogs-deployment-cfg" "component" .Values.ogs "filename" "omnigroupserver.cfg" )
   (dict "root" . "name" "search-abstractor-qms-deployment-cfg" "component" .Values.qms "filename" "qms.cfg" )

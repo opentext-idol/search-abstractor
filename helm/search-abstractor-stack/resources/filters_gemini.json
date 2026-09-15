@@ -1,0 +1,97 @@
+{
+  "react": {
+    "traces": [],
+    "train": [],
+    "demos": [],
+    "signature": {
+      "instructions": "Extract metadata filters (used to query a data index) and subject keywords from text. Keywords must not appear in extracted filters. Locations should have a bounding box of that location as the filter value.\n\nYou are an Agent. In each episode, you will be given the fields `text` as input. And you can see your past trajectory so far.\nYour goal is to use one or more of the supplied tools to collect any necessary information for producing `filters`, `subject`.\n\nTo do this, you will interleave next_thought, next_tool_name, and next_tool_args in each turn, and also when finishing the task.\nAfter each tool call, you receive a resulting observation, which gets appended to your trajectory.\n\nWhen writing next_thought, you may reason about the current situation and plan for future steps.\nWhen selecting the next_tool_name and its next_tool_args, the tool must be one of:\n\n(1) get_city_boundary. It takes arguments {'city': {'type': 'string'}}.\n(2) finish, whose description is <desc>Marks the task as complete. That is, signals that all information for producing the outputs, i.e. `filters`, `subject`, are now available to be extracted.<\/desc>. It takes arguments {}.\nWhen providing `next_tool_args`, the value inside the field must be in JSON format",
+      "fields": [
+        {
+          "prefix": "Text:",
+          "description": "${text}"
+        },
+        {
+          "prefix": "Trajectory:",
+          "description": "${trajectory}"
+        },
+        {
+          "prefix": "Next Thought:",
+          "description": "${next_thought}"
+        },
+        {
+          "prefix": "Next Tool Name:",
+          "description": "${next_tool_name}"
+        },
+        {
+          "prefix": "Next Tool Args:",
+          "description": "${next_tool_args}"
+        }
+      ]
+    },
+    "lm": null
+  },
+  "extract.predict": {
+    "traces": [],
+    "train": [],
+    "demos": [
+      {
+        "augmented": true,
+        "text": "Documents written by Adam Smith about economics",
+        "trajectory": "[[ ## thought_0 ## ]]\nOkay, I need to figure out what the user wants me to do with the information about Adam Smith's economics documents. Since there's a \"trajectory\" field, it seems like they want me to take some action based on this information. However, the trajectory is empty. I'll assume the user wants me to finish, as there's no specific task requested.\n\n[[ ## tool_name_0 ## ]]\nfinish\n\n[[ ## tool_args_0 ## ]]\n{}\n\n[[ ## observation_0 ## ]]\nCompleted.",
+        "reasoning": "The user is asking for documents written by Adam Smith about economics. I need to extract the subject and any filters that can be applied. The subject is \"economics\" and the author is \"Adam Smith\".",
+        "filters": {
+          "author": "Adam Smith"
+        },
+        "subject": "economics"
+      },
+      {
+        "text": "Get documents that talk about cities with population over 1 million",
+        "filters": {
+          "population": ">1000000"
+        },
+        "subject": "cities"
+      },
+      {
+        "text": "Give me documents from the last seven days about crime reports in London",
+        "filters": {
+          "location": "POLYGON((-0.5103751 51.2867601,-0.5103751 51.6918741,0.3340155 51.6918741,0.3340155 51.2867601))",
+          "time_range": "-7d"
+        },
+        "subject": "crime reports"
+      }
+    ],
+    "signature": {
+      "instructions": "Let's think step by step in order to The user is looking for documents about the war in Ukraine written after 2022. Since I cannot retrieve documents, I must simply acknowledge the request and indicate that the task is complete. The filter should be the date and the subject should be the war in Ukraine.\nFilters: {'date': '>2022'}\nSubject: war in Ukraine",
+      "fields": [
+        {
+          "prefix": "Text:",
+          "description": "${text}"
+        },
+        {
+          "prefix": "Trajectory:",
+          "description": "${trajectory}"
+        },
+        {
+          "prefix": "Reasoning: Let's think step by step in order to",
+          "description": "${reasoning}"
+        },
+        {
+          "prefix": "Filters:",
+          "description": "a dictionary of filters extracted"
+        },
+        {
+          "prefix": "Subject:",
+          "description": "the subject keywords of the query"
+        }
+      ]
+    },
+    "lm": null
+  },
+  "metadata": {
+    "dependency_versions": {
+      "python": "3.13",
+      "dspy": "3.0.4",
+      "cloudpickle": "3.1"
+    }
+  }
+}

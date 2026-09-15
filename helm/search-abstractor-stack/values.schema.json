@@ -1,464 +1,668 @@
 {
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$defs": {
-        "base":{
-            "type": "object",
-            "properties": {
-                "global": {
-                    "$ref": "#/$defs/global"
-                },
-                "aes": {
-                    "$ref": "#/$defs/aes"
-                },
-                "content":{
-                    "$ref": "#/$defs/content"
-                },
-                "community":{
-                    "$ref": "#/$defs/community"
-                },
-                "ogs":{
-                    "$ref": "#/$defs/ogs"
-                },
-                "answerserver":{
-                    "$ref": "#/$defs/optional_object"
-                },
-                "view":{
-                    "$ref": "#/$defs/optional_object"
-                },
-                "nifi":{
-                    "$ref": "#/$defs/optional_object"
-                },
-                "qms":{
-                    "$ref": "#/$defs/optional_object"
-                },
-                "auth":{
-                    "$ref": "#/$defs/auth"
-                },
-                "saapiPostgresql":{
-                    "$ref": "#/$defs/saapiPostgresql"
-                },
-                "sessionapi":{
-                    "$ref": "#/$defs/sessionapi"
-                },
-                "saapi":{
-                    "$ref": "#/$defs/saapi"
-                },
-                "vllmdeployment":{
-                    "$ref": "#/$defs/optional_object"
-                },
-                "llavadeployment":{
-                    "$ref": "#/$defs/optional_object"
-                },
-                "distributedidol":{
-                    "$ref": "#/$defs/distributedidol"
-                }
-            },
-            "required": [
-                "aes",
-                "answerserver",
-                "auth",
-                "community",
-                "content",
-                "global",
-                "nifi",
-                "ogs",
-                "qms",
-                "saapi",
-                "sessionapi",
-                "saapiPostgresql",
-                "view",
-                "vllmdeployment",
-                "llavadeployment",
-                "distributedidol"
-            ],
-            "unevaluatedProperties": false
-        },
-        "global":{
-            "type": "object",
-            "properties":{
-                "idolVersion": {
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$defs": {
+    "aes": {
+      "properties": {
+        "key": {
+          "$ref": "#/$defs/required_string"
+        }
+      },
+      "required": [
+        "key"
+      ],
+      "type": "object"
+    },
+    "auth": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/optional_object"
+        }
+      ],
+      "properties": {
+        "additionalSecrets":{
+            "type":"object",
+            "patternProperties": {
+                ".+": {
                     "type": "string"
-                },
-                "imagePullSecrets": {
-                    "type": "array",
-                    "minItems": 1,
-                    "items": {
-                        "$ref": "#/$defs/required_string"
-                    }
                 }
-            },
-            "required":[
-                "imagePullSecrets"
-            ]
-        },
-        "optional_object":{
-            "type": "object",
-            "properties": {
-                "enabled": {
-                    "type": "boolean"
-                }
-            },
-            "required":[
-                "enabled"
-            ]
-        },
-        "required_string":{
-            "type": "string",
-            "minLength": 1
-        },
-        "image":{
-            "type": "object",
-            "properties":{
-                "registry": { "type": "string" },
-                "repo": { "type": "string"},
-                "version": { "type": "string"},
-                "pullPolicy": { "type": "string"}
-            },
-            "required":[
-                "registry","repo","version","pullPolicy"
-            ],
-            "unevaluatedProperties": false
-        },
-        "aes":{
-            "type": "object",
-            "properties": {
-                "key": {
-                    "$ref": "#/$defs/required_string"
-                }
-            },
-            "required":[
-                "key"
-            ]
-        },
-        "resources": {
-            "$ref": "#/$defs/optional_object"
-        },
-        "content":{
-            "type": "object",
-            "properties": {
-                "cfg":{
-                    "type": "object",
-                    "properties":{
-                        "fieldprocessing": {
-                            "type": "string"
-                        },
-                        "security": {
-                            "type": "string"
-                        }
-                    }
-                }
-            },
-            "allOf":[
-                { "$ref": "#/$defs/optional_object" }
-            ]
-        },
-        "distributedidol":{
-            "type": "object",
-            "properties": {
-                "content":{
-                    "type": "object"
-                },
-                "dah":{
-                    "type": "object"
-                },
-                "dih":{
-                    "type": "object"
-                }
-            },
-            "allOf":[
-                { "$ref": "#/$defs/optional_object" }
-            ],
-            "required":[
-                "content",
-                "dah",
-                "dih"
-            ]
-        },
-        "community":{
-            "type": "object",
-            "properties": {
-                "cfg":{
-                    "type": "object",
-                    "properties":{
-                        "overwrite": { "type": "boolean" },
-                        "security": { "type": "string" },
-                        "otds": { "type": "string" }
-                    }
-                }
-            },
-            "allOf":[
-                { "$ref": "#/$defs/optional_object" }
-            ]
-        },
-        "ogs":{
-            "type": "object",
-            "properties": {
-                "cfg":{
-                    "type": "object",
-                    "properties":{
-                        "overwrite": { "type": "boolean" },
-                        "repositories": { "type": "string" },
-                        "otds": { "type": "string" }
-                    }
-                }
-            },
-            "allOf":[
-                { "$ref": "#/$defs/optional_object" }
-            ]
-        },
-        "otdsdb": { "$ref": "#/$defs/optional_object" },
-        "google_auth_mode": {
-            "type": "string",
-            "enum": [ "serviceAccount", "credentials" ]
-        },
-        "auth":{
-            "type": "object",
-            "properties": {
-                "partition": { "type": "string" },
-                "simplePasswordPolicy": { "type": "boolean" },
-                "createAdminUsername": { "type": "string" },
-                "createAdminPassword": { "type": "string" },
-                "apiClient": { "type": "string" },
-                "apiClientSecret": { "type": "string" },
-                "ogsClient": { "type": "string" },
-                "ogsClientSecret": { "type": "string" },
-                "uiClient": { "type": "string" },
-                "uiUrls": { "type": "string" },
-                "usersFile": { "type": "string" },
-                "baseRealmRoles": { "type": "string" },
-                "refreshTokenExpiryTimeSeconds": { "type": "integer" },
-                "tokenExpiryTimeSeconds": { "type": "integer" },
-                "otdsws": { "type": "object" },
-                "userSecurity": { "$ref": "#/$defs/userSecurity" }
-            },
-            "allOf":[
-                { "$ref": "#/$defs/optional_object" }
-            ],
-            "required":[
-                "apiClient",
-                "apiClientSecret",
-                "baseRealmRoles",
-                "partition",
-                "tokenExpiryTimeSeconds",
-                "uiClient",
-                "uiUrls"
-            ]
-        },
-        "userSecurity": {
-            "type": "object",
-            "properties": {
-                "repository": { "type": "string" },
-                "resourceId": { "type": "string" },
-                "jwtUserField": { "type": "string" }
             }
         },
-        "saapiPostgresql": {
-            "$ref": "#/$defs/optional_object"
+        "apiClient": {
+          "type": "string"
         },
-        "sessionapi": {
-            "type": "object",
-            "properties": {
-                "name": { "$ref": "#/$defs/required_string" },
-                "replicas": { "type": "integer" },
-                "config": { "$ref": "#/$defs/required_string" },
-                "licensor": {
-                    "type": "object",
-                    "properties": {
-                        "name": { "$ref": "#/$defs/required_string" },
-                        "port": { "type": "integer" }
-                    },
-                    "required": [
-                        "name","port"
-                    ],
-                    "unevaluatedProperties": false
+        "apiClientSecret": {
+          "type": "string"
+        },
+
+        "createAdminPassword": {
+          "type": "string"
+        },
+        "createAdminUsername": {
+          "type": "string"
+        },
+        "external":{
+            "type":"object",
+            "properties":{
+                "host":{
+                    "type":"string"
                 },
-                "image": {"$ref": "#/$defs/image" },
-                "ingress": {
-                    "type": "object",
-                    "properties": {
-                        "enabled": { "type": "boolean" },
-                        "path": { "type": "string" },
-                        "host": { "type": "string" },
-                        "className": { "type": "string"}
-                    },
-                    "required": [
-                        "className","enabled","path","host"
-                    ],
-                    "unevaluatedProperties": false
+                "port":{
+                    "type":"integer"
                 },
-                "resources": { "$ref": "#/$defs/resources" },
-                "service": {
-                    "type": "object",
-                    "properties": {
-                        "name": { "$ref": "#/$defs/required_string" },
-                        "port": { "type": "integer" }
-                    },
-                    "required": [
-                        "name","port"
-                    ]
-                },
-                "additionalVolumes":{
-                    "type": "object"
-                },
-                "additionalVolumeMounts":{
-                   "type": "object"
+                "protocol":{
+                    "type":"string"
                 }
             },
-            "required": [
-                "name",
-                "replicas",
-                "image",
-                "service",
-                "licensor",
-                "config",
-                "ingress",
-                "resources"
-            ]
+            "required":["host","port","protocol"],
+            "unevaluatedProperties": false
         },
-        "saapi":{
+        "initEnabled": {
+          "type": "boolean"
+        },
+        "ogsClient": {
+          "type": "string"
+        },
+        "ogsClientSecret": {
+          "type": "string"
+        },
+        "otdsws": {
+          "type": "object"
+        },
+        "partition": {
+          "type": "string"
+        },
+        "refreshTokenExpiryTimeSeconds": {
+          "type": "integer"
+        },
+        "simplePasswordPolicy": {
+          "type": "boolean"
+        },
+        "tokenExpiryTimeSeconds": {
+          "type": "integer"
+        },
+        "uiClient": {
+          "type": "string"
+        },
+        "uiUrls": {
+          "type": "string"
+        },
+        "userSecurity": {
+          "$ref": "#/$defs/userSecurity"
+        },
+        "users":{
             "type": "object",
-            "properties":{
-                "name": { "$ref": "#/$defs/required_string" },
-                "replicas": { "type": "integer" },
-                "allowedOrigins": { "type": "string" },
-                "backendIdolHost": { "$ref": "#/$defs/required_string" },
-                "backendIdolPort": { "$ref": "#/$defs/required_string" },
-                "backendIdolContentHost": { "$ref": "#/$defs/required_string" },
-                "backendIdolContentPort": { "$ref": "#/$defs/required_string" },
-                "config": { "$ref": "#/$defs/required_string" },
-                "secret": { "$ref": "#/$defs/required_string" },
-                "httpCacheMaxAge": { "type": "integer", "minimum": 1 },
-                "backendApi":{
+            "patternProperties": {
+                ".+": {
                     "type": "object",
-                    "properties":{
-                        "name": { "$ref": "#/$defs/required_string" },
-                        "port": { "type": "integer"},
-                        "ingress": {
-                            "type": "object",
-                            "properties":{
-                                "enabled": { "type": "boolean" },
-                                "host": { "type": "string"},
-                                "className": { "type": "string"}
-                            },
-                            "required":[
-                                "className", "enabled","host"
-                            ],
-                            "unevaluatedProperties": false
+                    "properties": {
+                        "passwordEnv": {
+                            "type": "string"
+                        },
+                        "passwordTemporary": {
+                            "type": "boolean"
                         }
                     },
-                    "required":[
-                        "ingress",
-                        "name",
-                        "port"
-                    ],
-                    "unevaluatedProperties": false
-                },
-                "storage":{
-                    "type": "object",
-                    "properties":{
-                        "dbName": { "$ref": "#/$defs/required_string" },
-                        "maxFileSize":  { "$ref": "#/$defs/required_string" },
-                        "maxRequestSize":  { "$ref": "#/$defs/required_string" }
-                    },
-                    "required":[
-                        "dbName", "maxFileSize","maxRequestSize"
-                    ],
-                    "unevaluatedProperties": false
-                },
-                "image": {"$ref": "#/$defs/image" },
-                "ingress":{
-                    "type": "object",
-                    "properties":{
-                        "className": { "type": "string"},
-                        "host": { "type": "string"},
-                        "port": { "type": "integer" },
-                        "path": { "$ref": "#/$defs/required_string"}
-                    },
-                    "required":[
-                        "className","host","port","path"
-                    ],
-                    "unevaluatedProperties": false
-                },
-                "resources": { "$ref": "#/$defs/resources" },
-                "service":{
-                    "type": "object",
-                    "properties": {
-                        "name": { "$ref": "#/$defs/required_string"},
-                        "port": { "type": "integer" }
-                    },
-                    "required":[
-                        "name","port"
-                    ]
-                },
-                "additionalVolumes":{
-                    "type": "object"
-                },
-                "additionalVolumeMounts":{
-                   "type": "object"
-                },
-                "vertexai":{
-                    "type": "object",
-                    "properties":{
-                        "enabled": { "type": "boolean" },
-                        "project": { "type": "string" },
-                        "location": { "type": "string" },
-                        "model": { "type": "string" },
-                        "maxOutputTokens": { "type": "integer" },
-                        "authentication": { "$ref": "#/$defs/google_auth_mode" },
-                        "credentials": { "type": "object" }
-                    },
-                    "required": [
-                        "enabled",
-                        "authentication"
-                    ],
-                    "unevaluatedProperties": false
-                },
-                "vllm":{
-                    "type": "object",
-                    "properties":{
-                        "endpoint": { "$ref": "#/$defs/required_string" },
-                        "chatEndpoint": { "$ref": "#/$defs/required_string" },
-                        "model": { "$ref": "#/$defs/required_string" },
-                        "modelRevision": { "$ref": "#/$defs/required_string" },
-                        "HFToken": { "type": "string" },
-                        "llavaModel": { "type": "string" },
-                        "llavaEndpointBase": { "$ref": "#/$defs/required_string" },
-                        "openAiApiKey": { "type": "string" }
-                    },
-                    "required":[
-                        "endpoint",
-                        "chatEndpoint",
-                        "model",
-                        "modelRevision",
-                        "llavaModel",
-                        "llavaEndpointBase"
-                    ],
-                    "unevaluatedProperties": false
+                    "required": ["passwordEnv"]
+                }
+            }
+        }
+      },
+      "required": [
+        "apiClient",
+        "apiClientSecret",
+        "initEnabled",
+        "partition",
+        "tokenExpiryTimeSeconds",
+        "uiClient",
+        "uiUrls"
+      ],
+      "type": "object"
+    },
+    "base": {
+      "properties": {
+        "aes": {
+          "$ref": "#/$defs/aes"
+        },
+        "answerserver": {
+          "$ref": "#/$defs/optional_object"
+        },
+        "auth": {
+          "$ref": "#/$defs/auth"
+        },
+        "community": {
+          "$ref": "#/$defs/community"
+        },
+        "content": {
+          "$ref": "#/$defs/content"
+        },
+        "distributedidol": {
+          "$ref": "#/$defs/distributedidol"
+        },
+        "ext": {
+          "type": "object"
+        },
+        "global": {
+          "$ref": "#/$defs/global"
+        },
+        "idol-library": {
+          "type": "object"
+        },
+        "llavadeployment": {
+          "$ref": "#/$defs/optional_object"
+        },
+        "nifi": {
+          "$ref": "#/$defs/optional_object"
+        },
+        "ogs": {
+          "$ref": "#/$defs/ogs"
+        },
+        "otdsdb": {
+          "$ref": "#/$defs/optional_object"
+        },
+        "qms": {
+          "$ref": "#/$defs/optional_object"
+        },
+        "saapi": {
+          "$ref": "#/$defs/saapi"
+        },
+        "saapiPostgresql": {
+          "$ref": "#/$defs/saapiPostgresql"
+        },
+        "view": {
+          "$ref": "#/$defs/optional_object"
+        },
+        "vllmdeployment": {
+          "$ref": "#/$defs/optional_object"
+        }
+      },
+      "required": [
+        "aes",
+        "answerserver",
+        "auth",
+        "community",
+        "content",
+        "distributedidol",
+        "global",
+        "llavadeployment",
+        "nifi",
+        "ogs",
+        "qms",
+        "saapi",
+        "saapiPostgresql",
+        "view",
+        "vllmdeployment"
+      ],
+      "type": "object",
+      "unevaluatedProperties": false
+    },
+    "community": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/optional_object"
+        }
+      ],
+      "properties": {
+        "cfg": {
+          "properties": {
+            "otds": {
+              "type": "string"
+            },
+            "overwrite": {
+              "type": "boolean"
+            },
+            "security": {
+              "type": "string"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "type": "object"
+    },
+    "content": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/optional_object"
+        }
+      ],
+      "properties": {
+        "cfg": {
+          "properties": {
+            "fieldprocessing": {
+              "type": "string"
+            },
+            "security": {
+              "type": "string"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "type": "object"
+    },
+    "distributedidol": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/optional_object"
+        }
+      ],
+      "properties": {
+        "content": {
+          "type": "object"
+        },
+        "dah": {
+          "type": "object"
+        },
+        "dih": {
+          "type": "object"
+        }
+      },
+      "required": [
+        "content",
+        "dah",
+        "dih"
+      ],
+      "type": "object"
+    },
+    "global": {
+      "properties": {
+        "idolVersion": {
+          "type": "string"
+        },
+        "imagePullSecrets": {
+          "items": {
+            "$ref": "#/$defs/required_string"
+          },
+          "minItems": 1,
+          "type": "array"
+        }
+      },
+      "required": [
+        "imagePullSecrets"
+      ],
+      "type": "object"
+    },
+    "google_auth_mode": {
+      "enum": [
+        "serviceAccount",
+        "credentials"
+      ],
+      "type": "string"
+    },
+    "image": {
+      "properties": {
+        "pullPolicy": {
+          "type": "string"
+        },
+        "registry": {
+          "type": "string"
+        },
+        "repo": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "pullPolicy",
+        "registry",
+        "repo",
+        "version"
+      ],
+      "type": "object",
+      "unevaluatedProperties": false
+    },
+    "ogs": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/optional_object"
+        }
+      ],
+      "properties": {
+        "cfg": {
+          "properties": {
+            "otds": {
+              "type": "string"
+            },
+            "overwrite": {
+              "type": "boolean"
+            },
+            "repositories": {
+              "type": "string"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "type": "object"
+    },
+    "optional_object": {
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "enabled"
+      ],
+      "type": "object"
+    },
+    "otdsdb": {
+      "$ref": "#/$defs/optional_object"
+    },
+    "required_string": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "resources": {
+      "$ref": "#/$defs/optional_object"
+    },
+    "saapi": {
+      "properties": {
+        "additionalVolumeMounts": {
+          "type": "object"
+        },
+        "additionalVolumes": {
+          "type": "object"
+        },
+        "allowedOrigins": {
+          "type": "string"
+        },
+        "backendIdolAnswerServerHost": {
+          "$ref": "#/$defs/required_string"
+        },
+        "backendIdolAnswerServerPort": {
+          "$ref": "#/$defs/required_string"
+        },
+        "backendIdolAnswerServerSystemOrdering": {
+          "$ref": "#/$defs/required_string"
+        },
+        "backendIdolContentHost": {
+          "$ref": "#/$defs/required_string"
+        },
+        "backendIdolContentPort": {
+          "$ref": "#/$defs/required_string"
+        },
+        "backendIdolViewHost": {
+          "$ref": "#/$defs/required_string"
+        },
+        "backendIdolViewPort": {
+          "$ref": "#/$defs/required_string"
+        },
+        "backendIdolHost": {
+          "$ref": "#/$defs/required_string"
+        },
+        "backendIdolPort": {
+          "$ref": "#/$defs/required_string"
+        },
+        "config": {
+          "$ref": "#/$defs/required_string"
+        },
+        "httpCacheMaxAge": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "image": {
+          "$ref": "#/$defs/image"
+        },
+        "ingress": {
+          "properties": {
+            "className": {
+              "type": "string"
+            },
+            "host": {
+              "type": "string"
+            },
+            "path": {
+              "$ref": "#/$defs/required_string"
+            },
+            "port": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "className",
+            "host",
+            "port",
+            "path"
+          ],
+          "type": "object",
+          "unevaluatedProperties": false
+        },
+        "javaOpts": {
+          "type": "string"
+        },
+        "management": {
+            "type": "object",
+            "properties": {
+                "basePath": {
+                    "type": "string"
                 }
             },
-            "required":[
-                "name",
-                "replicas",
-                "allowedOrigins",
-                "backendIdolHost",
-                "backendIdolPort",
-                "backendIdolContentHost",
-                "backendIdolContentPort",
-                "config",
-                "secret",
-                "httpCacheMaxAge",
-                "image",
-                "backendApi",
-                "storage",
-                "ingress",
-                "resources",
-                "service",
-                "vllm"
-            ],
+            "required": ["basePath"],
             "unevaluatedProperties": false
+        },
+        "metadataPromptFile": {
+          "$ref": "#/$defs/required_string"
+        },
+        "name": {
+          "$ref": "#/$defs/required_string"
+        },
+        "replicas": {
+          "type": "integer"
+        },
+        "resources": {
+          "$ref": "#/$defs/resources"
+        },
+        "rewriteQueries": {
+          "type": "boolean"
+        },
+        "secret": {
+          "$ref": "#/$defs/required_string"
+        },
+        "security":{
+            "type":"object",
+            "properties":{
+                "trustedCertsPath":{
+                    "type":"string"
+                }
+            },
+            "required":["trustedCertsPath"],
+            "unevaluatedProperties": false
+        },
+        "service": {
+          "properties": {
+            "name": {
+              "$ref": "#/$defs/required_string"
+            },
+            "port": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "name",
+            "port"
+          ],
+          "type": "object"
+        },
+        "storage": {
+          "properties": {
+            "dbName": {
+              "$ref": "#/$defs/required_string"
+            },
+            "maxFileSize": {
+              "$ref": "#/$defs/required_string"
+            },
+            "maxRequestSize": {
+              "$ref": "#/$defs/required_string"
+            }
+          },
+          "required": [
+            "dbName",
+            "maxFileSize",
+            "maxRequestSize"
+          ],
+          "type": "object",
+          "unevaluatedProperties": false
+        },
+        "usingDiscoverIndex": {
+          "type": "boolean"
+        },
+        "llama": {
+          "properties": {
+            "apiKey": {
+              "type": "string"
+            },
+            "enabled": {
+              "type": "boolean"
+            },
+            "endpointBase": {
+              "$ref": "#/$defs/required_string"
+            },
+            "hfModel": {
+              "$ref": "#/$defs/required_string"
+            },
+            "modelRevision": {
+              "type": "string"
+            },
+            "hfToken": {
+              "type": "string"
+            },
+            "model": {
+              "$ref": "#/$defs/required_string"
+            },
+            "multimodal": {
+              "type": "boolean"
+            }
+          }
+        },
+        "vertexai": {
+          "properties": {
+            "authentication": {
+              "$ref": "#/$defs/google_auth_mode"
+            },
+            "credentials": {
+              "type": "object"
+            },
+            "enabled": {
+              "type": "boolean"
+            },
+            "location": {
+              "type": "string"
+            },
+            "maxOutputTokens": {
+              "type": "integer"
+            },
+            "model": {
+              "type": "string"
+            },
+            "project": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "authentication",
+            "enabled"
+          ],
+          "type": "object",
+          "unevaluatedProperties": false
+        },
+        "vllm": {
+          "properties": {
+            "HFToken": {
+              "type": "string"
+            },
+            "chatEndpoint": {
+              "$ref": "#/$defs/required_string"
+            },
+            "endpoint": {
+              "$ref": "#/$defs/required_string"
+            },
+            "llavaEndpointBase": {
+              "$ref": "#/$defs/required_string"
+            },
+            "llavaModel": {
+              "type": "string"
+            },
+            "model": {
+              "$ref": "#/$defs/required_string"
+            },
+            "modelRevision": {
+              "type": "string"
+            },
+            "openAiApiKey": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "chatEndpoint",
+            "endpoint",
+            "model",
+            "llavaEndpointBase",
+            "llavaModel"
+          ],
+          "type": "object",
+          "unevaluatedProperties": false
+        },
+        "sessionLicensor": {
+          "properties": {
+            "name": {
+              "$ref": "#/$defs/required_string"
+            },
+            "port": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "name",
+            "port"
+          ],
+          "type": "object",
+          "unevaluatedProperties": false
         }
+      },
+      "required": [
+        "allowedOrigins",
+        "backendIdolContentHost",
+        "backendIdolContentPort",
+        "backendIdolHost",
+        "backendIdolPort",
+        "config",
+        "httpCacheMaxAge",
+        "image",
+        "ingress",
+        "management",
+        "name",
+        "replicas",
+        "resources",
+        "secret",
+        "security",
+        "service",
+        "storage",
+        "usingDiscoverIndex",
+        "vllm",
+        "sessionLicensor"
+      ],
+      "type": "object",
+      "unevaluatedProperties": false
     },
-    "type": "object",
-    "$ref": "#/$defs/base",
-    "unevaluatedProperties": false
+    "saapiPostgresql": {
+      "$ref": "#/$defs/optional_object"
+    },
+    "userSecurity": {
+      "properties": {
+        "repository": {
+          "type": "string"
+        },
+        "resourceId": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  },
+  "$ref": "#/$defs/base",
+  "type": "object",
+  "unevaluatedProperties": false
 }
