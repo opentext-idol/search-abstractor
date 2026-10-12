@@ -39,6 +39,10 @@ VERTEX_PROJECT = os.getenv('OPENTEXT_VERTEX_PROJECT') or 'otl-csd-architecture'
 VERTEX_LOCATION = os.getenv('OPENTEXT_VERTEX_LOCATION') or 'us-east4'
 VERTEX_MODEL = os.getenv('OPENTEXT_VERTEX_MODEL') or 'gemini-2.5-flash'
 
+# An unrecognized VERTEX_MODEL is presumably newer than this SDK's tokenizer map,
+# so fall back to the newest tokenizer family known to it.
+FALLBACK_TOKENIZER_MODEL = 'gemini-3.1-flash-lite'
+
 # If not provided, "credentials will be ascertained from the environment"
 # https://cloud.google.com/vertex-ai/generative-ai/docs/reference/python/latest/vertexai#vertexai_init
 VERTEX_CREDENTIALS = os.getenv('OPENTEXT_VERTEX_CREDENTIALS')
@@ -63,7 +67,21 @@ vertex_generation_config = types.GenerateContentConfig(
     candidate_count=1,
     max_output_tokens={{ .Values.saapi.vertexai.maxOutputTokens | default 8192 | int }} or None,
 )
-vertex_tokenizer = LocalTokenizer(model_name=VERTEX_MODEL)
+try:
+    vertex_tokenizer = LocalTokenizer(model_name=VERTEX_MODEL)
+except ValueError:
+    # Some preview models may not be supported yet by LocalTokenizer - verify the model actually exists
+    # before falling back, so that a completely invalid model name is still an error.
+    vertex_client.models.get(model=VERTEX_MODEL)
+    # VERTEX_MODEL is presumably a real but newer-than-this-SDK Gemini model;
+    # approximate token counts using the newest known model's tokenizer instead
+    # of failing to start.
+    warnings.warn(
+        f"No local tokenizer known for model '{VERTEX_MODEL}'; falling back to "
+        f"'{FALLBACK_TOKENIZER_MODEL}' for token counting purposes.",
+        RuntimeWarning,
+    )
+    vertex_tokenizer = LocalTokenizer(model_name=FALLBACK_TOKENIZER_MODEL)
 
 def get_text_from_response(response: types.GenerateContentResponse) -> str:
     '''

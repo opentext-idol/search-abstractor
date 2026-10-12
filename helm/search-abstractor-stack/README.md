@@ -1,6 +1,6 @@
 # search-abstractor-stack
 
-![Version: 26.3.0](https://img.shields.io/badge/Version-26.3.0-informational?style=flat-square) ![AppVersion: 26.3.0](https://img.shields.io/badge/AppVersion-26.3.0-informational?style=flat-square)
+![Version: 26.4.0-16014459-2](https://img.shields.io/badge/Version-26.4.0-16014459-2-informational?style=flat-square) ![AppVersion: 26.4.0](https://img.shields.io/badge/AppVersion-26.4.0-informational?style=flat-square)
 
 Provides an IDOL setup for Retrieval-augmented generation (RAG)
 
@@ -236,7 +236,7 @@ classDef c_set stroke:#000000,fill:#ff99cc,color:#000000;
 | saapi.image.pullPolicy | string | `"Always"` | The policy to use to determine whether to pull the specified image (see https://kubernetes.io/docs/concepts/containers/images/#image-pull-policy) |
 | saapi.image.registry | string | `"microfocusidolserver"` | The registry value to use to construct the container image name: {registry}/{repo}:{version} |
 | saapi.image.repo | string | `"search-abstractor-api-service"` | The repository value to use to construct the container image name: {registry}/{repo}:{version} |
-| saapi.image.version | string | `"26.3.0"` | The version value to use to construct the container image name: {registry}/{repo}:{version} |
+| saapi.image.version | string | `"26.4.0"` | The version value to use to construct the container image name: {registry}/{repo}:{version} |
 | saapi.ingress.className | string | `""` | Optional parameter to override the default ingress class |
 | saapi.ingress.host | string | `""` | Optional ingress host (see https://kubernetes.io/docs/concepts/services-networking/ingress/#ingress-rules). |
 | saapi.ingress.path | string | `"/api/"` | Ingress controller path exposing API (should end with /) |
@@ -252,6 +252,7 @@ classDef c_set stroke:#000000,fill:#ff99cc,color:#000000;
 | saapi.llama.multimodal | bool | `false` | Is the model multimodal (i.e. does it support image inputs?) If it is, it will also be used for image processing at ingest time |
 | saapi.management.basePath | string | `"/actuator/"` | base path for management functions; e.g. healthcheck (must begin and end with a slash) |
 | saapi.metadataPromptFile | string | `"resources/filters_mistral.json"` | Prompt file to use for LLM-based metadata filter extraction (used when rewriteQueries is true) |
+| saapi.modelsOffline | bool | `true` | Whether tokenizers/models should be considered offline (only able to use models precached in the container images) |
 | saapi.name | string | `"saapi-api-service"` | Deployment name |
 | saapi.replicas | int | `1` | Deployment replicas |
 | saapi.resources | object | `{"enabled":false,"limits":{"cpu":"200m","memory":"1Gi"},"requests":{"cpu":"200m","memory":"1Gi"}}` | Optional resources for Search Abstractor API container (see https://kubernetes.io/docs/concepts/configuration/manage-resources-containers) |
