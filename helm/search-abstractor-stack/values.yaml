@@ -115,7 +115,7 @@ answerserver:
   enabled: true
   idolImage:
     repo: answerserver-searchabstractor
-    version: &saAciVersion "26.3.0"
+    version: &saAciVersion "26.4.0"
   single-content:
     enabled: false
   factbank:
@@ -409,7 +409,7 @@ saapi:
     # -- The repository value to use to construct the container image name: {registry}/{repo}:{version}
     repo: search-abstractor-api-service
     # -- The version value to use to construct the container image name: {registry}/{repo}:{version}
-    version: "26.3.0"
+    version: "26.4.0"
      # -- The policy to use to determine whether to pull the specified image (see https://kubernetes.io/docs/concepts/containers/images/#image-pull-policy)
     pullPolicy: Always
   management:
@@ -566,6 +566,8 @@ saapi:
     # -- The OpenAI API key to use for the endpoint
     openAiApiKey: "My API Key"
   javaOpts: ""
+  # -- Whether tokenizers/models should be considered offline (only able to use models precached in the container images)
+  modelsOffline: true
 
 # -- VLLM subchart values (see https://github.com/substratusai/helm/blob/main/charts/vllm/README.md) - not enabled by default
 # @default -- default configuration for search-abstractor VLLM deployment

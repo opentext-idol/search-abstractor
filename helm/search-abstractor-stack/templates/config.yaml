@@ -102,6 +102,9 @@ data:
   OPENTEXT_LLAMA_HUGGINGFACE_API_TOKEN: {{ .Values.saapi.llama.hfToken }}
   {{- end }}
   {{- end }}
+  {{- if .Values.saapi.modelsOffline }}
+  HF_HUB_OFFLINE: "true"
+  {{- end }}
 ---
 apiVersion: v1
 kind: ConfigMap

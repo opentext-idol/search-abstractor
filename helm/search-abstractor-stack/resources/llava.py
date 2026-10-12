@@ -18,10 +18,15 @@
 # license.
 #
 
-from idolnifi import DocumentModifier, executePython, ReadMode, getPropertyDescriptor
+from idolnifi import DocumentModifier, executePython, ReadMode, getPropertyDescriptor, logInfo
 
 import base64
 import importlib.util
+import re
+
+SYSTEM_PROMPT = "You are an image captioning assistant. Respond only with a plain-prose description of the image. Never call tools, functions or output code."
+# Some models (e.g. Llama 4) can reply with a hallucinated tool call such as analyze_image(image="...") instead of a description
+TOOL_CALL_PATTERN = re.compile(r'^\s*\w+\(.*\)\s*$', re.DOTALL)
 
 def processFile(a, openai_llava_model, openai_llava_endpoint_base, openai_llava_api_key):
     content = None
@@ -46,6 +51,9 @@ def processFile(a, openai_llava_model, openai_llava_endpoint_base, openai_llava_
             max_tokens=500,
             n=1,
             messages=[{
+                "role": "system",
+                "content": SYSTEM_PROMPT,
+            }, {
                 "role": "user",
                 "content": [
                     {"type": "text", "text": "What's in this image? Be factual in your response."},
@@ -61,7 +69,13 @@ def processFile(a, openai_llava_model, openai_llava_endpoint_base, openai_llava_
         content = chat_response.choices[0].message.content
     a.readFile(processFileCallback, ReadMode.READ_AND_KEEP)
     xml_metadata = a.getXmlMetadata()
-    xml_metadata.addChild("LLAVA_DESCRIPTION").setValue(content)
+    if not content or TOOL_CALL_PATTERN.match(content):
+        logInfo(f"Discarding unusable image description: {content!r}")
+        # Parametric (not text-indexed) so failures can be found with fieldtext without polluting search
+        xml_metadata.addChild("LLAVA_STATUS_PARAM").setValue("FAILED")
+    else:
+        xml_metadata.addChild("LLAVA_DESCRIPTION").setValue(content)
+        xml_metadata.addChild("LLAVA_STATUS_PARAM").setValue("SUCCESS")
     a.setXmlMetadataString(xml_metadata.toString())
 
 def handler(doc, context):
